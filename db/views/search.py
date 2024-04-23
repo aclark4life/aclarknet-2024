@@ -17,7 +17,7 @@ from .base import BaseView
 
 
 class SearchView(UserPassesTestMixin, BaseView, ListView):
-    template_name = "search.html"
+    template_name = "index.html"
     search = True
 
     def test_func(self):

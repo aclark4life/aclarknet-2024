@@ -1,0 +1,23 @@
+{% load babel humanize tz %}
+<div class="table-responsive border rounded">
+    <table class="table table-striped my-0">
+        <tbody>
+            <tr>
+                <th valign="top">created</th>
+                <td>{{ object.created }}</td>
+            </tr>
+            <tr>
+                <th valign="top">updated</th>
+                <td>{{ object.updated }}</td>
+            </tr>
+            {% for field_name, field_value in object_field_values %}
+                <tr>
+                    <th>{{ field_name }}</th>
+                    <td>
+                        {% include 'table/field_value.html' %}
+                    </th>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

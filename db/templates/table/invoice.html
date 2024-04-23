@@ -1,0 +1,140 @@
+{% load babel humanize %}
+<html lang="en">
+    <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500&display=swap"
+              rel="stylesheet">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div style="text-align: center;">
+            <h1 style="text-align: left; margin: 0; border-bottom: 1px solid #ddd;">{{ doc_type|upper }}</h1>
+            <table style="margin: auto;">
+                <tr style="padding: 8px 0;">
+                    <td valign="top"
+                        style="text-align: right;
+                               font-weight: bold;
+                               padding: 3px 3px 0 0;
+                               border-right: 1px solid #ddd">Subject</td>
+                    <td style="text-align: left; padding: 3px 0 8px 3px;">
+                        <div>{{ object.subject }}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top"
+                        style="text-align: right;
+                               font-weight: bold;
+                               padding: 3px 3px 0 0;
+                               width: 15%;
+                               border-right: 1px solid #ddd">Number</td>
+                    <td valign="top" style="text-align: left; padding: 3px 0 8px 3px;">{{ object.id }}</td>
+                    <td valign="top"
+                        style="text-align: right;
+                               font-weight: bold;
+                               padding: 3px 3px 0 0;
+                               border-right: 1px solid #ddd">From</td>
+                    <td style="text-align: left; padding: 3px 0 8px 3px; width: 30%;">
+                        <div>
+                            {{ object.company }}
+                            <br>
+                            {{ object.company.address }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top"
+                        style="text-align: right;
+                               font-weight: bold;
+                               padding: 3px 3px 0 0;
+                               border-right: 1px solid #ddd">Issue Date</td>
+                    <td valign="top" style="text-align: left; padding: 3px 0 8px 3px;">{{ object.issue_date }}</td>
+                    <td valign="top"
+                        style="text-align: right;
+                               font-weight: bold;
+                               border-right: 1px solid #ddd;
+                               padding: 3px 3px 0 0">
+                        {% if object.client %}For{% endif %}
+                    </td>
+                    <td style="text-align: left; padding: 0 0 8px 3px;">
+                        {% if object.client %}
+                            {{ object.client }}
+                            <br>
+                            {{ object.client.address }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top"
+                        style="text-align: right;
+                               font-weight: bold;
+                               padding: 0 3px 0 0;
+                               border-right: 1px solid #ddd">Performance Period</td>
+                    <td style="text-align: left; padding: 0 0 8px 3px;">
+                        <div>{{ object.start_date }}&mdash;{{ object.end_date }}</div>
+                    </td>
+                    <td valign="top"
+                        style="text-align: right;
+                               font-weight: bold;
+                               padding: 0 3px 0 0;
+                               border-right: 1px solid #ddd">
+                        {% if object.due_date %}Due Date{% endif %}
+                    </td>
+                    <td valign="top" style="text-align: left; padding: 0 0 8px 3px;">
+                        {% if object.due_date %}{{ object.due_date }}{% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <tr>
+                <th style="border: 1px solid #ddd;
+                           background-color: #f2f2f2;
+                           padding: 8px;
+                           text-align: left">Date</th>
+                <th style="border: 1px solid #ddd;
+                           background-color: #f2f2f2;
+                           padding: 8px;
+                           text-align: left">Task</th>
+                <th style="border: 1px solid #ddd;
+                           background-color: #f2f2f2;
+                           padding: 8px;
+                           text-align: left">Description</th>
+                <th style="border: 1px solid #ddd;
+                           background-color: #f2f2f2;
+                           padding: 8px;
+                           text-align: left">Quantity</th>
+                <th style="border: 1px solid #ddd;
+                           background-color: #f2f2f2;
+                           padding: 8px;
+                           text-align: left">Unit Price</th>
+                <th style="border: 1px solid #ddd;
+                           background-color: #f2f2f2;
+                           padding: 8px;
+                           text-align: left">Amount</th>
+            </tr>
+            {% for time_entry in times %}
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.date }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.task }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.description }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.hours|floatformat:2|intcomma }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
+                        {% if object.doc_type == "task-order" %}
+                            {{ time_entry.user.profile.rate|default:0|currencyfmt:"USD" }}
+                        {% else %}
+                            {{ time_entry.project.task.rate|default:0|currencyfmt:"USD" }}
+                        {% endif %}
+                    </td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
+                        {{ time_entry.amount|default:0|currencyfmt:"USD" }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <p style="text-align: right; margin-bottom: 0;">
+            <strong>Total Amount:</strong> {{ object.amount|default:0|currencyfmt:"USD" }}
+        </p>
+    </body>
+</html>

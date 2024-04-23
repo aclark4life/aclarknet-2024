@@ -1,0 +1,15 @@
+{% extends 'dashboard/index.html' %}
+{% block dashboard_title %}
+    {% include 'title_block.html' %}
+{% endblock %}
+{% block dashhead_title %}
+    <h2 class="dashhead-title">
+        <a class="text-decoration-none text-secondary"
+           href="{% url model_name|add:'_index' %}">{{ model_name_plural|title }}</a>
+        <i class="fa-solid fa-angle-right"></i> {{ model_name|title }}
+    </h2>
+{% endblock %}
+{% block dashboard %}
+    {% include 'toolbars/view/index.html' %}
+    {% include 'table/view.html' %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'dashboard/index.html' %}
+{% block dashboard_title %}
+    <a class="text-decoration-none text-secondary"
+       href="{% url urls.url_index %}">{{ model_name_plural|title }}</a>
+{% endblock %}
+{% block dashhead_title %}
+    <h2 class="dashhead-title">
+        <a class="text-decoration-none text-secondary"
+           href="{% url urls.url_index %}">{{ model_name_plural|title }}</a>
+    </h2>
+{% endblock %}
+{% block dashboard %}
+    {% with items=object_list %}
+        {% include 'toolbars/index.html' %}
+        {% include 'table/index.html' %}
+        {% include 'toolbars/index.html' %}
+    {% endwith %}
+{% endblock %}
