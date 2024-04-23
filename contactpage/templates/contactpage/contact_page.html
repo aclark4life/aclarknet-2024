@@ -1,11 +1,51 @@
 {% extends 'base.html' %}
+{% comment %}
+
+Via ChatGPT
+
+    Internet search engine
+    Social media
+    Referral from a friend or family member
+    Advertisement (online or offline)
+    Email marketing
+    Website or blog
+    Event or conference
+    Other (with an optional text field for additional details)
+
+{% endcomment %}
 {% load crispy_forms_tags static wagtailcore_tags %}
 {% block content %}
-    <h1>{{ page.title }}</h1>
-    {{ page.intro|richtext }}
-    <form action="{% pageurl page %}" method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit">
-    </form>
+    <div class="app-iphone-block" id="contact-us">
+        <div class="container">
+            <div class="row align-items-center my-5">
+                <div class="col-md-6 col-sm-12 me-auto border rounded">
+                    <h5 class="text-uppercase text-center my-3">Contact Us</h5>
+                    {{ page.intro|richtext }}
+                    <form class="bg-transparent" action="{% pageurl page %}" method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <button class="btn btn-light block text-center border my-3" type="submit">Submit</button>
+                    </form>
+                </div>
+                <div class="col-md-5 text-center my-3">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d198740.9231454618!2d-77.17938484689716!3d38.8936386655496!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89b7c6de5af6e45b%3A0xc2524522d4885d2a!2sWashington%2C%20DC!5e0!3m2!1sen!2sus!4v1705871121684!5m2!1sen!2sus"
+                                style="border:0"
+                                allowfullscreen=""
+                                loading="lazy"
+                                title="Google Maps"
+                                class="border rounded p-3"
+                                referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    <p class="p-3">We are located in suburban Washington, DC, USA.</p>
+                    {% comment %}
+                    <a target="_blank" href="https://www.flickr.com/photos/lorax4096/3954596894">
+                        <img class="img-fluid img-thumbnail d-none d-md-inline" src="{% static 'img/bethesda-fountain.jpg' %}" style="width: 100%">
+                        <span class="visually-hidden">Link text</span>
+                    </a>
+                    {% endcomment %}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

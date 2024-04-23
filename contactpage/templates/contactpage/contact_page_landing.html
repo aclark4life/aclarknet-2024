@@ -1,6 +1,29 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags static wagtailcore_tags %}
 {% block content %}
-    <div class="container">
-        <h1>Thank you!</h1>
+    <div class="app-iphone-block" id="contact-us">
+        <div class="container">
+            <div class="row align-items-center my-5">
+                <div class="col-md-6 col-sm-12 me-auto">
+                    <h5 class="text-uppercase text-center border rounded my-5 p-5">
+                        <a class="text-decoration-none" href="/contact-us">Contact Us</a>
+                    </h5>
+                    <h5 class="text-center my-5">Thank you! Looking forward to helping. We'll be in touch soon.</h5>
+                </div>
+                <div class="col-md-5">
+                    <a target="_blank"
+                       href="https://www.flickr.com/photos/lorax4096/3954596894">
+                        <img class="img-fluid img-thumbnail d-none d-md-inline"
+                             src="{% static 'img/bethesda-fountain.jpg' %}"
+                             style="width: 100%">
+                        <span class="visually-hidden">Link text</span>
+                    </a>
+                    <div class="text-center my-3 mt-sm-5">
+                        <h5>ACLARK.NET, LLC</h5>
+                        <h5>Bethesda, MD, USA</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
