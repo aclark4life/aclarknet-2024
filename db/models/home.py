@@ -1,7 +1,10 @@
+import random
+
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import StreamField
 from wagtail.models import Page
 from db.models.blocks import MarketingBlock
+from db.models.testimonial import Testimonial
 
 
 class HomePage(Page):
