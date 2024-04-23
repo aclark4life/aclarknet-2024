@@ -19,7 +19,6 @@ urlpatterns = [
     path("modelformtest/", include("modelformtest.urls")),
     path("resume/", include("resume.urls")),
     path("dashboard/", include("db.urls")),
-    path("", include("blog.urls")),
 ]
 
 if settings.DEBUG:
@@ -61,6 +60,10 @@ urlpatterns += [
 
 urlpatterns += [
     path("hijack/", include("hijack.urls")),
+]
+
+urlpatterns += [
+    path("", include("blog.urls")),
 ]
 
 urlpatterns += [
