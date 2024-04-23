@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Test Models List</h1>
+    <ul>
+        {% for test_model in test_models %}
+            <li><a href="{% url 'test_model_detail' test_model.pk %}">{{ test_model.name }}</a></li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'test_model_create' %}">Create New Test Model</a>
+{% endblock %}

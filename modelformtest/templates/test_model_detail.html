@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Test Model Detail: {{ test_model.name }}</h1>
+    <p>Name: {{ test_model.name }}</p>
+    <p>Email: {{ test_model.email }}</p>
+    <p>Age: {{ test_model.age }}</p>
+    <p>Active: {{ test_model.is_active }}</p>
+    <p>Created At: {{ test_model.created_at }}</p>
+    <a href="{% url 'test_model_update' test_model.pk %}">Edit Test Model</a>
+{% endblock %}
