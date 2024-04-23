@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+
 class BaseModel(models.Model):
     created = models.DateTimeField(default=timezone.now, editable=False)
     updated = models.DateTimeField(default=timezone.now)

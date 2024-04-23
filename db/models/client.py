@@ -1,5 +1,4 @@
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
 from taggit.managers import TaggableManager
 
 from db.models.base import BaseModel

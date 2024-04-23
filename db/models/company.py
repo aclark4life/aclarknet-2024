@@ -1,6 +1,7 @@
 from django.db import models
 from db.models.base import BaseModel
 
+
 class Company(BaseModel):
     address = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
