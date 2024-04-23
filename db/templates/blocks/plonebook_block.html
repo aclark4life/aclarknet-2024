@@ -1,0 +1,34 @@
+{% load static %}
+<div class="block block-inverse block-secondary app-code-block" id="book">
+    <div class="container">
+        <div class="row my-5 align-items-center">
+            <div class="col-md-6">
+                <h2 class="text-uppercase my-5">Plone 3.3 Site Administration</h2>
+                <h2>
+                    In this book Alex Clark helps Plone users to create, deploy, and maintain all versions of Plone up to and including the latest version.
+                </h2>
+                <p>
+                    The text covers Plone basics from a site administrator's perspective including (but not limited to) instructions on how to:
+                </p>
+                <ul>
+                    <li>Learn the use of Buildout to develop, deploy, and maintain a modern Plone site.</li>
+                    <li>Enhance the functionality and appearance of your web site by using third-party add-ons.</li>
+                    <li>Learn to use many useful Buildout recipes available to download from the Python Package Index.</li>
+                </ul>
+                <a class="btn block btn-lg btn-warning my-5"
+                   href="https://www.packtpub.com/product/plone-33-site-administration/9781847197047"
+                   target="_blank">Buy book</a>
+            </div>
+            <div class="col-md-6 p-5">
+                {% with img_src='img/7047_plone20site20admincov.jpg' %}
+                    <a href="#imageModal"
+                       data-bs-toggle="modal"
+                       data-bs-target="#imageModal">
+                        <img class="img-fluid img-thumbnail m-5 w-3"
+                             src="{% static 'img/7047_plone20site20admincov.jpg' %}">
+                    </a>
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>

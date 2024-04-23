@@ -1,0 +1,31 @@
+<div class="container text-center py-5">
+    <div class="row mb-5 justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <h2 class="text-uppercase text-muted mb-2">A partial list of valued clients</h2>
+        </div>
+    </div>
+    <div class="row">
+        {% for tag, clients in categories.items %}
+            <div class="col-md-3 px-4 pb-2 mb-5">
+                <div class="px-2 mb-2">
+                    <ul class="list-unstyled mb-5">
+                        <li>
+                            <div class="text-uppercase p-3 border-top border-bottom h6">{{ tag }}</div>
+                        </li>
+                    </ul>
+                </div>
+                <ul class="list-unstyled text-xs-left">
+                    {% for client in clients %}
+                        <li class="py-1">
+                            {% if client.link %}
+                                <a class="text-decoration-none" target="_blank" href="{{ client.url }}">{{ client }}</a>
+                            {% else %}
+                                {{ client }}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+</div>

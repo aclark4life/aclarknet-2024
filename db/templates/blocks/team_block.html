@@ -1,0 +1,70 @@
+{% load static %}
+<div class="container py-5" id="team">
+    <div class="row">
+        <h2 class="text-center text-uppercase my-5">Management</h2>
+        <div class="col-md-6 px-4 pb-2 mb-5">
+            <div class="px-2 mb-2 text-center">
+                <img class="mb-4 border border-muted p-4"
+                     src="{% static 'img/alex.png' %}">
+                <h2>Jeffrey A. Clark</h2>
+                <div class="text-uppercase mb-4 h6">President &amp; Co-Founder</div>
+            </div>
+            <ul class="list-unstyled list-inline text-center">
+                <li class="list-inline-item px-1">
+                    <a target="_blank" href="https://github.com/aclark4life"><i class="text-muted fab fa-github-square fa-2x"></i><span class="visually-hidden">Link text</span></a>
+                </li>
+                <li class="list-inline-item px-1">
+                    <a target="_blank" href="https://linkedin.com/in/aclark4life"><i class="text-muted fab fa-linkedin fa-2x"></i><span class="visually-hidden">Link text</span></a>
+                </li>
+                <li class="list-inline-item px-1">
+                    <a target="_blank" href="https://fosstodon.org/@aclark"><i class="text-muted fa-brands fa-mastodon fa-2x"></i><span class="visually-hidden">Link text</span></a>
+                </li>
+                <li class="list-inline-item px-1">
+                    <a target="_blank" href="https://twitter.com/aclark4life"><i class="text-muted fab fa-x-twitter fa-2x"></i><span class="visually-hidden">Link text</span></a>
+                </li>
+            </ul>
+            <div class="border-bottom border-top pt-4">
+                <p>
+                    Jeffrey A. Clark (Alex) is President and Co-Founder of ACLARK.NET, LLC. Alex holds a Bachelor of Science (B.S.) in Computer Science from Loyola University in Maryland. He brings extensive, professional technical experience and expertise to ACLARK.NET LLC. Since 1998, Alex has been a Subject Matter Expert, Network Engineer, Software Engineer, Systems Administrator and Technical Team Leader.
+                </p>
+                <p>
+                    Alex Clark is the President & Executive Director of DC Python, a non-profit organization he co-founded in 2008 to promote and support the use of Python software in the Washington, D.C. area and beyond.
+                </p>
+            </div>
+            {% include 'btn-group-alex.html' %}
+        </div>
+        <div class="col-md-6 px-4 pb-2 mb-5">
+            <div class="px-2 text-center">
+                <img class="mb-4 border border-muted p-4" src="{% static 'img/amy.png' %}">
+                <h2>Amy Clark</h2>
+                <div class="text-uppercase mb-4 h6">Director of Operations &amp; Co-Founder</div>
+            </div>
+            <ul class="list-unstyled list-inline text-center">
+                <li class="list-inline-item px-1">
+                    <a target="_blank" href="https://www.linkedin.com/in/aec0000/"><i class="text-muted fab fa-linkedin fa-2x"></i><span class="visually-hidden">Link text</span></a>
+                </li>
+            </ul>
+            <div class="border-bottom border-top pt-4">
+                <p>
+                    Amy Clark is Director of Operations and Co-Founder of ACLARK.NET, LLC. She brings many years of professional sales, marketing, business management, and administrative knowledge and experience to the ACLARK.NET, LLC team. She ensures seamless, uncomplicated engagement of our services.
+                </p>
+                <p>
+                    Amy is the Secretary and Treasurer of ZPUGDC, INC.- DC Python, a non-profit organization she co-founded in 2008 to promote and support Python and open source software.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 px-4 pb-2 mx-auto">
+            <div class="px-2 text-center">
+                <h2 class="text-uppercase mb-2">Additional Developers</h2>
+            </div>
+            <div class="border-bottom border-top pt-4 text-center">
+                <i class="fa fa-users fa-5x my-3"></i>
+                <p class="py-2 text-start">
+                    The ACLARK.NET, LLC. in-house development team includes talented professionals with technical expertise in areas of UI/UX, Cloud Management, Data Science and Artificial Intelligence.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
