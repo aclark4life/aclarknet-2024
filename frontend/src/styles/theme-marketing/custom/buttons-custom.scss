@@ -1,0 +1,27 @@
+// Custom button styles
+.btn {
+  text-transform: $btn-text-transform;
+  letter-spacing: $btn-letter-spacing;
+}
+
+.btn-borderless {
+  border: 0;
+}
+
+// More buttons
+.btn-more::after {
+  position: relative;
+  top: 1px;
+  content: "〉";
+  display: inline-block;
+  padding-left: 0.3em;
+  color: inherit;
+}
+
+.btn-group-justified {
+  &.btn-group-justified-spaced {
+    width: calc(100% + 10px);
+    margin-left: -5px;
+    border-spacing: 5px;
+  }
+}

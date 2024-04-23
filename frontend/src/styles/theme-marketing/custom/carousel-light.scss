@@ -1,0 +1,20 @@
+.carousel-light {
+  .carousel-control-next,
+  .carousel-control-prev {
+    text-shadow: none;
+    color: rgb(0 0 0 / 30%);
+    background-image: none;
+  }
+
+  .carousel-indicators {
+    li {
+      background-color: rgb(0 0 0 / 30%);
+      border: 0;
+    }
+
+    .active {
+      background-color: #fff;
+      border: 1px solid theme-color("primary");
+    }
+  }
+}

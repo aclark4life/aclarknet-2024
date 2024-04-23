@@ -1,0 +1,18 @@
+// Nav header
+
+.nav {
+  > .nav-header {
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-bottom: 5px;
+    font-size: 85%;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgb(67 72 87);
+  }
+
+  > li + .nav-header {
+    margin-top: 20px;
+  }
+}

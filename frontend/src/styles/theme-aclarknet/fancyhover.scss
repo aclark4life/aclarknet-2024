@@ -1,0 +1,52 @@
+/* Remove default underline and adjust color */
+.app-header .nav-link {
+  text-decoration: none;
+  color: white !important;
+  position: relative;
+  transition: color 0.3s ease;
+  text-transform: uppercase;
+}
+
+// .navbar-brand:hover {
+//   border-color: lightgray !important;
+// }
+
+// a.navbar-brand:hover {
+//   color: lightgray !important;
+// }
+
+/* Change text color on hover */
+.app-header .nav-link:not(.exclude-from-hover):hover {
+  color: lightgray !important;
+}
+
+/* Change text color on hover */
+.exclude-from-hover:hover {
+  color: lightgray !important;
+}
+
+/* Create a fancy underline effect */
+.app-header .nav-link:not(.exclude-from-hover)::before {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: lightgray;
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+/* Expand the underline on hover */
+.app-header .nav-link:not(.exclude-from-hover):hover::before {
+  transform-origin: right center;
+  transform: scaleX(1);
+}
+
+/* Style for active nav element */
+.app-header .nav-link.active::before {
+  transform-origin: right center;
+  transform: scaleX(1);
+}

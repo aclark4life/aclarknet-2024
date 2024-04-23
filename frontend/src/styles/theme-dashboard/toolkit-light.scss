@@ -1,0 +1,27 @@
+@import "./variables.scss";
+@import "./components.scss";
+
+// Styles for light theme
+[data-bs-theme="light"] {
+  a.list-group-item:hover {
+    background-color: #ededed !important;
+  }
+
+  .dashhead-form input {
+    background: white;
+    color: black;
+  }
+
+  .btn-secondary {
+    background: white !important;
+    color: black;
+  }
+
+  .btn-secondary:hover {
+    color: black;
+  }
+
+  .accordion-button:hover {
+      background: #f5f5f5 !important;    
+  }
+}

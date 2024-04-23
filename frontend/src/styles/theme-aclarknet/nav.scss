@@ -1,0 +1,53 @@
+#ribbon-block:hover, #highpraise-block:hover {
+    color: lightgray !important;
+}
+
+.navbar-brand {
+  display: inline-block;
+  padding: 10px;
+
+  // border: 2px solid #3498db;
+  // font-family: 'sans-serif';
+  // font-size: 36px;
+  // font-weight: bold;
+  color: #3498db;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  // text-shadow: 2px 2px 4px #3498db;
+  transition: color 0.3s ease, text-shadow 0.3s ease; /* Add transition for a smoother hover effect */
+}
+
+.navbar-brand:hover {
+  color: #4285f4; /* Lighter hover color */
+
+  // text-shadow: 3px 3px 5px #3498db;
+}
+
+.app-header {
+  background-image: url('../images/startup-1.webp');
+  background-position: center;
+  background-repeat: repeat-x;
+}
+
+.app-graph {
+  background-image: url('../images/startup-0.svg');
+  background-position: 0 180px;
+}
+
+.list-inline-item .active {  // footer nav
+  color: white !important;
+}
+
+footer {
+  background: #212529;
+  color: white;
+}
+
+.nav-link {
+  color: white !important;
+}
+
+.navbar-nav .nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+}
