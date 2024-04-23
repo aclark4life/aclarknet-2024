@@ -1,0 +1,12 @@
+<div class="d-flex justify-content-between my-1">
+    <div class="ms-auto">
+        {% if pk %}
+            <a class="m-3 align-middle link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-25-hover"
+               href="{% url model_name|add:'_view' pk %}">Cancel</a>
+        {% else %}
+            <a class="m-3 align-middle link-secondary link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-25-hover"
+               href="{% url urls.url_cancel %}">Cancel</a>
+        {% endif %}
+        <input class="btn btn-outline-primary" type="submit" value="Save">
+    </div>
+</div>

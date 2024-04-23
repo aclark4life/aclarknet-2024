@@ -1,0 +1,33 @@
+{% extends 'dashboard/index.html' %}
+{% load crispy_forms_tags %}
+{% block dashboard_title %}
+    {% include 'title_block.html' %}
+{% endblock %}
+{% block dashhead_title %}
+    <h2 class="dashhead-title">
+        <a class="text-decoration-none text-secondary"
+           href="{% url model_name|add:'_index' %}">{{ model_name_plural|title }}</a> <i class="fa-solid fa-angle-right"></i>
+        {% if object %}
+            <a class="text-decoration-none text-secondary"
+               href="{% url urls.url_view object.id %}">{{ model_name|title }}</a>
+        {% else %}
+            {{ model_name|title }}
+        {% endif %}
+        <i class="fa-solid fa-angle-right"></i> Edit
+    </h2>
+{% endblock %}
+{% block dashhead_toolbar %}{% endblock %}
+{% block dashboard %}
+    <div class="row">
+        <div class="col-12">
+            <form method="post">
+                {% csrf_token %}
+                {% include 'save.html' %}
+                <input type="hidden" name="context_type" value="{{ context_type }}">
+                <input type="hidden" name="model_name" value="{{ model_name }}">
+                {% crispy form %}
+                {% include 'save.html' %}
+            </form>
+        </div>
+    </div>
+{% endblock %}
