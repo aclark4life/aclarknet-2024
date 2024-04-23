@@ -1,0 +1,27 @@
+<div class="modal fade"
+     id="hijackModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="myModalLabel">
+    <form id="hijack-user" action="{% url 'hijack:acquire' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="user_pk" value="">
+        <input type="hidden" name="next" value="/dashboard">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Hijack</h1>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">Hijack user?</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Hijack</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

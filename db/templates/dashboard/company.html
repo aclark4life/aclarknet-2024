@@ -1,0 +1,15 @@
+{% load babel %}
+<div class="col-md-6 mb-5">
+    <div class="list-group mb-3">
+        <a class="list-group-item list-group-item-action justify-content-between d-flex fw-semibold p-3"
+           href="{% url 'company_index' %}">Companies <span class="badge bg-primary">{{ companies.items|length }}</span></a>
+        {% for item in companies.items %}
+            <a class="list-group-item list-group-item-action justify-content-between d-flex"
+               href="{% url 'company_view' item.id %}">
+                <span>{{ item.name }}</span>
+                <span class="text-muted">{{ item.created }}</span>
+            </a>
+        {% endfor %}
+    </div>
+    <a href="{% url 'company_index' %}" class="btn btn-outline-primary px-3">All companies</a>
+</div>

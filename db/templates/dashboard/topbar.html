@@ -1,0 +1,44 @@
+<nav class="sidebar-nav">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link {% if overview_nav %}active{% endif %}"
+               aria-current="page"
+               href="{% url 'dashboard' %}">Overview</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if time_nav %}active{% endif %}"
+               aria-current="page"
+               href="{% url 'time_index' %}">Times</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if invoice_nav %}active{% endif %}"
+               aria-current="page"
+               href="{% url 'invoice_index' %}">Invoices</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if contact_nav %}active{% endif %}"
+               aria-current="page"
+               href="{% url 'contact_index' %}">Contacts</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if user_nav %}active{% endif %}"
+               aria-current="page"
+               href="{% url 'user_index' %}">Users</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if modelformtest_nav %}active{% endif %}"
+               aria-current="page"
+               href="{% url 'test_model_list' %}">Marketing</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if report_nav %}active{% endif %}"
+               aria-current="page"
+               href="{% url 'report_index' %}">Reports</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if project_nav %}active{% endif %}"
+               aria-current="page"
+               href="{% url 'project_index' %}">Projects</a>
+        </li>
+    </ul>
+</nav>

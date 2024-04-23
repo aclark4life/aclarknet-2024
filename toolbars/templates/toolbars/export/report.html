@@ -1,0 +1,4 @@
+<a class="btn btn-outline-primary btn-block d-flex align-items-center"
+   data-toggle="tooltip"
+   title="Email text table"
+   href="{% if object %}{% url url_email_text object_id=object.id %}{% else %}{% url url_email_text %}{% endif %}"><i class="fa-solid fa-file-lines"></i> Mail Text</a>

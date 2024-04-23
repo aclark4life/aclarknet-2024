@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static webpack_loader babel %}
+{% block title %}ACLARK.NET &middot; Dashboard{% endblock %}
+{% block content %}
+    <div class="container my-5 py-4">
+        <div class="row">
+            {% include 'dashboard/sidebar.html' %}
+            <div class="col-md-9 content">
+                <div class="dashhead">
+                    <div class="dashhead-titles">
+                        <h6 class="dashhead-subtitle">Dashboards</h6>
+                        {% block dashhead_title %}<h2 class="dashhead-title">Overview</h2>{% endblock %}
+                    </div>
+                    <div class="btn-toolbar dashhead-toolbar">
+                        {% block dashhead_toolbar %}
+                            {% include 'toolbars/dashhead/index.html' %}
+                        {% endblock %}
+                    </div>
+                </div>
+                {% if request.user.is_superuser %}
+                    {% include 'dashboard/topbar.html' %}
+                {% endif %}
+                {% block dashboard %}
+                    {% if request.user.is_superuser %}
+                        {% include 'charts/index.html' %}
+                    {% endif %}
+                    {% include 'statcards/index.html' %}
+                    {% include 'dashboard/time.html' %}
+                    {% if request.user.is_superuser %}
+                        {% include 'dashboard/invoice.html' %}
+                        <div class="row">
+                            {% include 'dashboard/task.html' %}
+                            {% include 'dashboard/project.html' %}
+                        </div>
+                        <div class="row">
+                            {% include 'dashboard/client.html' %}
+                            {% include 'dashboard/company.html' %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+</div>
+{% include 'modal/lorem.html' %}
+{% endblock %}

@@ -1,0 +1,51 @@
+{% load babel humanize %}
+<div class="row statcards my-3">
+    <div class="col-md-6 col-xl-3 mb-3 mb-md-4 mb-xl-0">
+        <div class="statcard statcard-warning" id="sparkline4Container">
+            <div class="p-3">
+                <span class="statcard-desc text-dark">Hours entered</span>
+                <h2 class="statcard-number text-dark">{{ statcard.times.entered.total|default:0|intcomma }}</h2>
+                <hr class="statcard-hr mb-0">
+            </div>
+            <canvas id="sparkline4"
+                    width="100%"
+                    height="94"
+                    class="sparkline"
+                    data-chart="spark-line"
+                    data-dataset='[[28,68,41,43,96,45,100]]'
+                    data-labels='["a","b","c","d","e","f","g"]'
+                    style="width: 100%;
+                           height: 47px">
+            </canvas>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3 mb-3 mb-md-4 mb-xl-0">
+        <div class="statcard statcard-info" id="sparkline6Container">
+            <div class="p-3">
+                <span class="statcard-desc text-dark">Hours approved</span>
+                <h2 class="statcard-number text-dark">{{ statcard.times.approved.total|default:0|intcomma }}</h2>
+                <hr class="statcard-hr mb-0">
+            </div>
+            <canvas id="sparkline6"
+                    width="100%"
+                    height="94"
+                    class="sparkline"
+                    data-chart="spark-line"
+                    data-dataset='[[28,68,41,43,96,45,100]]'
+                    data-labels='["a","b","c","d","e","f","g"]'
+                    style="width: 100%;
+                           height: 47px">
+            </canvas>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3 mb-3 mb-md-4 mb-xl-0">
+        <div class="statcard statcard-success" id="sparkline3Container">
+            <div class="p-3">
+                <span class="statcard-desc">Clock</span>
+                <span class="h4">
+                    <div data-component="Clock"></div>
+                    <hr class="statcard-hr mb-0">
+                </div>
+            </div>
+        </div>
+    </div>

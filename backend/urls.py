@@ -18,8 +18,8 @@ urlpatterns = [
     path("search/", include("search.urls")),
     path("modelformtest/", include("modelformtest.urls")),
     path("resume/", include("resume.urls")),
+    path("dashboard/", include("db.urls")),
     path("", include("blog.urls")),
-    path("db/", include("db.urls")),
 ]
 
 if settings.DEBUG:

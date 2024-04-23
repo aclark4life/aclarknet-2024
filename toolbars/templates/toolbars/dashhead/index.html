@@ -1,0 +1,13 @@
+<div class="btn-toolbar">
+    <div class="btn-group">
+        {% if dashboard or search %}
+            {% include 'toolbars/dashhead/time.html' %}
+        {% elif model_name == "invoice" %}
+            {% include 'toolbars/dashhead/invoice.html' %}
+        {% elif model_name == "project" %}
+            {% include 'toolbars/dashhead/project.html' %}
+        {% else %}
+            {% include 'toolbars/dashhead/model.html' %}
+        {% endif %}
+    </div>
+</div>

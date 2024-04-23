@@ -1,0 +1,15 @@
+{% load babel %}
+<div class="col-md-6 mb-5">
+    <div class="list-group mb-3">
+        <a class="list-group-item list-group-item-action justify-content-between d-flex fw-semibold p-3"
+           href="{% url 'project_index' %}">Projects <span class="badge bg-primary">{{ projects.items|length }}</span></a>
+        {% for item in projects.items %}
+            <a class="list-group-item list-group-item-action justify-content-between d-flex"
+               href="{% url 'project_view' item.id %}">
+                <span>{{ item.name }}</span>
+                <span class="text-muted">{{ item.client }}</span>
+            </a>
+        {% endfor %}
+    </div>
+    <a href="{% url 'project_index' %}" class="btn btn-outline-primary px-3">All projects</a>
+</div>

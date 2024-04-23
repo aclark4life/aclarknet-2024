@@ -1,0 +1,15 @@
+{% load babel %}
+<div class="col-md-6 mb-5">
+    <div class="list-group mb-3">
+        <a class="list-group-item list-group-item-action justify-content-between d-flex fw-semibold p-3"
+           href="{% url 'task_index' %}">Tasks <span class="badge bg-primary">{{ tasks.items|length }}</span></a>
+        {% for item in tasks.items %}
+            <a class="list-group-item list-group-item-action justify-content-between d-flex"
+               href="{% url 'task_view' item.id %}">
+                <span>{{ item }}</span>
+                <span class="text-muted">{{ item.rate|currencyfmt:"USD" }}</span>
+            </a>
+        {% endfor %}
+    </div>
+    <a href="{% url 'task_index' %}" class="btn btn-outline-primary px-3">All tasks</a>
+</div>

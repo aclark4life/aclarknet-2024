@@ -1,0 +1,145 @@
+<div class="col-md-3 sidebar">
+    <nav class="sidebar-nav">
+        <div class="sidebar-header">
+            <button class="nav-toggler nav-toggler-md sidebar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#nav-toggleable-md">
+                <span class="sr-only">Toggle nav</span>
+            </button>
+            <a class="sidebar-brand img-responsive" href="{% url 'dashboard' %}">
+                <i class="fa-solid fa-leaf fa-2x"></i><span class="visually-hidden">Link text</span>
+            </a>
+        </div>
+        <div class="collapse nav-toggleable-md" id="nav-toggleable-md">
+            {% if request.user.is_superuser %}
+                <form class="sidebar-form" action="{% url 'search_index' %}" method="get">
+                    <input class="form-control border bg-transparent"
+                           name="q"
+                           type="text"
+                           placeholder="Search...">
+                    <button type="submit" class="btn btn-link" style="color: #A2A9B1">
+                        <i class="fa-solid fa-magnifying-glass"></i><span class="visually-hidden">Link text</span>
+                    </button>
+                </form>
+            {% endif %}
+            {% if request.user.is_authenticated and not request.user.is_superuser %}
+                <ul class="nav nav-pills nav-stacked flex-column">
+                    <li class="nav-header">Dashboards</li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if overview_nav %}active{% endif %}"
+                           href="{% url 'dashboard' %}">Overview</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if time_nav %} active{% endif %}"
+                           href="{% url 'time_index' %}">Times</a>
+                    </li>
+                    {% comment %}
+                            <li class="nav-item">
+                                <a data-bs-toggle="modal" class="nav-link{% if lorem_nav %} active{% endif %}" href="#fakeTextModal">Lorem</a>
+                            </li>
+                    {% endcomment %}
+                </ul>
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <ul class="nav nav-pills nav-stacked flex-column mt-5">
+                    <li class="nav-header">Dashboards</li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if overview_nav %}active{% endif %}"
+                           href="{% url 'dashboard' %}">Overview</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if time_nav %} active{% endif %}"
+                           href="{% url 'time_index' %}">Times</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if invoice_nav %} active{% endif %}"
+                           href="{% url 'invoice_index' %}">Invoices</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if contact_nav %} active{% endif %}"
+                           href="{% url 'contact_index' %}">Contacts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if user_nav %} active{% endif %}"
+                           href="{% url 'user_index' %}">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if modelformtest_nav %} active{% endif %}"
+                           href="{% url 'test_model_list' %}">Marketing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if report_nav %} active{% endif %}"
+                           href="{% url 'report_index' %}">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if project_nav %} active{% endif %}"
+                           href="{% url 'project_index' %}">Projects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if note_nav %} active{% endif %}"
+                           href="{% url 'note_index' %}">Notes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if client_nav %} active{% endif %}"
+                           href="{% url 'client_index' %}">Clients</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if task_nav %} active{% endif %}"
+                           href="{% url 'task_index' %}">Tasks</a>
+                    </li>
+                </ul>
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <ul class="nav nav-pills nav-stacked flex-column mt-5">
+                    <li class="nav-header">Documentation</li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://getbootstrap.com/docs" target="blank">Bootstrap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://fontawesome.com/icons" target="_blank">Font Awesome</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="https://docs.djangoproject.com/en/5.0/"
+                           target="_blank">Django</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="https://docs.wagtail.org/en/stable/"
+                           target="_blank">Wagtail</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="https://django-crispy-forms.readthedocs.io/en/latest/"
+                           target="_blank">Crispy Forms</a>
+                    </li>
+                    {% comment %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://django-crispy-forms.readthedocs.io/en/latest/" target="_blank">Crispy Forms</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://django-allauth.readthedocs.io/en/latest/" target="_blank">Django allauth</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://django-hijack.readthedocs.io/en/latest/" target="_blank">Django Hijack</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://faker.readthedocs.io/en/master/" target="_blank">Faker</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://thelounge.chat/docs" target="_blank">The Lounge</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://python-webpack-boilerplate.readthedocs.io/en/latest/" target="_blank">Python Webpack Boilerplate</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://react.dev/" target="_blank">React</a>
+                            </li>
+                    {% endcomment %}
+                {% endif %}
+            </ul>
+            <hr class="visible-xs mt-3">
+        </div>
+    </nav>
+</div>

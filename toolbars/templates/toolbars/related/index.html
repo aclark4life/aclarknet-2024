@@ -1,0 +1,28 @@
+<div class="modal fade"
+     id="relatedModel"
+     tabindex="-1"
+     aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Items related to {{ object }}</h1>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">{% include 'related.html' %}</div>
+        </div>
+    </div>
+</div>
+<nav class="navbar">
+    <form class="container-fluid justify-content-end">
+        <button type="button"
+                class="btn btn-outline-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#relatedModel">
+            <i class="fa-solid fa-expand"></i>
+        </button>
+    </form>
+</nav>
