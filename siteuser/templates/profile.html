@@ -6,7 +6,5 @@
            href="{% url 'user-edit' pk=user.id %}">Edit</a>
     </div>
     <p>Username: {{ user.username }}</p>
-    <p>Theme: {{ user.user_theme_preference }}</p>
-    <p>Bio: {{ user.bio|default:""|safe }}</p>
-    <p>Rate: {{ user.rate|default:"" }}</p>
+    <p>Rate: {{ user.profile.rate|default:"" }}</p>
 {% endblock %}

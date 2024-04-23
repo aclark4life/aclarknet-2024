@@ -9,7 +9,8 @@ from django.views.generic import DetailView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse_lazy
 
-from .models import User
+# from .models import User
+from django.contrib.auth.models import User
 from .forms import SiteUserForm
 
 
@@ -28,8 +29,9 @@ class UpdateThemePreferenceView(View):
             data = json.loads(request.body.decode("utf-8"))
             new_theme = data.get("theme")
             user = request.user
-            user.user_theme_preference = new_theme
-            user.save()
+            profile = user.profile
+            profile.user_theme_preference = new_theme
+            profile.save()
             response_data = {"theme": new_theme}
             return JsonResponse(response_data)
         except json.JSONDecodeError as e:
@@ -45,5 +47,9 @@ class UserEditView(LoginRequiredMixin, UpdateView):
     form_class = SiteUserForm
 
     def get_success_url(self):
-        # return reverse_lazy('user-profile', kwargs={'pk': self.object.pk})
         return reverse_lazy("user-profile")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"].initial = {"rate": self.object.profile.rate}
+        return context
