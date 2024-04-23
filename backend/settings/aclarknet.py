@@ -14,11 +14,6 @@ DOC_TYPES = {
     "estimate": "Estimate",
     "statement-of-work": "Statement of Work",
     "task-order": "Task Order",
-    # BBB
-    "Invoice": "Invoice",
-    "Estimate": "Estimate",
-    "Statement of Work": "Statement of Work",
-    "Task Order": "Task Order",
 }
 
 
