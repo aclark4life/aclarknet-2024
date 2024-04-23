@@ -1,6 +1,7 @@
 from django.db import models
 from django.shortcuts import reverse
 
+
 class TestModel(models.Model):
     name = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
@@ -12,4 +13,4 @@ class TestModel(models.Model):
         return self.name or f"test-model-{self.pk}"
 
     def get_absolute_url(self):
-        return reverse('test_model_detail', kwargs={'pk': self.pk})
+        return reverse("test_model_detail", kwargs={"pk": self.pk})
