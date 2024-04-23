@@ -1,0 +1,22 @@
+<div class="my-5">
+    <div class="d-flex justify-content-center my-3">
+        <h1>Alex Clark's Résumé</h1>
+    </div>
+    <div class="d-flex justify-content-center">
+        <div class="btn-group">
+            <a target="_blank"
+               class="btn btn-outline-primary"
+               href="{% url 'export-to-pdf' page.id %}"><i class="far fa-file-pdf me-1"></i>PDF</a>
+            <a target="_blank"
+               class="btn btn-outline-primary"
+               href="{% url 'export-to-md' page.id %}">
+                <i class="far fa-file-text me-1"></i>Text
+            </a>
+            <a target="_blank"
+               class="btn btn-outline-primary"
+               href="{% url 'export-to-docx' page.id %}">
+                <i class="far fa-file-word me-1"></i>Word
+            </a>
+        </div>
+    </div>
+</div>

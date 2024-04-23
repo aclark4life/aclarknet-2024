@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load wagtailmarkdown %}
+{% block content %}
+    {% with model_name="resume" %}
+        {% include 'resume/toolbar-export.html' %}
+    {% endwith %}
+    <div class="container">{{ page.body|markdown }}</div>
+    {% with resume_nav=True %}
+        {% include 'btn-group-alex.html' %}
+    {% endwith %}
+{% endblock %}

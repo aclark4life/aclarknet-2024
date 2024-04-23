@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static i18n wagtailcore_tags wagtailimages_tags wagtailroutablepage_tags wagtailuserbar puput_tags %}
+{% block title %}
+    {{ blog_page.title }}
+    {% if blog_page.description %}| {{ blog_page.description }}{% endif %}
+{% endblock title %}
+{% block content %}
+    <div class="container py-5" id="blog">
+        <div class="row">
+            <h2 class="post-title text-uppercase text-center my-5">
+                <a class="text-decoration-none" href="/blog">Blog</a>
+            </h2>
+            <div class="container">
+                <hr>
+            </div>
+            <div class="col-sm-8 col-md-9 my-3">
+                {% block blog_content %}
+                {% endblock blog_content %}
+                {% block extra_content %}
+                {% endblock extra_content %}
+            </div>
+            <div class="col-sm-4 col-md-3">
+                <div class="blog-sidebar">
+                    <form name="search_form"
+                          class="search_form"
+                          method="get"
+                          action="{% routablepageurl blog_page 'entries_search' %}">
+                        <div class="btn-group my-3">
+                            <input class="form-control"
+                                   type="search"
+                                   name="q"
+                                   placeholder="{% trans 'Search' %}">
+                            <button class="btn" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            <a class="btn"
+                               href="{% feeds_url blog_page %}"
+                               target="_blank"
+                               title="RSS"><i class="fa fa-rss-square"></i></a>
+                        </div>
+                    </form>
+                    {% if blog_page.display_last_entries %}
+                        <ul class="sidebar my-3">
+                            <h4>{% trans 'Last Entries' %}</h4>
+                            {% recent_entries blog_page.num_last_entries %}
+                        </ul>
+                    {% endif %}
+                    {% if blog_page.display_popular_entries %}
+                        <ul class="sidebar my-3">
+                            <h4>{% trans 'Popular Entries' %}</h4>
+                            {% popular_entries blog_page.num_popular_entries %}
+                        </ul>
+                    {% endif %}
+                    {% if blog_page.display_categories %}
+                        <ul class="sidebar my-3">
+                            <h4>{% trans 'Categories' %}</h4>
+                            {% categories_list %}
+                        </ul>
+                    {% endif %}
+                    {% if blog_page.display_tags %}
+                        <ul class="sidebar my-3">
+                            <h4>{% trans 'Tags' %}</h4>
+                            {% tags_list %}
+                        </ul>
+                    {% endif %}
+                    {% if blog_page.display_archive %}
+                        <ul class="sidebar my-3 widget menu">
+                            <h4>{% trans 'Archive' %}</h4>
+                            {% archives_list %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block blog_footer %}
+    {% with blog_nav=True %}
+        {% include 'btn-group-alex.html' %}
+    {% endwith %}
+    <div class="footer">
+        <div class="footer-bottom">
+            <div class="copy">
+                <p>
+                    Blog powered by <a class="text-decoration-none"
+    target="_blank"
+    href="http://github.com/APSL/puput"
+    rel="nofollow">Puput</a>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock blog_footer %}
