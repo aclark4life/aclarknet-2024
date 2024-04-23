@@ -6,6 +6,7 @@ from db.models.base import BaseModel
 from django.utils import timezone
 from django.conf import settings
 
+
 class Report(BaseModel):
     date = models.DateField(default=timezone.now)
     hours = models.DecimalField(blank=True, null=True, max_digits=12, decimal_places=2)

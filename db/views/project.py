@@ -15,15 +15,11 @@ from django.views.generic import (
 )
 
 from ..forms.project import ProjectForm
-from ..models.note import    Note
-from ..models.client import    Client
-from ..models.company import    Company
-from ..models.contact import    Contact
-from ..models.invoice import    Invoice
-from ..models.project import    Project
-from ..models.report import    Report
-from ..models.task import    Task
-from ..models.time import    Time
+from ..models.client import Client
+from ..models.contact import Contact
+from ..models.invoice import Invoice
+from ..models.project import Project
+from ..models.task import Task
 from .base import BaseView, archived_annotation
 
 if settings.USE_FAKE:

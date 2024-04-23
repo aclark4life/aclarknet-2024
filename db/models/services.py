@@ -1,5 +1,5 @@
 from wagtail.models import Page
-from db.models.service import Service 
+from db.models.service import Service
 
 
 class ServicesPage(Page):

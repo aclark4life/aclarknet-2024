@@ -7,6 +7,7 @@ from db.models.invoice import Invoice
 from django.conf import settings
 from django.utils import timezone
 
+
 class Time(BaseModel):
     """
     Date, Client, Project, Project Code, Task, Hours, Billable?,

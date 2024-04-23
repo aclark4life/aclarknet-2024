@@ -19,15 +19,15 @@ from django.views.generic import (
 )
 
 from ..forms.note import NoteForm
-from ..models.note import    Note
-from ..models.client import    Client
-from ..models.company import    Company
-from ..models.contact import    Contact
-from ..models.invoice import    Invoice
-from ..models.project import    Project
-from ..models.report import    Report
-from ..models.task import    Task
-from ..models.time import    Time
+from ..models.note import Note
+from ..models.client import Client
+from ..models.company import Company
+from ..models.contact import Contact
+from ..models.invoice import Invoice
+from ..models.project import Project
+from ..models.report import Report
+from ..models.task import Task
+from ..models.time import Time
 from .base import BaseView
 
 

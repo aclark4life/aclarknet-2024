@@ -16,15 +16,11 @@ from django.views.generic import (
 from faker import Faker
 
 from ..forms.time import AdminTimeForm, TimeForm
-from ..models.note import    Note
-from ..models.client import    Client
-from ..models.company import    Company
-from ..models.contact import    Contact
-from ..models.invoice import    Invoice
-from ..models.project import    Project
-from ..models.report import    Report
-from ..models.task import    Task
-from ..models.time import    Time
+from ..models.client import Client
+from ..models.invoice import Invoice
+from ..models.project import Project
+from ..models.task import Task
+from ..models.time import Time
 
 from .base import BaseView
 

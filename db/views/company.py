@@ -18,7 +18,7 @@ from ..models.client import Client
 from ..models.company import Company
 from ..models.contact import Contact
 from ..models.project import Project
-from ..models.task import  Task
+from ..models.task import Task
 from .base import BaseView
 
 if settings.USE_FAKE:
