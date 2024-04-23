@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en"
       class="h-100"
-      data-bs-theme="{{ request.user.user_theme_preference|default:'light' }}">
+      data-bs-theme="{{ request.user.profile.user_theme_preference|default:'light' }}">
     <head>
         <meta charset="utf-8" />
         <title>
@@ -56,9 +56,11 @@
         <main class="flex-shrink-0">
             {% wagtailuserbar %}
             <div id="app"></div>
-            {% include 'header.html' %}
+            {% block header %}
+                {% include 'header.html' %}
+            {% endblock %}
             {% if messages %}
-                <div class="messages container">
+                <div class="messages">
                     {% for message in messages %}
                         <div class="alert {{ message.tags }} alert-dismissible fade show"
                              role="alert">
@@ -71,13 +73,28 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            <div class="container">
-                {% block content %}{% endblock %}
-            </div>
+            {% block content %}{% endblock %}
         </main>
-        {% include 'footer.html' %}
+        {% block blog_footer %}
+        {% endblock blog_footer %}
+        {% block footer %}
+            {% include 'footer.html' %}
+        {% endblock footer %}
         {% include 'offcanvas.html' %}
         {% javascript_pack 'app' %}
         {% block extra_js %}{# Override this in templates to add extra javascript #}{% endblock %}
+        <!-- Google tag (gtag.js) -->
+        <script async
+                src="https://www.googletagmanager.com/gtag/js?id=UA-175892000-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+
+            gtag('config', 'UA-175892000-1');
+        </script>
     </body>
 </html>

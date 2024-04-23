@@ -1,7 +1,7 @@
 {% load wagtailcore_tags %}
-<footer class="footer mt-auto py-3 bg-body-tertiary pt-5 text-center text-small">
+<footer class="py-5 text-center text-small footer mt-auto border-top py-3">
     {% wagtail_site as current_site %}
-    <p class="mb-1">&copy; {% now "Y" %} {{ current_site.site_name|default:"Project Makefile" }}</p>
+    <p class="mb-1">&copy; 2004 &mdash; {% now "Y" %} ACLARK.NET, LLC</p>
     <ul class="list-inline">
         <li class="list-inline-item">
             <a class="text-secondary text-decoration-none {% if request.path == '/' %}active{% endif %}"
@@ -14,4 +14,7 @@
             </li>
         {% endfor %}
     </ul>
+    <a class="text-light"
+       target="_blank"
+       href="https://linkedin.com/company/aclarknetllc"><i class="fa-brands fa-linkedin fa-3x"></i><span class="visually-hidden">Link text</span></a>
 </footer>

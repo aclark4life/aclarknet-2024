@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load static wagtailuserbar %}
+{% block title %}ACLARK.NET &middot; Home{% endblock %}
+{% block content %}
+    {% include 'carousel.html' %}
+    {% include 'blocks/mission_block.html' %}
+    {% include 'blocks/pillow_block.html' %}
+    {% include 'blocks/highpraise_block.html' %}
+    {% include 'blocks/ribbon_block.html' %}
+    {% include 'blocks/tech_block.html' %}
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container py-5" id="team">
+        <div class="row">
+            <h2 class="text-center text-uppercase my-5">Now</h2>
+            <div class="col-md-12 px-4 pb-2 mb-5">
+                <div class="px-2 mb-2 text-center">
+                    <img class="mb-4 border border-muted p-4"
+                         src="{% static 'img/alex.png' %}">
+                    <h2>Jeffrey A. Clark (Alex)</h2>
+                    <div class="text-uppercase mb-4 h6">What I'm doing now</div>
+                </div>
+                <ul class="list-unstyled list-inline text-center">
+                    <li class="list-inline-item px-1">
+                        <a target="_blank" href="https://github.com/aclark4life"><i class="text-muted fab fa-github-square fa-2x"></i><span class="visually-hidden">Link text</span></a>
+                    </li>
+                    <li class="list-inline-item px-1">
+                        <a target="_blank" href="https://linkedin.com/in/aclark4life"><i class="text-muted fab fa-linkedin fa-2x"></i><span class="visually-hidden">Link text</span></a>
+                    </li>
+                    <li class="list-inline-item px-1">
+                        <a target="_blank" href="https://twitter.com/aclark4life"><i class="text-muted fab fa-x-twitter fa-2x"></i><span class="visually-hidden">Link text</span></a>
+                    </li>
+                </ul>
+                <div class="border-bottom border-top pt-4 text-center">
+                    <p>
+                        (This is a <a target="_blank" href="https://nownownow.com/about">now page</a>. Last Updated: {{ page.last_published_at|date:"F j, Y" }}.)
+                    </p>
+                    <p>{{ page.body|safe }}</p>
+                </div>
+                {% with now_nav=True %}
+                    {% include 'btn-group-alex.html' %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
