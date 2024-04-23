@@ -6,6 +6,6 @@
     {% endwith %}
     <div class="container">{{ page.body|markdown }}</div>
     {% with resume_nav=True %}
-        {% include 'btn-group-alex.html' %}
+        {% include 'blocks/team_block_buttons.html' %}
     {% endwith %}
 {% endblock %}
