@@ -9,17 +9,15 @@ RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY")
 RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY")
 
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-SENDGRID_API_KEY = (
-    os.environ.get("SENDGRID_API_KEY")
-)
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 
 INSTALLED_APPS.append("allauth.socialaccount.providers.github")
 SOCIALACCOUNT_PROVIDERS = {
     "github": {
         "APP": {
-            "client_id": os.environ.get("GITHUB_CLIENT_ID")
-            "secret": os.environ.get("GITHUB_SECRET")
-            "key": os.environ.get("GITHUB_KEY")
+            "client_id": os.environ.get("GITHUB_CLIENT_ID"),
+            "secret": os.environ.get("GITHUB_SECRET"),
+            "key": os.environ.get("GITHUB_KEY"),
         }
     },
 }
