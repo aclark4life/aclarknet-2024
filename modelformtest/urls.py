@@ -23,6 +23,7 @@ urlpatterns = [
         name="testmodel_update",
     ),
     path("test-models/<int:pk>/", TestModelDetailView.as_view(), name="testmodel_view"),
+    path("test-models/<int:pk>/", TestModelDetailView.as_view(), name="testmodel_detail"),
     path(
         "test-models/<int:pk>/delete/",
         TestModelDeleteView.as_view(),

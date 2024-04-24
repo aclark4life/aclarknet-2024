@@ -65,7 +65,7 @@ class TestModelBaseView(UserPassesTestMixin, BaseView):
 class TestModelDeleteView(TestModelBaseView, DeleteView):
     model = TestModel
     success_url = reverse_lazy("test_model_list")
-    template_name = "testmodel_confirm_delete.html"
+    template_name = "test_model_confirm_delete.html"
 
 
 class TestModelListView(TestModelBaseView, ListView):
@@ -103,7 +103,7 @@ class TestModelCreateView(TestModelBaseView, CreateView):
 class TestModelUpdateView(TestModelBaseView, UpdateView):
     model = TestModel
     form_class = TestModelForm
-    template_name = "testmodel_form.html"
+    template_name = "test_model_form.html"
 
 
 class TestModelDetailView(TestModelBaseView, DetailView):
