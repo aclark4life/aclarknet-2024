@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="d-flex align-items-center justify-content-center"
+         style="min-height: 50vh">
+        <div class="w-50">
+            <h1>Unsubscribe from our newsletter</h1>
+            <p>
+                Are you sure you want to unsubscribe <code>{{ unsubscribe_email }}</code>?
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <button class="btn btn-outline-danger" type="submit">Yes, please unsubscribe, thank you!</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

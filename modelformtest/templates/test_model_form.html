@@ -1,15 +1,25 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'dashboard/index.html' %}
+{% block dashhead_title %}
+    <a href="{% url 'test_model_list' %}">
+        <h1>Marketing</h1>
+    </a>
+{% endblock %}
+{% block dashhead_toolbar %}{% endblock %}
+{% block dashboard %}
     <h1>
         {% if form.instance.pk %}
-            Update Test Model
+            Update
         {% else %}
-            Create Test Model
+            Create
         {% endif %}
     </h1>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Save</button>
+        <button class="btn btn-outline-primary" type="submit">Save</button>
     </form>
+    <a href="{% url 'test_model_list' %}">
+        <button class="btn btn-outline-secondary" type="button">Cancel</button>
+    </a>
+</div>
 {% endblock %}

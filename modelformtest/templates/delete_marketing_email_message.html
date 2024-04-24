@@ -1,0 +1,10 @@
+{% extends 'dashboard/index.html' %}
+{% block dashhead_toolbar %}{% endblock %}
+{% block dashboard %}
+    <h1>Delete Marketing Email Message</h1>
+    <p>Are you sure you want to delete this marketing email message?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button class="btn btn-outline-danger" type="submit">Delete</button>
+    </form>
+{% endblock %}

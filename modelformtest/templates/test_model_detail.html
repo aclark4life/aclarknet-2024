@@ -1,10 +1,24 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'dashboard/index.html' %}
+{% block dashhead_title %}
+    <a href="{% url 'test_model_list' %}">
+        <h1>Marketing</h1>
+    </a>
+{% endblock %}
+{% block dashhead_toolbar %}
+    <a class="btn btn-outline-primary" href="{% url 'test_model_create' %}">Create Marketing Email Recipient</a>
+{% endblock %}
+{% block dashboard %}
     <h1>Test Model Detail: {{ test_model.name }}</h1>
     <p>Name: {{ test_model.name }}</p>
     <p>Email: {{ test_model.email }}</p>
     <p>Age: {{ test_model.age }}</p>
     <p>Active: {{ test_model.is_active }}</p>
     <p>Created At: {{ test_model.created_at }}</p>
-    <a href="{% url 'test_model_update' test_model.pk %}">Edit Test Model</a>
+    <div class="d-flex justify-content-between">
+        <a class="btn btn-outline-primary"
+           href="{% url 'test_model_update' test_model.pk %}">Edit</a>
+        <a class="btn btn-outline-danger"
+           href="{% url 'test_model_delete' test_model.pk %}">Delete</a>
+    </div>
+    <a class="btn btn-outline-primary" href="{% url 'test_model_create' %}">Create Marketing Email Recipient</a>
 {% endblock %}

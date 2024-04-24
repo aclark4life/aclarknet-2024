@@ -1,0 +1,10 @@
+{% extends 'dashboard/index.html' %}
+{% block dashhead_toolbar %}{% endblock %}
+{% block dashboard %}
+    <h1>Update Marketing Email Message</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-outline-primary" type="submit">Update</button>
+    </form>
+{% endblock %}
