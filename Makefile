@@ -1718,10 +1718,13 @@ export WEBPACK_REVEAL_INDEX_JS
 # Rules
 # ------------------------------------------------------------------------------  
 
+aws-ssm-describe-parameters-default:
+	@aws ssm describe-parameters | cat
+
 aws-ssm-default:
 ifdef AWS_PROFILE
 	@echo "Environment variable is set: $(AWS_PROFILE)"
-	aws ssm describeparameters | cat
+	aws ssm describe-parameters | cat
 	@echo "Get parameter values with: aws ssm getparameter --name <Name>."
 else
 	@echo "Environment variable not set. Set AWS_PROFILE before running this target."
@@ -2488,6 +2491,7 @@ secret-default: django-secret
 serve-default: django-serve
 shell-default: django-shell
 show-urls-default: django-show-urls
+ssm-list-default: aws-ssm-describe-parameters
 static-default: django-static
 su-default: django-su
 test-default: django-test
