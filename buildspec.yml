@@ -1,0 +1,30 @@
+version: 0.2
+
+eb_codebuild_settings:
+  CodeBuildServiceRole: "CodeBuildServiceRole"
+  ComputeType: "BUILD_GENERAL1_SMALL"
+  Image: "aws/codebuild/standard:5.0"
+  Timeout: 5
+
+phases:
+  pre_build:
+    commands:
+      - n 21
+      - "echo Install Phase: `date`"
+      - cd frontend && rm package-lock.json && npm install && cd ..
+      - n 20
+      - cd lounge && npm install && cd ..
+
+  build:
+    commands:
+      - n 21
+      - "echo Build Phase: `date`"
+      - "echo $PATH"
+      - "echo `whoami`"
+      - cd frontend && npm run build && cd ..
+
+artifacts:
+  files:
+    - '**/*'
+  exclude-paths:
+    - '**/node_modules'
