@@ -1784,6 +1784,11 @@ eb-list-platforms-default:
 eb-logs-default:
 	eb logs
 
+eb-secret-default:
+	SECRET_KEY=$$(openssl rand -base64 48); \
+    aws secretsmanager create-secret --name "DjangoSecretKey" --secret-string "$$SECRET_KEY"; \
+    SECRET_DATA=$$(aws secretsmanager get-secret-value --secret-id "DjangoSecretKey" --query SecretString --output text);
+
 npm-init-default:
 	npm init -y
 	$(GIT_ADD) package.json
@@ -1842,7 +1847,7 @@ django-frontend-app-default: python-webpack-init
 	-$(GIT_ADD) frontend
 
 django-secret-default:
-	python -c "from secrets import token_urlsafe; print(token_urlsafe(50))"
+	@python -c "from secrets import token_urlsafe; print(token_urlsafe(50))"
 
 django-siteuser-default:
 	python manage.py startapp siteuser
