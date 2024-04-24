@@ -1817,6 +1817,10 @@ db-pg-init-default:
 	-dropdb $(PROJECT_NAME)
 	-createdb $(PROJECT_NAME)
 
+db-pg-init-test-default:
+	-dropdb test_$(PROJECT_NAME)
+	-createdb test_$(PROJECT_NAME)
+
 db-pg-export-default:
 	@eb ssh --quiet -c "export PGPASSWORD=$(DATABASE_PASS); pg_dump -U $(DATABASE_USER) -h $(DATABASE_HOST) $(DATABASE_NAME)" > $(DATABASE_NAME).sql
 	@echo "Wrote $(DATABASE_NAME).sql"
@@ -2447,6 +2451,7 @@ d-default: deploy
 db-export-default: db-pg-export
 db-import-default: db-pg-import
 db-init-default: db-pg-init
+db-init-test-default: db-pg-init-test
 deploy-default: eb-deploy
 django-clean-default: wagtail-clean
 django-init-default: wagtail-init
@@ -2474,7 +2479,6 @@ o-default: open
 open-default: django-open
 p-default: git-push
 pack-default: django-npm-build
-pg-init-default: db-pg-init
 readme-default: readme-init-md
 restart-default: eb-restart
 reveal-default: reveal-init
