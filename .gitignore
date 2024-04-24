@@ -4,4 +4,4 @@ dist/
 node_modules/
 _build/
 .elasticbeanstalk/
-.aclarknet.sql
+aclarknet.sql
