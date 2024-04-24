@@ -209,6 +209,7 @@ urlpatterns += [
 
 urlpatterns += [
     path("client", ClientListView.as_view(), name="client_index"),
+    path("client", ClientListView.as_view(), name="client_cancel"),
     path("client/create/", ClientCreateView.as_view(), name="client_create"),
     path("client/<int:pk>/", ClientDetailView.as_view(), name="client_view"),
     path("client/<int:pk>/update/", ClientUpdateView.as_view(), name="client_edit"),
