@@ -18,6 +18,8 @@ from .base import BaseView
 
 class SearchView(UserPassesTestMixin, BaseView, ListView):
     template_name = "index.html"
+    url_index = "search_index"
+    url_create = "time_create"
     search = True
 
     def test_func(self):
