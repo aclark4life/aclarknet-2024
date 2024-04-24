@@ -6,6 +6,10 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.core.mail import EmailMultiAlternatives
+from django.contrib.auth.models import User
+from django.contrib.auth.signals import user_logged_in
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from .models.invoice import Invoice
 from .models.profile import Profile
 from .models.time import Time
@@ -43,10 +47,10 @@ def send_email_on_time_creation(sender, instance, created, **kwargs):
                 email.send()
 
 
-@receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+@receiver(user_logged_in)
+def create_profile(sender, user, request, **kwargs):
+    if not hasattr(user, 'profile'):
+        Profile.objects.create(user=user)
 
 
 @receiver(post_save, sender=Invoice)
@@ -117,18 +121,3 @@ def update_invoice_on_time_delete(sender, instance, **kwargs):
     invoice = instance.invoice
     if invoice:
         update_invoice(Invoice, invoice)
-
-
-# @receiver(post_save, sender=Time)
-# def assign_task_to_entry(sender, instance, created, **kwargs):
-#     if created:
-#         # Check if the user belongs to a project team
-#         if instance.user.team_set.exists():
-#             # Get all projects associated with the user's team
-#             projects = instance.user.team_set.values_list('projects', flat=True)
-#             # Check if any of the projects have tasks associated with them
-#             tasks = Task.objects.filter(project__in=projects)
-#             if tasks.exists():
-#                 # Assign the first task found to the entry
-#                 instance.task = tasks.first()
-#                 instance.save()
