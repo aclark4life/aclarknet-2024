@@ -3,16 +3,16 @@
     <table class="table table-striped my-0">
         <tbody>
             <tr>
-                <th valign="top">created</th>
+                <th valign="top">Created</th>
                 <td>{{ object.created }}</td>
             </tr>
             <tr>
-                <th valign="top">updated</th>
+                <th valign="top">Updated</th>
                 <td>{{ object.updated }}</td>
             </tr>
             {% for field_name, field_value in object_field_values %}
                 <tr>
-                    <th>{{ field_name }}</th>
+                    <th>{{ field_name|title }}</th>
                     <td>
                         {% include 'table/field_value.html' %}
                     </th>
