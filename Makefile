@@ -1039,6 +1039,7 @@ __pycache__
 dist/
 node_modules/
 _build/
+.elasticbeanstalk/
 endef
 
 define HTML_FOOTER
