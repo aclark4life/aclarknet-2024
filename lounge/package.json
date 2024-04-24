@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "thelounge": "^4.4.3"
+  },
+  "scripts": {
+    "start": "node_modules/.bin/thelounge start"
+  }
+}
