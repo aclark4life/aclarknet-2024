@@ -1,15 +1,11 @@
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.core.mail import EmailMultiAlternatives
-from django.contrib.auth.models import User
 from django.contrib.auth.signals import user_logged_in
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from .models.invoice import Invoice
 from .models.profile import Profile
 from .models.time import Time
@@ -49,7 +45,7 @@ def send_email_on_time_creation(sender, instance, created, **kwargs):
 
 @receiver(user_logged_in)
 def create_profile(sender, user, request, **kwargs):
-    if not hasattr(user, 'profile'):
+    if not hasattr(user, "profile"):
         Profile.objects.create(user=user)
 
 
