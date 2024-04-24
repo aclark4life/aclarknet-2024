@@ -15,22 +15,18 @@ from .views import (
 )
 
 urlpatterns = [
-    path("test-models/", TestModelListView.as_view(), name="test_model_list"),
-    path(
-        "test-models/create/", TestModelCreateView.as_view(), name="test_model_create"
-    ),
+    path("test-models/", TestModelListView.as_view(), name="testmodel_list"),
+    path("test-models/create/", TestModelCreateView.as_view(), name="testmodel_create"),
     path(
         "test-models/<int:pk>/update/",
         TestModelUpdateView.as_view(),
-        name="test_model_update",
+        name="testmodel_update",
     ),
-    path(
-        "test-models/<int:pk>/", TestModelDetailView.as_view(), name="test_model_detail"
-    ),
+    path("test-models/<int:pk>/", TestModelDetailView.as_view(), name="testmodel_view"),
     path(
         "test-models/<int:pk>/delete/",
         TestModelDeleteView.as_view(),
-        name="test_model_delete",
+        name="testmodel_delete",
     ),
     path(
         "send-marketing-email/",

@@ -1,6 +1,6 @@
 {% extends 'dashboard/index.html' %}
 {% block dashhead_title %}
-    <a href="{% url 'test_model_list' %}">
+    <a href="{% url 'testmodel_list' %}">
         <h1>Marketing</h1>
     </a>
 {% endblock %}
@@ -18,7 +18,7 @@
         {{ form.as_p }}
         <button class="btn btn-outline-primary" type="submit">Save</button>
     </form>
-    <a href="{% url 'test_model_list' %}">
+    <a href="{% url 'testmodel_list' %}">
         <button class="btn btn-outline-secondary" type="button">Cancel</button>
     </a>
 </div>

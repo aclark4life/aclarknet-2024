@@ -4,6 +4,7 @@ from django.shortcuts import reverse
 # import hashlib
 # import secrets
 import uuid
+from django.utils import timezone
 
 
 class TestModel(models.Model):
@@ -14,12 +15,15 @@ class TestModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_subscribed = models.BooleanField(default=True)
     unsubscribe_token = models.CharField(max_length=64, blank=True)
+    archived = models.BooleanField(default=False)
+    created = models.DateTimeField(default=timezone.now, editable=False)
+    updated = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name or f"test-model-{self.pk}"
 
     def get_absolute_url(self):
-        return reverse("test_model_detail", kwargs={"pk": self.pk})
+        return reverse("testmodel_detail", kwargs={"pk": self.pk})
 
     def __str__(self):
         return self.name or f"test-model-{self.pk}"

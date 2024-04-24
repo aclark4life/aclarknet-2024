@@ -1,6 +1,6 @@
 {% extends 'dashboard/index.html' %}
 {% block dashhead_toolbar %}
-    <a class="btn btn-outline-primary" href="{% url 'test_model_create' %}">Create Marketing Email Recipient</a>
+    <a class="btn btn-outline-primary" href="{% url 'testmodel_create' %}">Create Marketing Email Recipient</a>
 {% endblock %}
 {% block dashboard %}
     <h1>Create Marketing Email</h1>
@@ -16,16 +16,16 @@
         {% endfor %}
     </ul>
     <h1>Send Marketing Email</h1>
-    <a class="btn btn-outline-primary" href="{% url 'test_model_create' %}">Create Marketing Email Recipient</a>
+    <a class="btn btn-outline-primary" href="{% url 'testmodel_create' %}">Create Marketing Email Recipient</a>
     <form action="{% url 'send_marketing_email' %}" method="get">
         <button class="btn btn-outline-primary" type="submit">Send Marketing Email</button>
     </form>
     <ul>
         {% for test_model in test_models %}
             <li class="d-flex justify-content-between border-bottom">
-                <a href="{% url 'test_model_detail' test_model.pk %}">{{ test_model }}</a>
+                <a href="{% url 'testmodel_detail' test_model.pk %}">{{ test_model }}</a>
                 <a class="btn btn-sm btn-outline-danger"
-                   href="{% url 'test_model_delete' test_model.pk %}">Delete</a>
+                   href="{% url 'testmodel_delete' test_model.pk %}">Delete</a>
                 {% if test_model.is_subscribed %}
                     <a href="{% url 'unsubscribe' test_model.email test_model.unsubscribe_token %}">Unsubscribe</a>
                 {% endif %}
