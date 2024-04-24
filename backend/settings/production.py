@@ -1,4 +1,4 @@
-from .base import *
+from .aclarknet import *
 
 DEBUG = False
 
