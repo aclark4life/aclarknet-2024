@@ -99,6 +99,7 @@ class BaseView:
                 object_field_values = []
             context["object_field_values"] = object_field_values
         context[f"{self.model_name}_nav"] = True
+        context["search"] = self.search
         return context
 
     def get_context_page_obj_field_values(self, page_obj):

@@ -9,6 +9,7 @@ from ..models.client import Client
 from ..models.company import Company
 from ..models.contact import Contact
 from ..models.invoice import Invoice
+from ..models.profile import Profile
 from ..models.project import Project
 from ..models.report import Report
 from ..models.task import Task
@@ -19,7 +20,6 @@ from .base import BaseView
 class SearchView(UserPassesTestMixin, BaseView, ListView):
     template_name = "index.html"
     url_index = "search_index"
-    url_create = "time_create"
     search = True
 
     def test_func(self):
@@ -30,7 +30,6 @@ class SearchView(UserPassesTestMixin, BaseView, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["search"] = self.search
         query = self.request.GET.get("q")
         context["q"] = query
         return context
