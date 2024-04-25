@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <div class="email-container">
+            <div class="email-header">
+                <h1>New Time Object Created By {{ username }}</h1>
+            </div>
+            <div class="email-content">
+                <p>A new Time object has been created by {{ username }}. You can view it by clicking the link below:</p>
+                <p>
+                    <a href="{{ time_object_url }}" target="_blank">{{ time_object_url }}</a>
+                </p>
+            </div>
+            <div class="email-footer">
+                <p>This email was sent by {{ from_email }}</p>
+            </div>
+        </div>
+    </body>
+</html>
