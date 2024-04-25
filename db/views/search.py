@@ -44,7 +44,6 @@ class SearchView(UserPassesTestMixin, BaseView, ListView):
                 Company,
                 Contact,
                 Invoice,
-                # Lead,
                 Note,
                 Profile,
                 Project,
