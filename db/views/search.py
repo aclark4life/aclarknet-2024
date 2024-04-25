@@ -56,12 +56,8 @@ class SearchView(UserPassesTestMixin, BaseView, ListView):
                 q = Q()
                 for search_term in query_list:
                     for field in search_model._meta.fields:
-                        if (
-                            field.__class__.__name__ == "CharField"
-                        ):
+                        if field.__class__.__name__ == "CharField":
                             q |= Q(**{f"{field.name}__icontains": search_term})
                 if q:
                     queryset += search_model.objects.filter(q)
-            return [[('type', 'search'), ('result', queryset)]]
-
-
+            return [[("type", "search"), ("result", queryset)]]
