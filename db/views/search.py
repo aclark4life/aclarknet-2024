@@ -37,9 +37,9 @@ class SearchView(UserPassesTestMixin, BaseView, ListView):
 
     def get_queryset(self):
         query = self.request.GET.get("q")
+        queryset = []
         if query:
             query_list = query.split()
-            queryset = []
             for search_model in [
                 Client,
                 Company,
@@ -60,4 +60,5 @@ class SearchView(UserPassesTestMixin, BaseView, ListView):
                             q |= Q(**{f"{field.name}__icontains": search_term})
                 if q:
                     queryset += search_model.objects.filter(q)
-            return [[("type", "search"), ("result", queryset)]]
+            queryset = [[("type", "search"), ("result", queryset)]]
+        return queryset
