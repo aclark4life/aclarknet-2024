@@ -61,29 +61,6 @@ class BaseUserMixin(UserPassesTestMixin):
 class UserListView(BaseUserMixin, BaseUserView, ListView):
     template_name = "index.html"
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     if self.request.user.is_superuser:
-    #         self.page_obj = (
-    #             self.get_queryset()
-    #             .order_by(
-    #                 "-is_active",
-    #                 "-profile__created",
-    #             )
-    #             .annotate(
-    #                 archived=archived_annotation,
-    #                 created=F("profile__created"),
-    #                 updated=F("profile__updated"),
-    #             )
-    #         )
-    #     elif self.request.user.is_authenticated:
-    #         self.page_obj = User.objects.filter(id=self.request.user.id)
-    #     else:
-    #         self.page_obj = User.objects.none()
-    #     context["page_obj"] = self.page_obj
-    #     context["user_nav"] = True
-    #     return context
-
 
 class UserDetailView(BaseUserMixin, BaseUserView, DetailView):
     template_name = "view.html"
@@ -105,16 +82,6 @@ class UserDetailView(BaseUserMixin, BaseUserView, DetailView):
         self.queryset_related = queryset_related
         self.has_related = True
         context = super().get_context_data(**kwargs)
-
-        # Annotate the user instance with profile data
-        context["object"] = (
-            User.objects.filter(id=user.id)
-            .annotate(
-                created=F("profile__created"),
-                updated=F("profile__updated"),
-            )
-            .first()
-        )
 
         times = Time.objects.filter(user=user, archived=False)
         entered = times.aggregate(total=Sum(F("hours")))
