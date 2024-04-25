@@ -23,8 +23,12 @@
                 </thead>
                 <tbody>
                     {% for object_field_values in page_obj_field_values %}
-                        <tr onclick="window.location='{% url object_field_values.0.1|add:"_view" object_field_values.1.1 %}'"
+                        {% if search %}
+                        <tr onclick="window.location='{% if obj.get_absolute_url %}{{ obj.get_absolute_url }}{% else %}{% url 'time_view' 1 %}{% endif %}'"
                             style="cursor: pointer">
+                        {% else %}
+                        <tr onclick="window.location='{% url object_field_values.0.1|add:"_view" object_field_values.1.1 %}'" style="cursor: pointer">
+                        {% endif %}
                             {% if request.user.is_superuser %}
                                 <td onclick="event.stopPropagation();">
                                     <input type="checkbox" name="entry_id" value="{{ object_field_values.1.1 }}" />

@@ -21,6 +21,7 @@ class SearchView(UserPassesTestMixin, BaseView, ListView):
     template_name = "index.html"
     url_index = "search_index"
     search = True
+    context_object_name = "page_obj_field_values"
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -39,7 +40,7 @@ class SearchView(UserPassesTestMixin, BaseView, ListView):
         if query:
             query_list = query.split()
             queryset = []
-            for model in [
+            for search_model in [
                 Client,
                 Company,
                 Contact,
@@ -53,20 +54,14 @@ class SearchView(UserPassesTestMixin, BaseView, ListView):
                 User,
             ]:
                 q = Q()
-                for term in query_list:
-                    for field in model._meta.fields:
-                        if field.name in [
-                            "id",
-                            "created_at",
-                            "updated_at",
-                        ]:  # Exclude these fields
-                            continue
+                for search_term in query_list:
+                    for field in search_model._meta.fields:
                         if (
                             field.__class__.__name__ == "CharField"
-                        ):  # Only search CharFields
-                            q |= Q(**{f"{field.name}__icontains": term})
+                        ):
+                            q |= Q(**{f"{field.name}__icontains": search_term})
                 if q:
-                    queryset += list(model.objects.filter(q))
-            return queryset
-        else:
-            return []
+                    queryset += search_model.objects.filter(q)
+            return [[('type', 'search'), ('result', queryset)]]
+
+

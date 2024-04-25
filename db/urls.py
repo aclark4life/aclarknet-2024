@@ -112,7 +112,6 @@ urlpatterns += [
     path("search", SearchView.as_view(), name="search_index"),
 ]
 
-
 urlpatterns += [
     path("company", CompanyListView.as_view(), name="company_index"),
     path("company", CompanyListView.as_view(), name="company_cancel"),
