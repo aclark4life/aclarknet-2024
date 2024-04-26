@@ -32,7 +32,6 @@ def item_inactive(modeladmin, request, queryset):
 item_inactive.short_description = "Selected items inactive"
 
 
-# Widgets for ImportExport
 class BooleanWidget(widgets.Widget):
     def clean(self, value):
         """
@@ -64,8 +63,6 @@ class ClientResource(ImportExportModelResource):
     class Meta:
         model = Client
 
-    # auto fill id? #295
-    # https://github.com/django-import-export/django-import-export/issues/295
     def get_instance(self, instance_loaders, row):
         return False
 

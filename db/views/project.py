@@ -120,11 +120,7 @@ class ProjectDetailView(BaseProjectView, DetailView):
         invoices = Invoice.objects.filter(project=project).order_by(
             "-created", "archived"
         )
-        queryset_related = [
-            q
-            for q in [contacts, tasks, notes, invoices]
-            if q.exists()
-        ]
+        queryset_related = [q for q in [contacts, tasks, notes, invoices] if q.exists()]
         queryset_related = list(chain(*queryset_related))
         if company:
             queryset_related.insert(0, company)
