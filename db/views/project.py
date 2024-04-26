@@ -20,7 +20,8 @@ from ..models.contact import Contact
 from ..models.invoice import Invoice
 from ..models.project import Project
 from ..models.task import Task
-from .base import BaseView, archived_annotation
+# from .base import BaseView, archived_annotation
+from .base import BaseView
 
 if settings.USE_FAKE:
     from faker import Faker
@@ -110,7 +111,8 @@ class ProjectDetailView(BaseProjectView, DetailView):
     def get_context_data(self, **kwargs):
         project = self.get_object()
         notes = project.notes.all()
-        team = project.team.all().annotate(archived=archived_annotation)
+        # team = project.team.all().annotate(archived=archived_annotation)
+        # team = project.team.all()
         tasks = Task.objects.filter(project=project)
         client = project.client
         company = None
@@ -122,7 +124,8 @@ class ProjectDetailView(BaseProjectView, DetailView):
             "-created", "archived"
         )
         queryset_related = [
-            q for q in [contacts, tasks, team, notes, invoices] if q.exists()
+            # q for q in [contacts, tasks, team, notes, invoices] if q.exists()
+            q for q in [contacts, tasks, notes, invoices] if q.exists()
         ]
         queryset_related = list(chain(*queryset_related))
         if company:
