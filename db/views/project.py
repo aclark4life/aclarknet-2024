@@ -20,6 +20,7 @@ from ..models.contact import Contact
 from ..models.invoice import Invoice
 from ..models.project import Project
 from ..models.task import Task
+
 # from .base import BaseView, archived_annotation
 from .base import BaseView
 
@@ -125,7 +126,9 @@ class ProjectDetailView(BaseProjectView, DetailView):
         )
         queryset_related = [
             # q for q in [contacts, tasks, team, notes, invoices] if q.exists()
-            q for q in [contacts, tasks, notes, invoices] if q.exists()
+            q
+            for q in [contacts, tasks, notes, invoices]
+            if q.exists()
         ]
         queryset_related = list(chain(*queryset_related))
         if company:

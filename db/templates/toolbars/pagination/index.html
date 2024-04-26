@@ -1,26 +1,26 @@
 {% if page_obj %}
-<div class="d-flex justify-content-start">
-    <form class="form">
-        <div class="input-group">
-            {% if page_obj.paginator.count > items_per_page %}
-                {% include 'toolbars/pagination/prev.html' %}
-                {% include 'toolbars/pagination/next.html' %}
-            {% endif %}
-            {% if page_obj.paginator %}
-                {# https://stackoverflow.com/a/7405779/185820 #}
-                {% if page_obj_field_values|length|add:0 >= items_per_page %}
-                    {% include 'toolbars/pagination/perpage.html' %}
-                {% endif %}
-            {% endif %}
-            {% if page_obj.paginator %}
+    <div class="d-flex justify-content-start">
+        <form class="form">
+            <div class="input-group">
                 {% if page_obj.paginator.count > items_per_page %}
-                    <a class="btn btn-outline-primary" href="?paginated=false&q={{ q }}">Show all</a>
+                    {% include 'toolbars/pagination/prev.html' %}
+                    {% include 'toolbars/pagination/next.html' %}
                 {% endif %}
-            {% else %}
-                <a class="btn btn-outline-primary" href="?paginated=true&q={{ q }}">Show paginated</a>
-            {% endif %}
-        </div>
-        <input type="hidden" name="q" value="{{ q }}">
-    </form>
-</div>
+                {% if page_obj.paginator %}
+                    {# https://stackoverflow.com/a/7405779/185820 #}
+                    {% if page_obj_field_values|length|add:0 >= items_per_page %}
+                        {% include 'toolbars/pagination/perpage.html' %}
+                    {% endif %}
+                {% endif %}
+                {% if page_obj.paginator %}
+                    {% if page_obj.paginator.count > items_per_page %}
+                        <a class="btn btn-outline-primary" href="?paginated=false&q={{ q }}">Show all</a>
+                    {% endif %}
+                {% else %}
+                    <a class="btn btn-outline-primary" href="?paginated=true&q={{ q }}">Show paginated</a>
+                {% endif %}
+            </div>
+            <input type="hidden" name="q" value="{{ q }}">
+        </form>
+    </div>
 {% endif %}
