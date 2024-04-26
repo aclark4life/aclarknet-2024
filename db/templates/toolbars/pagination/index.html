@@ -1,4 +1,5 @@
 {% if page_obj %}
+<div class="d-flex justify-content-start">
     <form class="form">
         <div class="input-group">
             {% if page_obj.paginator.count > items_per_page %}
@@ -21,4 +22,5 @@
         </div>
         <input type="hidden" name="q" value="{{ q }}">
     </form>
+</div>
 {% endif %}
