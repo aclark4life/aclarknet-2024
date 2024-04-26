@@ -20,8 +20,6 @@ from ..models.contact import Contact
 from ..models.invoice import Invoice
 from ..models.project import Project
 from ..models.task import Task
-
-# from .base import BaseView, archived_annotation
 from .base import BaseView
 
 if settings.USE_FAKE:
@@ -112,8 +110,6 @@ class ProjectDetailView(BaseProjectView, DetailView):
     def get_context_data(self, **kwargs):
         project = self.get_object()
         notes = project.notes.all()
-        # team = project.team.all().annotate(archived=archived_annotation)
-        # team = project.team.all()
         tasks = Task.objects.filter(project=project)
         client = project.client
         company = None
@@ -125,7 +121,6 @@ class ProjectDetailView(BaseProjectView, DetailView):
             "-created", "archived"
         )
         queryset_related = [
-            # q for q in [contacts, tasks, team, notes, invoices] if q.exists()
             q
             for q in [contacts, tasks, notes, invoices]
             if q.exists()
@@ -185,20 +180,13 @@ class ProjectCopyView(BaseProjectView, CreateView):
         return Project.objects.all()
 
     def get_initial(self):
-        # Get the original project object
         original_project = Project.objects.get(pk=self.kwargs["pk"])
-
-        # Return a dictionary of initial values for the form fields
         return {
             "name": original_project.name,
-            # Add more fields as needed
         }
 
     def form_valid(self, form):
-        # Copy the original project's data to a new project object
         new_project = form.save(commit=False)
         new_project.pk = None
         new_project.save()
-
-        # Redirect to the success URL
         return super().form_valid(form)
