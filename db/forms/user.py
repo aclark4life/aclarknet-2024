@@ -72,5 +72,6 @@ class UserForm(forms.ModelForm):
             profile.mail = self.cleaned_data["mail"]
         if commit:
             user.save()
+        if profile and commit:
             profile.save()
         return user
