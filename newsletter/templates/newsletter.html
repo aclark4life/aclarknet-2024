@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Latest Newsletter</title>
-    </head>
-    <body>
+{% extends 'dashboard/index.html' %}
+{% block dashboard %}
         {% if latest_newsletter %}
             <h2>Latest Newsletter</h2>
             <h3>{{ latest_newsletter.subject }}</h3>
@@ -12,5 +7,4 @@
         {% else %}
             <p>No newsletters available.</p>
         {% endif %}
-    </body>
-</html>
+{% endblock %}
