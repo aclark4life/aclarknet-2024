@@ -61,10 +61,6 @@
                            href="{% url 'contact_index' %}">Contacts</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link{% if user_nav %} active{% endif %}"
-                           href="{% url 'user_index' %}">Users</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link{% if modelformtest_nav %} active{% endif %}"
                            href="{% url 'testmodel_list' %}">Marketing</a>
                     </li>
@@ -87,6 +83,10 @@
                     <li class="nav-item">
                         <a class="nav-link{% if task_nav %} active{% endif %}"
                            href="{% url 'task_index' %}">Tasks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if user_nav %} active{% endif %}"
+                           href="{% url 'user_index' %}">Users</a>
                     </li>
                 </ul>
             {% endif %}
