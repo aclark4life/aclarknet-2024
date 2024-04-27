@@ -26,8 +26,6 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # Populate initial values from Profile model
         profile = getattr(self.instance, "profile", None)
         if profile:
             self.fields["rate"].initial = profile.rate
@@ -62,9 +60,7 @@ class UserForm(forms.ModelForm):
         )
 
     def save(self, commit=True):
-        # Save User model
         user = super().save(commit=commit)
-        # Save Profile model
         profile = getattr(user, "profile", None)
         if profile:
             profile.rate = self.cleaned_data["rate"]
