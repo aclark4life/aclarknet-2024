@@ -182,6 +182,7 @@ urlpatterns += [
 
 urlpatterns += [
     path("contact", ContactListView.as_view(), name="contact_index"),
+    path("contact", ContactListView.as_view(), name="contact_cancel"),
     path("contact/create/", ContactCreateView.as_view(), name="contact_create"),
     path("contact/<int:pk>/", ContactDetailView.as_view(), name="contact_view"),
     path("contact/<int:pk>/update/", ContactUpdateView.as_view(), name="contact_edit"),
