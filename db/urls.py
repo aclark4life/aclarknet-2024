@@ -173,6 +173,7 @@ urlpatterns += [
 
 urlpatterns += [
     path("user", UserListView.as_view(), name="user_index"),
+    path("user", UserListView.as_view(), name="user_cancel"),
     path("user/create/", UserCreateView.as_view(), name="user_create"),
     path("user/<int:pk>/", UserDetailView.as_view(), name="user_view"),
     path("user/<int:pk>/update/", UserUpdateView.as_view(), name="user_edit"),
