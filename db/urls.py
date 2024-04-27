@@ -3,7 +3,7 @@ from django.urls import include, path
 from .views import trigger_500
 from .views.archive import archive
 
-# from .views.chess import ChessBoardView
+
 from .views.client import (
     ClientCopyView,
     ClientCreateView,
@@ -102,6 +102,10 @@ from .views.user import (
 
 urlpatterns = [
     path("", DashboardView.as_view(), name="dashboard"),
+]
+
+urlpatterns += [
+    path("newsletter/", include("newsletter.urls")),
 ]
 
 urlpatterns += [
