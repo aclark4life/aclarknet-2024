@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Latest Newsletter</title>
-</head>
-<body>
-    {% if latest_newsletter %}
-        <h2>Latest Newsletter</h2>
-        <h3>{{ latest_newsletter.subject }}</h3>
-        <p>{{ latest_newsletter.content }}</p>
-    {% else %}
-        <p>No newsletters available.</p>
-    {% endif %}
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <title>Latest Newsletter</title>
+    </head>
+    <body>
+        {% if latest_newsletter %}
+            <h2>Latest Newsletter</h2>
+            <h3>{{ latest_newsletter.subject }}</h3>
+            <p>{{ latest_newsletter.content }}</p>
+        {% else %}
+            <p>No newsletters available.</p>
+        {% endif %}
+    </body>
 </html>
-

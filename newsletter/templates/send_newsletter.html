@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Send Newsletter</title>
-</head>
-<body>
-    <h2>Send Newsletter</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Send</button>
-    </form>
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <title>Send Newsletter</title>
+    </head>
+    <body>
+        <h2>Send Newsletter</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Send</button>
+        </form>
+    </body>
 </html>
