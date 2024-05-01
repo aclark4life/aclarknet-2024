@@ -1,6 +1,7 @@
 from django.db import models
 from db.models.base import BaseModel
 from django.conf import settings
+from django.shortcuts import reverse
 
 
 class Note(BaseModel):

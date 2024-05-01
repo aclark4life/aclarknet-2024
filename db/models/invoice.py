@@ -3,6 +3,7 @@ from db.models.client import Client
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
+from django.shortcuts import reverse
 
 
 class Invoice(BaseModel):

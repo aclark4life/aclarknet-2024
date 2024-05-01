@@ -1,5 +1,6 @@
 from django.db import models
 from db.models.base import BaseModel
+from django.shortcuts import reverse
 
 
 class Service(BaseModel):

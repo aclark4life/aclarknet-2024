@@ -3,6 +3,7 @@ from db.models.base import BaseModel
 from db.models.client import Client
 from django.conf import settings
 from db.models.company import Company
+from django.shortcuts import reverse
 
 
 class Project(BaseModel):

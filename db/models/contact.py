@@ -3,6 +3,7 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from db.models.base import BaseModel
 from db.models.client import Client
+from django.shortcuts import reverse
 
 
 class Contact(BaseModel):

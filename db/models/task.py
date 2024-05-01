@@ -1,5 +1,6 @@
 from db.models.base import BaseModel
 from django.db import models
+from django.shortcuts import reverse
 
 
 class Task(BaseModel):
