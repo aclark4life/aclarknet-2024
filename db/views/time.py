@@ -70,15 +70,14 @@ class BaseTimeView(BaseView, UserPassesTestMixin):
                 form.fields["task"].empty_label = None
                 if project.task:
                     form.fields["task"].queryset = Task.objects.filter(
-                        id=project.task.id
+                        project__in=projects,
                     )
                 form.fields["project"].empty_label = None
-                form.fields["project"].queryset = Project.objects.filter(id=project.id)
+                form.fields["project"].queryset = projects
                 form.fields["client"].empty_label = None
-                if project.client:
-                    form.fields["client"].queryset = Client.objects.filter(
-                        id=project.client.id
-                    )
+                form.fields["client"].queryset = Client.objects.filter(
+                    project__in=projects,
+                )
 
         form.fields["user"].empty_label = None
         form.fields["user"].queryset = User.objects.filter(pk=self.request.user.id)
