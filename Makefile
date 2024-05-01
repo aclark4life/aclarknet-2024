@@ -29,6 +29,7 @@ GIT_BRANCHES = $(shell git branch -a | grep remote | grep -v HEAD | grep -v main
 GIT_MESSAGE = "Update $(PROJECT_NAME)"
 GIT_COMMIT = git commit -a -m $(GIT_MESSAGE)
 GIT_PUSH = git push
+GIT_PUSH_FORCE = git push --force-with-lease
 
 GET_DATABASE_URL = eb ssh -c "source /opt/elasticbeanstalk/deployment/custom_env_var;\
     env | grep DATABASE_URL"
@@ -561,6 +562,32 @@ CMD set -xe; pg_ctl -D /var/lib/pgsql/data -l /tmp/logfile start; python3.11 man
 endef
 
 define DOCKERCOMPOSE
+version: '3'
+
+services:
+  db:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: project
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+
+  web:
+    build: .
+    command: sh -c "python manage.py migrate && gunicorn project.wsgi:application -b 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://admin:admin@db:5432/project
+
+volumes:
+  postgres_data:
 endef
 
 define INTERNAL_IPS
@@ -1733,6 +1760,9 @@ endif
 docker-build-default:
 	podman build -t $(PROJECT_NAME) .
 
+docker-compose-default:
+	podman compose up
+
 docker-serve-default:
 	podman run -p 8000:8000 $(PROJECT_NAME)
 
@@ -1784,6 +1814,9 @@ eb-init-default:
 
 eb-list-platforms-default:
 	aws elasticbeanstalk list-platform-versions
+
+eb-list-databases-default:
+	@eb ssh --quiet -c "export PGPASSWORD=$(DATABASE_PASS); psql -l -U $(DATABASE_USER) -h $(DATABASE_HOST) $(DATABASE_NAME)"
 
 eb-logs-default:
 	eb logs
@@ -2056,6 +2089,9 @@ git-commit-default:
 git-push-default:
 	-@$(GIT_PUSH)
 
+git-push-force-default:
+	-@$(GIT_PUSH_FORCE)
+
 git-commit-edit-default:
 	-git commit -a
 
@@ -2301,7 +2337,7 @@ wagtail-start-default:
 
 wagtail-init-default: db-init wagtail-install wagtail-start
 	@echo "$$DOCKERFILE" > Dockerfile
-	# @echo "$$DOCKERCOMPOSE" > compose.yml
+	@echo "$$DOCKERCOMPOSE" > docker-compose.yml
 	export SETTINGS=backend/settings/base.py DEV_SETTINGS=backend/settings/dev.py; \
 		$(MAKE) django-settings
 	export SETTINGS=backend/settings/base.py; \
@@ -2462,6 +2498,7 @@ djlint-default: lint-djlint
 e-default: edit
 edit-default: readme-edit-md
 empty-default: git-commit-empty
+force-push-default: git-push-force
 freeze-default: pip-freeze
 git-commit-edit-push-default: git-commit-edit git-push
 git-commit-push-default: git-commit git-push
