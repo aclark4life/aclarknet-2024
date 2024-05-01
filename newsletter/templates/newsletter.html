@@ -1,10 +1,10 @@
 {% extends 'dashboard/index.html' %}
 {% block dashboard %}
-        {% if latest_newsletter %}
-            <h2>Latest Newsletter</h2>
-            <h3>{{ latest_newsletter.subject }}</h3>
-            <p>{{ latest_newsletter.content }}</p>
-        {% else %}
-            <p>No newsletters available.</p>
-        {% endif %}
+    {% if latest_newsletter %}
+        <h2>Latest Newsletter</h2>
+        <h3>{{ latest_newsletter.subject }}</h3>
+        <p>{{ latest_newsletter.content }}</p>
+    {% else %}
+        <p>No newsletters available.</p>
+    {% endif %}
 {% endblock %}
