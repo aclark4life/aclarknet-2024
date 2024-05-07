@@ -61,6 +61,7 @@ django-registration==3.4
 django-richtextfield==1.6.2
 django-sendgrid-v5==1.2.3
 django-social-share==2.3.0
+django-sql-explorer==4.2
 django-storages==1.14.2
 django-tables2==2.7.0
 django-taggit==5.0.1
