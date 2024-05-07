@@ -109,6 +109,10 @@ class BaseView:
             page_obj_field_values = self.get_context_page_obj_field_values(
                 page_obj, search=True
             )
+            if len(page_obj_field_values) > 0:
+                context["search_results"] = True
+            else:
+                context["search_results"] = False
             context["page_obj_field_values"] = page_obj_field_values
 
         return context

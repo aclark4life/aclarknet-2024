@@ -2,7 +2,11 @@
 {% block dashboard_title %}Search{% endblock %}
 {% block dashhead_title %}<h2 class="dashhead-title">Search</h2>{% endblock %}
 {% block dashboard %}
-    {% include 'toolbars/pagination/index.html' %}
-    {% include 'table/index.html' %}
-    {% include 'toolbars/pagination/index.html' %}
+    {% if search_results %}
+        {% include 'toolbars/pagination/index.html' %}
+        {% include 'table/index.html' %}
+        {% include 'toolbars/pagination/index.html' %}
+    {% else %}
+        {% include 'table/empty.html' %}
+    {% endif %}
 {% endblock %}

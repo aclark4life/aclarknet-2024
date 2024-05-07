@@ -21,41 +21,36 @@
                 </thead>
                 <tbody>
                     {% for object_field_values in page_obj_field_values %}
-                        {% if search %}
-                            <tr onclick="window.location='{% if obj.get_absolute_url %}{{ obj.get_absolute_url }}{% else %}{% url 'time_view' 1 %}{% endif %}'"
-                                style="cursor: pointer">
-                            {% else %}
-                                <tr onclick="window.location='{% url object_field_values.0.1|add:"_view" object_field_values.1.1 %}'"
-                                    style="cursor: pointer">
-                                {% endif %}
-                                {% if request.user.is_superuser %}
-                                    <td onclick="event.stopPropagation();">
-                                        <input type="checkbox" name="entry_id" value="{{ object_field_values.1.1 }}" />
+                        <tr onclick="window.location='{% url object_field_values.0.1|add:"_view" object_field_values.1.1 %}'"
+                            style="cursor: pointer">
+                            {% if request.user.is_superuser %}
+                                <td onclick="event.stopPropagation();">
+                                    <input type="checkbox" name="entry_id" value="{{ object_field_values.1.1 }}" />
+                                </td>
+                            {% endif %}
+                            {% if request.user.is_superuser %}
+                                {% if model_name == "user" %}
+                                    <td class="text-center" onclick="event.stopPropagation();">
+                                        <div data-bs-toggle="modal"
+                                             data-bs-target="#hijackModal"
+                                             data-userid="{{ object_field_values.1.1 }}"
+                                             data-firstname="{{ object_field_values.4.1 }}"
+                                             data-lastname="{{ object_field_values.5.1 }}"
+                                             data-username="{{ object_field_values.3.1 }}">
+                                            <i class="fa-solid fa-user-secret"></i>
+                                        </div>
                                     </td>
                                 {% endif %}
-                                {% if request.user.is_superuser %}
-                                    {% if model_name == "user" %}
-                                        <td class="text-center" onclick="event.stopPropagation();">
-                                            <div data-bs-toggle="modal"
-                                                 data-bs-target="#hijackModal"
-                                                 data-userid="{{ object_field_values.1.1 }}"
-                                                 data-firstname="{{ object_field_values.4.1 }}"
-                                                 data-lastname="{{ object_field_values.5.1 }}"
-                                                 data-username="{{ object_field_values.3.1 }}">
-                                                <i class="fa-solid fa-user-secret"></i>
-                                            </div>
-                                        </td>
-                                    {% endif %}
-                                {% endif %}
-                                {% for field_name, field_value in object_field_values %}
-                                    <td>{% include 'table/field_value.html' %}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </form>
-    {% else %}
-        {% include 'table/empty.html' %}
-    {% endif %}
+                            {% endif %}
+                            {% for field_name, field_value in object_field_values %}
+                                <td>{% include 'table/field_value.html' %}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+{% else %}
+    {% include 'table/empty.html' %}
+{% endif %}

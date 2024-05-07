@@ -1,7 +1,19 @@
-{% if not dashboard and not search %}
+{% if not dashboard %}
     <main class="d-flex flex-column">
-        <h1>Get started with {{ model_name_plural }}</h1>
-        <p class="lead">Cultivate your digital garden with {{ model_name_plural }}</p>
+        {% if not search %}
+            <h1>Get started with {{ model_name_plural }}</h1>
+        {% else %}
+            <h1>
+                Get started with a <a href="?q=t">test search</a>
+            </h1>
+        {% endif %}
+        {% if not search %}
+            <p class="lead">Cultivate your digital garden with {{ model_name_plural }}</p>
+        {% else %}
+            <p class="lead">
+                Cultivate your digital garden with  <a href="?q=t">test search</a>
+            </p>
+        {% endif %}
         <p>
             Welcome to a world of possibilities, where your creativity can flourish and your dreams can take root. As you embark on this journey with us, let the seeds of your imagination blossom into beautiful creations.
         </p>
@@ -16,7 +28,12 @@
         </p>
     </main>
     <div class="btn-toolbar dashhead-toolbar">
-        <a class="btn-toolbar-item input-with-icon btn btn-outline-primary"
-           href="{% url urls.url_create %}"><i class="fa-solid fa-plus"></i> Add {{ model_name }}</a>
+        {% if not search %}
+            <a class="btn-toolbar-item input-with-icon btn btn-outline-primary"
+               href="{% url urls.url_create %}"><i class="fa-solid fa-plus"></i> Add {{ model_name }}</a>
+        {% else %}
+            <a class="btn-toolbar-item input-with-icon btn btn-outline-primary"
+               href="?q=t">Perhaps a test search?</a>
+        {% endif %}
     </div>
 {% endif %}
