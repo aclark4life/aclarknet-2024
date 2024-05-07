@@ -12,11 +12,9 @@
                                 <input type="checkbox" id="select-all" />
                                 <span class="visually-hidden">Link text</span>
                             </th>
-                        {% endif %}
-                        {% if request.user.is_superuser %}
                             {% if model_name == "user" %}<th>Hijack</th>{% endif %}
                         {% endif %}
-                        {% for field_name, field_value in page_obj_field_values.0 %}
+                        {% for field_name in table_headers %}
                             <th>{% include 'table/field_name.html' %}</th>
                         {% endfor %}
                     </tr>

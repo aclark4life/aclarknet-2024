@@ -81,9 +81,12 @@ class BaseView:
         context["page_obj"] = page_obj
 
         if hasattr(self, "form_class"):
-            context["page_obj_field_values"] = self.get_context_page_obj_field_values(
-                page_obj
-            )
+            page_obj_field_values = self.get_context_page_obj_field_values(page_obj)
+            context["page_obj_field_values"] = page_obj_field_values
+            # Get table headers from first row of results
+            table_headers = [i[0] for i in page_obj_field_values[0]]
+            context["table_headers"] = table_headers
+
         if self.model and hasattr(self, "object"):
             context["page_obj_detail"] = self.get_context_page_obj_detail()
         if hasattr(self, "form_class") and hasattr(self, "object"):
