@@ -9,7 +9,6 @@ from ..models.client import Client
 from ..models.company import Company
 from ..models.contact import Contact
 from ..models.invoice import Invoice
-from ..models.profile import Profile
 from ..models.project import Project
 from ..models.report import Report
 from ..models.task import Task
@@ -22,7 +21,6 @@ SEARCH_MODELS = (
     Contact,
     Invoice,
     Note,
-    Profile,
     Project,
     Report,
     Task,
