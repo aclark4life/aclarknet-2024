@@ -41,6 +41,7 @@ class BaseView:
 
         if self.model_name:
             context["model_name"] = self.model_name
+            context[f"{self.model_name}_nav"] = True
 
         if self.model_name_plural:
             context["model_name_plural"] = self.model_name_plural
@@ -89,6 +90,7 @@ class BaseView:
 
         if self.model and hasattr(self, "object"):
             context["page_obj_detail"] = self.get_context_page_obj_detail()
+
         if hasattr(self, "form_class") and hasattr(self, "object"):
             object = self.object
             object_fields = self.form_class().fields.keys()
@@ -101,13 +103,23 @@ class BaseView:
             except AttributeError:
                 object_field_values = []
             context["object_field_values"] = object_field_values
-        context[f"{self.model_name}_nav"] = True
-        context["search"] = self.search
+
+        if self.search:
+            context["search"] = self.search
+            page_obj_field_values = self.get_context_page_obj_field_values(
+                page_obj, search=True
+            )
+            context["page_obj_field_values"] = page_obj_field_values
+
         return context
 
-    def get_context_page_obj_field_values(self, page_obj):
+    def get_context_page_obj_field_values(self, page_obj, search=False):
         page_obj_field_values = []
-        page_obj_field_items = self.form_class().fields.items()
+
+        if not search:
+            page_obj_field_items = self.form_class().fields.items()
+        else:
+            page_obj_field_items = []
         for item in page_obj:
             object_field_values = []
             object_field_values.append(("type", item._meta.model_name))

@@ -16,12 +16,25 @@ from ..models.task import Task
 from ..models.time import Time
 from .base import BaseView
 
+SEARCH_MODELS = (
+    Client,
+    Company,
+    Contact,
+    Invoice,
+    Note,
+    Profile,
+    Project,
+    Report,
+    Task,
+    Time,
+    User,
+)
+
 
 class SearchView(UserPassesTestMixin, BaseView, ListView):
-    template_name = "index.html"
-    url_index = "search_index"
     search = True
-    context_object_name = "page_obj_field_values"
+    template_name = "search.html"
+    url_index = "search_index"
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -36,29 +49,17 @@ class SearchView(UserPassesTestMixin, BaseView, ListView):
         return context
 
     def get_queryset(self):
-        query = self.request.GET.get("q")
         queryset = []
+        query = self.request.GET.get("q")
         if query:
-            query_list = query.split()
-            for search_model in [
-                Client,
-                Company,
-                Contact,
-                Invoice,
-                Note,
-                Profile,
-                Project,
-                Report,
-                Task,
-                Time,
-                User,
-            ]:
+            query = query.split()
+            for search_model in SEARCH_MODELS:
                 q = Q()
-                for search_term in query_list:
+                for search_term in query:
                     for field in search_model._meta.fields:
+                        # Only search text fields
                         if field.__class__.__name__ == "CharField":
                             q |= Q(**{f"{field.name}__icontains": search_term})
                 if q:
                     queryset += search_model.objects.filter(q)
-            queryset = [[("type", "search"), ("result", queryset)]]
         return queryset
