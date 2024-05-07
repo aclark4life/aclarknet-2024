@@ -69,10 +69,12 @@ class BaseView:
         if queryset and not self.search:
             queryset = queryset.order_by(*self.order_by)
 
+        related = False
         if self.has_related:
             if len(self.queryset_related) > 0:
                 context["has_related"] = True
                 queryset = self.queryset_related
+                related = True
 
         paginator = Paginator(queryset, per_page)
         if self.paginated:
@@ -82,7 +84,9 @@ class BaseView:
         context["page_obj"] = page_obj
 
         if hasattr(self, "form_class"):
-            page_obj_field_values = self.get_context_page_obj_field_values(page_obj)
+            page_obj_field_values = self.get_context_page_obj_field_values(
+                page_obj, related=related
+            )
             context["page_obj_field_values"] = page_obj_field_values
             # Get table headers from first row of results
             table_headers = [i[0] for i in page_obj_field_values[0]]
@@ -117,13 +121,13 @@ class BaseView:
 
         return context
 
-    def get_context_page_obj_field_values(self, page_obj, search=False):
+    def get_context_page_obj_field_values(self, page_obj, search=False, related=False):
         page_obj_field_values = []
 
-        if not search:
-            page_obj_field_items = self.form_class().fields.items()
-        else:
+        if search or related:
             page_obj_field_items = []
+        else:
+            page_obj_field_items = self.form_class().fields.items()
         for item in page_obj:
             object_field_values = []
             object_field_values.append(("type", item._meta.model_name))
