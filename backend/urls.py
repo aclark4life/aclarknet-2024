@@ -19,6 +19,7 @@ urlpatterns = [
     path("modelformtest/", include("modelformtest.urls")),
     path("resume/", include("resume.urls")),
     path("dashboard/", include("db.urls")),
+    path('explorer/', include('explorer.urls')),
 ]
 
 if settings.DEBUG:

@@ -30,7 +30,7 @@ const UserMenu = ({ isAuthenticated, isSuperuser }) => {
                 <li><a className="dropdown-item" href="/lounge" target="_blank">Lounge</a></li>
                 <li><a className="dropdown-item" href="/dashboard/user">Users</a></li>
                 <li><a className="dropdown-item" href="/blog">Blog</a></li>
-                <li><a className="dropdown-item" href="/modelformtest/test-models">Marketing</a></li>
+                <li><a className="dropdown-item" href="/explorer">SQL Explorer</a></li>
               </>
             ) : null}
             <li><hr className="dropdown-divider"></hr></li>
