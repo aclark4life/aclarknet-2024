@@ -149,4 +149,4 @@ zopfli==0.2.3
 vendor/puput-2.0.0.zip
 vendor/wagtail-django-recaptcha-1.0.zip
 vendor/wagtail-seo-2.4.1.zip
-vendor/django_newsletter-0.9.1.post61+g04cfe20.d20240508.zip
+vendor/django_newsletter-0.9.1.post62+g00bf86d.d20240508.zip
