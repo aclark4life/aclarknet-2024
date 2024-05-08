@@ -708,8 +708,12 @@ define HOME_PAGE_TEMPLATE
 {% endblock %}
 endef
 
-define INDEX_HTML
+define HTML_INDEX
 <h1>Hello world</h1>
+endef
+
+define HTML_ERROR
+<h1>500</h1>
 endef
 
 define JENKINS_FILE
@@ -1056,7 +1060,7 @@ const App = () => (
         {dataComponents}
       </UserContextProvider>
     </ErrorBoundary>
-)
+);
 root.render(<App />);
 endef
 
@@ -1696,12 +1700,13 @@ export FRONTEND_COMPONENTS
 export FRONTEND_PORTAL
 export FRONTEND_STYLES
 export GIT_IGNORE
+export HTML_ERROR
+export HTML_INDEX
 export HOME_PAGE_MODEL
 export HOME_PAGE_TEMPLATE
 export HTML_FOOTER
 export HTML_HEADER
 export HTML_OFFCANVAS
-export INDEX_HTML
 export INTERNAL_IPS
 export JENKINS_FILE
 export MODEL_FORM_TEST_ADMIN
@@ -1760,11 +1765,21 @@ endif
 docker-build-default:
 	podman build -t $(PROJECT_NAME) .
 
+docker-shell-default:
+	podman run -it $(PROJECT_NAME) /bin/bash
+
+docker-list-default:
+	podman container list --all
+	podman images --all
+
 docker-compose-default:
 	podman compose up
 
 docker-serve-default:
 	podman run -p 8000:8000 $(PROJECT_NAME)
+
+docker-run-default:
+	podman run $(PROJECT_NAME)
 
 eb-check-env-default:  # https://stackoverflow.com/a/4731504/185820
 ifndef SSH_KEY
@@ -1802,6 +1817,10 @@ eb-create-default: eb-check-env
 
 eb-deploy-default:
 	eb deploy
+
+eb-export-default:
+	@eb ssh --quiet -c "export PGPASSWORD=$(DATABASE_PASS); pg_dump -U $(DATABASE_USER) -h $(DATABASE_HOST) $(DATABASE_NAME)" > $(DATABASE_NAME).sql
+	@echo "Wrote $(DATABASE_NAME).sql"
 
 eb-restart-default:
 	eb ssh -c "systemctl restart web"
@@ -1857,9 +1876,6 @@ db-pg-init-test-default:
 	-dropdb test_$(PROJECT_NAME)
 	-createdb test_$(PROJECT_NAME)
 
-db-pg-export-default:
-	@eb ssh --quiet -c "export PGPASSWORD=$(DATABASE_PASS); pg_dump -U $(DATABASE_USER) -h $(DATABASE_HOST) $(DATABASE_NAME)" > $(DATABASE_NAME).sql
-	@echo "Wrote $(DATABASE_NAME).sql"
 
 db-pg-import-default:
 	@psql $(DATABASE_NAME) < $(DATABASE_NAME).sql
@@ -2015,6 +2031,7 @@ django-npm-install-save-default:
         @fortawesome/free-brands-svg-icons \
         @fortawesome/free-solid-svg-icons \
         @fortawesome/react-fontawesome \
+		bootstrap \
         camelize \
         date-fns \
         history \
@@ -2086,6 +2103,9 @@ git-branches-default:
 git-commit-default:
 	-@$(GIT_COMMIT)
 
+git-commit-empty-default:
+	git commit --allow-empty -m "Empty-Commit"
+
 git-push-default:
 	-@$(GIT_PUSH)
 
@@ -2101,8 +2121,8 @@ git-prune-default:
 git-set-upstream-default:
 	git push --set-upstream origin main
 
-git-commit-empty-default:
-	git commit --allow-empty -m "Empty-Commit"
+git-short-default:
+	@echo $(GIT_REV)
 
 help-default:
 	@for makefile in $(MAKEFILE_LIST); do \
@@ -2112,8 +2132,11 @@ help-default:
             | xargs | tr ' ' '\n' \
             | awk '{printf "%s\n", $$0}' ; done | less # http://stackoverflow.com/a/26339924
 
-index-default:
-	@echo "$$INDEX_HTML" > index.html
+html-index-default:
+	@echo "$$HTML_INDEX" > index.html
+
+html-error-default:
+	@echo "$$HTML_ERROR" > error.html
 
 jenkins-init-default:
 	@echo "$$JENKINS_FILE" > Jenkinsfile
@@ -2487,7 +2510,6 @@ ce-default: git-commit-edit-push
 clean-default: wagtail-clean
 cp-default: git-commit-push
 d-default: deploy
-db-export-default: db-pg-export
 db-import-default: db-pg-import
 db-init-default: db-pg-init
 db-init-test-default: db-pg-init-test
@@ -2505,6 +2527,8 @@ git-commit-push-default: git-commit git-push
 gitignore-default: git-ignore
 h-default: help
 i-default: install
+index-default: html-index
+error-default: html-error
 init-default: wagtail-init
 install-default: pip-install
 install-dev-default: pip-install-dev
@@ -2528,6 +2552,7 @@ secret-default: django-secret
 serve-default: django-serve
 shell-default: django-shell
 show-urls-default: django-show-urls
+show-migrations-default: migrations-show
 ssm-list-default: aws-ssm-describe-parameters
 static-default: django-static
 su-default: django-su
