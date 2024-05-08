@@ -165,10 +165,10 @@ class TimeDetailView(BaseTimeView, DetailView):
 
     def test_func(self):
         time_entry = self.get_object()
-        user = time_entry.user
+        time_user = time_entry.user
         if self.request.user.is_superuser:
             return True
-        elif self.request.user.is_authenticated and self.request.user == user:
+        elif self.request.user.is_authenticated and self.request.user == time_user:
             return True
         else:
             return False

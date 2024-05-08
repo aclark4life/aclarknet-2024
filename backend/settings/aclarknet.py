@@ -41,5 +41,5 @@ INSTALLED_APPS.append("nowpage")
 # INSTALLED_APPS.append("newsletter")
 INSTALLED_APPS.append("explorer")
 MIDDLEWARE.append("hijack.middleware.HijackUserMiddleware")
-EXPLORER_CONNECTIONS = { 'Default': 'default' }
-EXPLORER_DEFAULT_CONNECTION = 'default'
+EXPLORER_CONNECTIONS = {"Default": "default"}
+EXPLORER_DEFAULT_CONNECTION = "default"

@@ -149,7 +149,10 @@ class BaseView:
         last_object = None
         next_object = None
         previous_object = None
-        objects = self.model.objects.all()
+        if self.request.user.is_authenticated and not self.request.user.is_superuser:
+            objects = self.model.objects.filter(user=self.request.user)
+        else:
+            objects = self.model.objects.all()
         paginator = Paginator(objects, 1)
         page_number = self.request.GET.get("page_number_detail", 1)
         page_number = int(page_number)

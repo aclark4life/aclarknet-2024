@@ -25,9 +25,11 @@
                         {% include 'charts/index.html' %}
                     {% endif %}
                     {% include 'statcards/index.html' %}
-                    {% include 'dashboard/time.html' %}
                     {% if request.user.is_superuser %}
                         {% include 'dashboard/invoice.html' %}
+                    {% endif %}
+                    {% include 'dashboard/time.html' %}
+                    {% if request.user.is_superuser %}
                         <div class="row">
                             {% include 'dashboard/task.html' %}
                             {% include 'dashboard/project.html' %}
