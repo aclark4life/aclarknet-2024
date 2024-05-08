@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    # "django.contrib.sites",
     "django.contrib.staticfiles",
 ]
 
@@ -184,7 +183,7 @@ INSTALLED_APPS.append("rest_framework")
 INSTALLED_APPS.append("rest_framework.authtoken")
 INSTALLED_APPS.append("allauth")
 INSTALLED_APPS.append("allauth.account")
-INSTALLED_APPS.append("allauth.socialaccount")
+# INSTALLED_APPS.append("allauth.socialaccount")
 INSTALLED_APPS.append("wagtailmenus")
 INSTALLED_APPS.append("wagtailmarkdown")
 INSTALLED_APPS.append("wagtail_modeladmin")
@@ -226,11 +225,8 @@ TEMPLATES[0]["OPTIONS"]["context_processors"].append(
 SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
 INSTALLED_APPS.append("modelformtest")
 INSTALLED_APPS.append("siteuser")
-# AUTH_USER_MODEL = "siteuser.User"
 INSTALLED_APPS.append("privacy")
 INSTALLED_APPS.append("contactpage")
 INSTALLED_APPS.append("sitepage")
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-
-# SITE_ID = 1

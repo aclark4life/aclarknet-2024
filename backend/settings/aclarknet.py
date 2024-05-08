@@ -16,7 +16,6 @@ DOC_TYPES = {
     "task-order": "Task Order",
 }
 
-
 MAIL_FROM = "aclark.net@aclark.net"
 MAIL_TO = "aclark@aclark.net"
 PER_PAGE = 10
@@ -38,8 +37,10 @@ INSTALLED_APPS.append("blog")
 INSTALLED_APPS.append("puput")
 INSTALLED_APPS.append("colorful")
 INSTALLED_APPS.append("nowpage")
-# INSTALLED_APPS.append("newsletter")
+INSTALLED_APPS.append("django.contrib.sites")
+INSTALLED_APPS.append("newsletter")
 INSTALLED_APPS.append("explorer")
 MIDDLEWARE.append("hijack.middleware.HijackUserMiddleware")
 EXPLORER_CONNECTIONS = {"Default": "default"}
 EXPLORER_DEFAULT_CONNECTION = "default"
+SITE_ID = 1  # newsletter
