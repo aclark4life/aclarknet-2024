@@ -105,10 +105,6 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path("newsletter/", include("newsletter.urls")),
-]
-
-urlpatterns += [
     path("accounts/", include("allauth.socialaccount.providers.github.urls")),
 ]
 
