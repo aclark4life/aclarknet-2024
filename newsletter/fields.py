@@ -1,5 +1,5 @@
 """Model fields for django-newsletter."""
-from django.db.models import ImageField
+
 from django.core.exceptions import ImproperlyConfigured
 
 # Conditional imports as only one Thumbnail app is required
@@ -16,11 +16,11 @@ except (ImportError, RuntimeError):
 from .settings import newsletter_settings
 
 # Uses the model field provided by the thumbnailing application
-if newsletter_settings.THUMBNAIL == 'sorl-thumbnail':
+if newsletter_settings.THUMBNAIL == "sorl-thumbnail":
     ParentClass = SorlImageField
-elif newsletter_settings.THUMBNAIL == 'easy-thumbnails':
+elif newsletter_settings.THUMBNAIL == "easy-thumbnails":
     ParentClass = ThumbnailerImageField
 else:
-    raise ImproperlyConfigured('Invalid NEWSLETTER_THUMBNAIL value.')
+    raise ImproperlyConfigured("Invalid NEWSLETTER_THUMBNAIL value.")
 
-DynamicImageField = type('DynamicImageField', (ParentClass,), {})
+DynamicImageField = type("DynamicImageField", (ParentClass,), {})

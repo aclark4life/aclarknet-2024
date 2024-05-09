@@ -10,6 +10,8 @@ class Job(HourlyJob):
     def execute(self):
         warnings.warn(
             "The django-extensions cron job is deprecated in favor of the"
-            "submit_newsletter management command.", DeprecationWarning)
+            "submit_newsletter management command.",
+            DeprecationWarning,
+        )
 
-        call_command('submit_newsletter')
+        call_command("submit_newsletter")

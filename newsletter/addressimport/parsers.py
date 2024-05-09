@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 import io
@@ -12,15 +13,15 @@ from newsletter.models import Subscription
 
 
 class AddressList:
-    """ List with unique addresses. """
+    """List with unique addresses."""
 
     def __init__(self, newsletter, ignore_errors=False):
         self.newsletter = newsletter
         self.ignore_errors = ignore_errors
         self.addresses = {}
 
-    def add(self, email, name=None, location='unknown location'):
-        """ Add name to list. """
+    def add(self, email, name=None, location="unknown location"):
+        """Add name to list."""
 
         logger.debug("Going to add %s <%s>", name, email)
 
@@ -36,9 +37,8 @@ class AddressList:
             )
 
             if not self.ignore_errors:
-                raise forms.ValidationError(_(
-                    "Entry '%s' does not contain a valid "
-                    "e-mail address.") % name
+                raise forms.ValidationError(
+                    _("Entry '%s' does not contain a valid " "e-mail address.") % name
                 )
 
             # Skip this entry
@@ -46,27 +46,27 @@ class AddressList:
 
         if email in self.addresses:
             logger.warning(
-                "Entry '%s' contains a duplicate entry at %s."
-                % (email, location)
+                "Entry '%s' contains a duplicate entry at %s." % (email, location)
             )
 
             if not self.ignore_errors:
-                raise forms.ValidationError(_(
-                    "The address file contains duplicate entries "
-                    "for '%s'.") % email)
+                raise forms.ValidationError(
+                    _("The address file contains duplicate entries " "for '%s'.")
+                    % email
+                )
 
             # Skip this entry
             return
 
         if subscription_exists(self.newsletter, email, name):
             logger.warning(
-                "Entry '%s' is already subscribed to at %s."
-                % (email, location)
+                "Entry '%s' is already subscribed to at %s." % (email, location)
             )
 
             if not self.ignore_errors:
                 raise forms.ValidationError(
-                    _("Some entries are already subscribed to."))
+                    _("Some entries are already subscribed to.")
+                )
 
             # Skip this entry
             return
@@ -79,9 +79,8 @@ def subscription_exists(newsletter, email, name=None):
     Return wheter or not a subscription exists.
     """
     qs = Subscription.objects.filter(
-        newsletter__id=newsletter.id,
-        subscribed=True,
-        email_field__exact=email)
+        newsletter__id=newsletter.id, subscribed=True, email_field__exact=email
+    )
 
     return qs.exists()
 
@@ -95,7 +94,7 @@ def check_email(email, ignore_errors=False):
 
     logger.debug("Checking e-mail address %s", email)
 
-    email_length = Subscription._meta.get_field('email_field').max_length
+    email_length = Subscription._meta.get_field("email_field").max_length
 
     # Get rid of leading/trailing spaces
     email = email.strip()
@@ -107,10 +106,8 @@ def check_email(email, ignore_errors=False):
             _(
                 "E-mail address %(email)s too long, maximum length is "
                 "%(email_length)s characters."
-            ) % {
-                "email": email,
-                "email_length": email_length
-            }
+            )
+            % {"email": email, "email_length": email_length}
         )
 
 
@@ -122,7 +119,7 @@ def check_name(name, ignore_errors=False):
     """
     logger.debug("Checking name: %s", name)
 
-    name_length = Subscription._meta.get_field('name_field').max_length
+    name_length = Subscription._meta.get_field("name_field").max_length
 
     # Get rid of leading/trailing spaces
     name = name.strip()
@@ -134,15 +131,13 @@ def check_name(name, ignore_errors=False):
             _(
                 "Name %(name)s too long, maximum length is "
                 "%(name_length)s characters."
-            ) % {
-                "name": name,
-                "name_length": name_length
-            }
+            )
+            % {"name": name, "name_length": name_length}
         )
 
 
 def get_encoding(myfile):
-    """ Returns encoding of file, rewinding the file after detection. """
+    """Returns encoding of file, rewinding the file after detection."""
 
     # Detect encoding
     from chardet.universaldetector import UniversalDetector
@@ -155,7 +150,7 @@ def get_encoding(myfile):
             break
 
     detector.close()
-    encoding = detector.result['encoding']
+    encoding = detector.result["encoding"]
 
     # Reset the file index
     myfile.seek(0)
@@ -176,14 +171,13 @@ def parse_csv(myfile, newsletter, ignore_errors=False):
 
     # Attempt to detect the dialect
     # Ref: https://bugs.python.org/issue5332
-    encodedfile = io.TextIOWrapper(myfile, encoding=encoding, newline='')
+    encodedfile = io.TextIOWrapper(myfile, encoding=encoding, newline="")
     dialect = unicodecsv.Sniffer().sniff(encodedfile.read(1024))
 
     # Reset the file index
     myfile.seek(0)
 
-    logger.info('Detected encoding %s and dialect %s for CSV file',
-                encoding, dialect)
+    logger.info("Detected encoding %s and dialect %s for CSV file", encoding, dialect)
 
     myreader = unicodecsv.reader(myfile, dialect=dialect, encoding=encoding)
 
@@ -196,16 +190,18 @@ def parse_csv(myfile, newsletter, ignore_errors=False):
         if "name" in column.lower() or _("name") in column.lower():
             namecol = colnum
 
-            if "display" in column.lower() or \
-                    _("display") in column.lower():
+            if "display" in column.lower() or _("display") in column.lower():
                 break
 
         colnum += 1
 
     if namecol is None:
-        raise forms.ValidationError(_(
-            "Name column not found. The name of this column should be "
-            "either 'name' or '%s'.") % _("name")
+        raise forms.ValidationError(
+            _(
+                "Name column not found. The name of this column should be "
+                "either 'name' or '%s'."
+            )
+            % _("name")
         )
 
     logger.debug("Name column found: '%s'", firstrow[namecol])
@@ -214,10 +210,11 @@ def parse_csv(myfile, newsletter, ignore_errors=False):
     colnum = 0
     mailcol = None
     for column in firstrow:
-        if 'email' in column.lower() or \
-                'e-mail' in column.lower() or \
-                _("e-mail") in column.lower():
-
+        if (
+            "email" in column.lower()
+            or "e-mail" in column.lower()
+            or _("e-mail") in column.lower()
+        ):
             mailcol = colnum
 
             break
@@ -225,10 +222,12 @@ def parse_csv(myfile, newsletter, ignore_errors=False):
         colnum += 1
 
     if mailcol is None:
-        raise forms.ValidationError(_(
-            "E-mail column not found. The name of this column should be "
-            "either 'email', 'e-mail' or '%(email)s'.") %
-            {'email': _("e-mail")}
+        raise forms.ValidationError(
+            _(
+                "E-mail column not found. The name of this column should be "
+                "either 'email', 'e-mail' or '%(email)s'."
+            )
+            % {"email": _("e-mail")}
         )
 
     logger.debug("E-mail column found: '%s'", firstrow[mailcol])
@@ -239,13 +238,11 @@ def parse_csv(myfile, newsletter, ignore_errors=False):
                 "Could not properly determine the proper columns in the "
                 "CSV-file. There should be a field called 'name' or "
                 "'%(name)s' and one called 'e-mail' or '%(email)s'."
-            ) % {
-                "name": _("name"),
-                "email": _("e-mail")
-            }
+            )
+            % {"name": _("name"), "email": _("e-mail")}
         )
 
-    logger.debug('Extracting data.')
+    logger.debug("Extracting data.")
 
     address_list = AddressList(newsletter, ignore_errors)
 
@@ -253,16 +250,20 @@ def parse_csv(myfile, newsletter, ignore_errors=False):
         if not max(namecol, mailcol) < len(row):
             logger.warning(
                 "Column count does not match for row number %d",
-                myreader.line_num, extra=dict(data={'row': row})
+                myreader.line_num,
+                extra=dict(data={"row": row}),
             )
 
             if ignore_errors:
                 # Skip this record
                 continue
             else:
-                raise forms.ValidationError(_(
-                    "Row with content '%(row)s' does not contain a name and "
-                    "email field.") % {'row': row}
+                raise forms.ValidationError(
+                    _(
+                        "Row with content '%(row)s' does not contain a name and "
+                        "email field."
+                    )
+                    % {"row": row}
                 )
 
         address_list.add(
@@ -286,27 +287,24 @@ def parse_vcard(myfile, newsletter, ignore_errors=False):
     try:
         myvcards = card_me.readComponents(encodedfile)
     except card_me.VObjectError as e:
-        raise forms.ValidationError(
-            _("Error reading vCard file: %s" % e)
-        )
+        raise forms.ValidationError(_("Error reading vCard file: %s" % e))
 
     address_list = AddressList(newsletter, ignore_errors)
 
     for myvcard in myvcards:
-        if hasattr(myvcard, 'fn'):
+        if hasattr(myvcard, "fn"):
             name = myvcard.fn.value
         else:
-
-
             name = None
 
         # Do we have an email address?
         # If not: either continue to the next vcard or raise validation error.
-        if hasattr(myvcard, 'email'):
+        if hasattr(myvcard, "email"):
             email = myvcard.email.value
         elif not ignore_errors:
             raise forms.ValidationError(
-                _("Entry '%s' contains no email address.") % name)
+                _("Entry '%s' contains no email address.") % name
+            )
         else:
             continue
 
@@ -330,19 +328,18 @@ def parse_ldif(myfile, newsletter, ignore_errors=False):
         parser = LDIFParser(myfile)
 
         for dn, entry in parser.parse():
-            if 'mail' in entry:
-                email = entry['mail'][0]
+            if "mail" in entry:
+                email = entry["mail"][0]
 
-                if 'cn' in entry:
-                    name = entry['cn'][0]
+                if "cn" in entry:
+                    name = entry["cn"][0]
                 else:
                     name = None
 
                 address_list.add(email, name)
 
             elif not ignore_errors:
-                raise forms.ValidationError(
-                    _("Some entries have no e-mail address."))
+                raise forms.ValidationError(_("Some entries have no e-mail address."))
 
     except ValueError as e:
         if not ignore_errors:

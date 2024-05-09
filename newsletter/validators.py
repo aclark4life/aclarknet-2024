@@ -11,8 +11,11 @@ def validate_email_nouser(email):
     User = get_user_model()
 
     if User.objects.filter(email__exact=email).exists():
-        raise ValidationError(_(
-            "The e-mail address '%(email)s' belongs to a user with an "
-            "account on this site. Please log in as that user "
-            "and try again."
-        ) % {'email': email})
+        raise ValidationError(
+            _(
+                "The e-mail address '%(email)s' belongs to a user with an "
+                "account on this site. Please log in as that user "
+                "and try again."
+            )
+            % {"email": email}
+        )

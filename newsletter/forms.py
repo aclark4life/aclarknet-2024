@@ -7,21 +7,20 @@ from .validators import validate_email_nouser
 
 
 class NewsletterForm(forms.ModelForm):
-    """ This is the base class for all forms managing subscriptions. """
+    """This is the base class for all forms managing subscriptions."""
 
     class Meta:
         model = Subscription
-        fields = ('name_field', 'email_field')
+        fields = ("name_field", "email_field")
 
     def __init__(self, *args, **kwargs):
+        assert "newsletter" in kwargs, "No newsletter specified"
 
-        assert 'newsletter' in kwargs, 'No newsletter specified'
+        newsletter = kwargs.pop("newsletter")
 
-        newsletter = kwargs.pop('newsletter')
-
-        if 'ip' in kwargs:
-            ip = kwargs['ip']
-            del kwargs['ip']
+        if "ip" in kwargs:
+            ip = kwargs["ip"]
+            del kwargs["ip"]
         else:
             ip = None
 
@@ -45,13 +44,12 @@ class SubscribeRequestForm(NewsletterForm):
     )
 
     def clean_email_field(self):
-        data = self.cleaned_data['email_field']
+        data = self.cleaned_data["email_field"]
 
         # Check whether we have already been subscribed to
         try:
             subscription = Subscription.objects.get(
-                email_field__exact=data,
-                newsletter=self.instance.newsletter
+                email_field__exact=data, newsletter=self.instance.newsletter
             )
 
             if subscription.subscribed and not subscription.unsubscribed:
@@ -80,31 +78,26 @@ class UpdateRequestForm(NewsletterForm):
     )
 
     class Meta(NewsletterForm.Meta):
-        fields = ('email_field',)
+        fields = ("email_field",)
 
     def clean(self):
         if not self.instance.subscribed:
-            raise ValidationError(
-                _("This subscription has not yet been activated.")
-            )
+            raise ValidationError(_("This subscription has not yet been activated."))
 
         return super().clean()
 
     def clean_email_field(self):
-        data = self.cleaned_data['email_field']
+        data = self.cleaned_data["email_field"]
 
         # Set our instance on the basis of the email field, or raise
         # a validationerror
         try:
             self.instance = Subscription.objects.get(
-                newsletter=self.instance.newsletter,
-                email_field__exact=data
+                newsletter=self.instance.newsletter, email_field__exact=data
             )
 
         except Subscription.DoesNotExist:
-                raise ValidationError(
-                    _("This e-mail address has not been subscribed to.")
-                )
+            raise ValidationError(_("This e-mail address has not been subscribed to."))
 
         return data
 
@@ -135,18 +128,16 @@ class UpdateForm(NewsletterForm):
     )
 
     def clean_user_activation_code(self):
-        data = self.cleaned_data['user_activation_code']
+        data = self.cleaned_data["user_activation_code"]
 
         if data != self.instance.activation_code:
             raise ValidationError(
-                _('The validation code supplied by you does not match.')
+                _("The validation code supplied by you does not match.")
             )
 
         return data
 
-    user_activation_code = forms.CharField(
-        label=_("Activation code"), max_length=40
-    )
+    user_activation_code = forms.CharField(label=_("Activation code"), max_length=40)
 
 
 class UserUpdateForm(forms.ModelForm):
@@ -157,9 +148,9 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Subscription
-        fields = ('subscribed',)
+        fields = ("subscribed",)
         # Newsletter here should become a read only field,
         # once this is supported by Django.
 
         # For now, use a hidden field.
-        hidden_fields = ('newsletter',)
+        hidden_fields = ("newsletter",)

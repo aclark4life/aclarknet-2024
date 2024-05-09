@@ -20,7 +20,7 @@ urlpatterns = [
     path("resume/", include("resume.urls")),
     path("dashboard/", include("db.urls")),
     path("explorer/", include("explorer.urls")),
-    path('newsletter/', include('newsletter.urls')),
+    path("newsletter/", include("newsletter.urls")),
 ]
 
 if settings.DEBUG:

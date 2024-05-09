@@ -1,13 +1,12 @@
-{% load i18n %}<!DOCTYPE html>
-
+{% load i18n %}
+<!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <title>{% blocktrans with title=newsletter.title %}Subscription to {{ title }}{% endblocktrans %}
-</title>
-</head>
-<body>
-{% blocktrans with name=subscription.name|default:_("Sir/Madam") title=newsletter.title domain=site.domain url=subscription.subscribe_activate_url %}Dear {{ name }},
+    <head>
+        <meta charset="utf-8">
+        <title>{% blocktrans with title=newsletter.title %}Subscription to {{ title }}{% endblocktrans %}</title>
+    </head>
+    <body>
+        {% blocktrans with name=subscription.name|default:_("Sir/Madam") title=newsletter.title domain=site.domain url=subscription.subscribe_activate_url %}Dear {{ name }},
 
 you, or someone in your name requested a subscription to {{ title }}.
 
@@ -15,6 +14,6 @@ If you would like to confirm your subscription, please follow this activation li
 http://{{ domain }}{{ url }}
 
 Kind regards,{% endblocktrans %}
-{{ newsletter.sender }}
-</body>
+        {{ newsletter.sender }}
+    </body>
 </html>

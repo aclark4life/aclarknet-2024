@@ -1,6 +1,7 @@
 """
 actual sending of the submissions
 """
+
 import logging
 
 from django.core.management.base import BaseCommand
@@ -14,8 +15,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Setup logging based on verbosity: 1 -> INFO, >1 -> DEBUG
-        verbosity = int(options['verbosity'])
-        logger = logging.getLogger('newsletter')
+        verbosity = int(options["verbosity"])
+        logger = logging.getLogger("newsletter")
         if verbosity == 0:
             logger.setLevel(logging.WARN)
         elif verbosity == 1:  # default
@@ -26,7 +27,7 @@ class Command(BaseCommand):
             logger = logging.getLogger()
             logger.setLevel(logging.DEBUG)
 
-        logger.info(_('Submitting queued newsletter mailings'))
+        logger.info(_("Submitting queued newsletter mailings"))
 
         # Call submission
         Submission.submit_queue()

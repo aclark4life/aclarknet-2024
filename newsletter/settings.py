@@ -30,7 +30,7 @@ class Settings:
         """
         Assert app-specific prefix.
         """
-        assert hasattr(self, 'settings_prefix'), 'No prefix specified.'
+        assert hasattr(self, "settings_prefix"), "No prefix specified."
 
     def __getattr__(self, attr):
         """
@@ -44,11 +44,11 @@ class Settings:
             try:
                 setting = getattr(
                     django_settings,
-                    f'{self.settings_prefix}_{attr}',
+                    f"{self.settings_prefix}_{attr}",
                 )
             except AttributeError:
-                if not attr.startswith('DEFAULT_'):
-                    setting = getattr(self, 'DEFAULT_%s' % attr)
+                if not attr.startswith("DEFAULT_"):
+                    setting = getattr(self, "DEFAULT_%s" % attr)
                 else:
                     raise
 
@@ -56,14 +56,13 @@ class Settings:
 
         else:
             # Default behaviour
-            raise AttributeError(
-                'No setting or default available for \'%s\'' % attr
-            )
+            raise AttributeError("No setting or default available for '%s'" % attr)
 
 
 class NewsletterSettings(Settings):
-    """ Django-newsletter specific settings. """
-    settings_prefix = 'NEWSLETTER'
+    """Django-newsletter specific settings."""
+
+    settings_prefix = "NEWSLETTER"
 
     DEFAULT_CONFIRM_EMAIL = True
 
@@ -96,9 +95,8 @@ class NewsletterSettings(Settings):
                 # (e.g. user sets setting to an integer)
                 raise ImproperlyConfigured(
                     "Error while importing setting "
-                    "NEWSLETTER_RICHTEXT_WIDGET %r: %s" % (
-                        NEWSLETTER_RICHTEXT_WIDGET, e
-                    )
+                    "NEWSLETTER_RICHTEXT_WIDGET %r: %s"
+                    % (NEWSLETTER_RICHTEXT_WIDGET, e)
                 )
 
         return None
@@ -107,26 +105,24 @@ class NewsletterSettings(Settings):
     def THUMBNAIL(self):
         """Validates and returns the set thumbnail application."""
         SUPPORTED_THUMBNAILERS = [
-            'sorl-thumbnail',
-            'easy-thumbnails',
+            "sorl-thumbnail",
+            "easy-thumbnails",
         ]
-        THUMBNAIL = getattr(
-            django_settings, 'NEWSLETTER_THUMBNAIL', None
-        )
+        THUMBNAIL = getattr(django_settings, "NEWSLETTER_THUMBNAIL", None)
 
         # Checks that the user entered a value
         if THUMBNAIL is None:
             warnings.warn(
                 (
-                    'No NEWSLETTER_THUMBNAIL setting specified - '
-                    'sorl-thumbnail will be used by default. '
-                    'django-newsletter version 0.11.0 will require an '
-                    'explicit declaration of the preferred thumbnailer.'
+                    "No NEWSLETTER_THUMBNAIL setting specified - "
+                    "sorl-thumbnail will be used by default. "
+                    "django-newsletter version 0.11.0 will require an "
+                    "explicit declaration of the preferred thumbnailer."
                 ),
-                DeprecationWarning
+                DeprecationWarning,
             )
 
-            return 'sorl-thumbnail'
+            return "sorl-thumbnail"
 
         # Checks for a supported thumbnailer
         if THUMBNAIL in SUPPORTED_THUMBNAILERS:
@@ -136,5 +132,6 @@ class NewsletterSettings(Settings):
         raise ImproperlyConfigured(
             "'%s' is not a supported thumbnail application." % THUMBNAIL
         )
+
 
 newsletter_settings = NewsletterSettings()
