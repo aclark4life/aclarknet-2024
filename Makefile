@@ -72,6 +72,8 @@ GIT_ADD := -git add
 
 ENSURE_PIP := python -m ensurepip
 
+EB_DIR = .elasticbeanstalk
+
 # --------------------------------------------------------------------------------
 # Multi-line variables
 # --------------------------------------------------------------------------------
@@ -391,6 +393,7 @@ const UserMenu = ({ isAuthenticated, isSuperuser, textColor }) => {
                 <li><a className="dropdown-item" href="/django" target="_blank">Django admin</a></li>
                 <li><a className="dropdown-item" href="/wagtail" target="_blank">Wagtail admin</a></li>
                 <li><a className="dropdown-item" href="/api" target="_blank">Django REST framework</a></li>
+                <li><a className="dropdown-item" href="/explorer" target="_blank">SQL Explorer</a></li>
               </>
             ) : null}
             <li><hr className="dropdown-divider"></hr></li>
@@ -808,7 +811,7 @@ from wagtail import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 from rest_framework import routers, serializers, viewsets
-# from dj_rest_auth.registration.views import RegisterView
+from dj_rest_auth.registration.views import RegisterView
 
 from siteuser.models import User
 
@@ -819,6 +822,7 @@ urlpatterns = [
     path('user/', include('siteuser.urls')),
     path('search/', include('search.urls')),
     path('modelformtest/', include('modelformtest.urls')),
+    path('explorer/', include('explorer.urls')),
 ]
 
 if settings.DEBUG:
@@ -850,7 +854,7 @@ router.register(r'users', UserViewSet)
 urlpatterns += [
     path("api/", include(router.urls)),
     path("api/", include("rest_framework.urls", namespace="rest_framework")),
-    # path("api/", include("dj_rest_auth.urls")),
+    path("api/", include("dj_rest_auth.urls")),
     # path("api/register/", RegisterView.as_view(), name="register"),
 ]
 
@@ -1818,9 +1822,21 @@ eb-create-default: eb-check-env
 eb-deploy-default:
 	eb deploy
 
-eb-export-default:
-	@eb ssh --quiet -c "export PGPASSWORD=$(DATABASE_PASS); pg_dump -U $(DATABASE_USER) -h $(DATABASE_HOST) $(DATABASE_NAME)" > $(DATABASE_NAME).sql
-	@echo "Wrote $(DATABASE_NAME).sql"
+eb-pg-export-default:
+	@if [ ! -d $(EB_DIR) ]; then \
+        echo "Directory $(EB_DIR) does not exist"; \
+    else \
+        echo "Directory $(EB_DIR) does exist!"; \
+        eb ssh --quiet -c "export PGPASSWORD=$(DATABASE_PASS); pg_dump -U $(DATABASE_USER) -h $(DATABASE_HOST) $(DATABASE_NAME)" > $(DATABASE_NAME).sql; \
+        echo "Wrote $(DATABASE_NAME).sql"; \
+    fi
+
+#     @if [ ! -d .elasticbeanstalk ]; then \
+#         echo "Sorry, no .elasticbeanstalk/ found. Please run `eb init`." \
+#     else \
+#         eb ssh --quiet -c "export PGPASSWORD=$(DATABASE_PASS); pg_dump -U $(DATABASE_USER) -h $(DATABASE_HOST) $(DATABASE_NAME)" > $(DATABASE_NAME).sql;
+#         echo "Wrote $(DATABASE_NAME).sql" \
+#     fi
 
 eb-restart-default:
 	eb ssh -c "systemctl restart web"
@@ -1982,6 +1998,7 @@ django-settings-default:
 	echo "INSTALLED_APPS.append('crispy_forms')" >> $(SETTINGS)
 	echo "INSTALLED_APPS.append('crispy_bootstrap5')" >> $(SETTINGS)
 	echo "INSTALLED_APPS.append('django_recaptcha')" >> $(SETTINGS)
+	echo "INSTALLED_APPS.append('explorer')" >> $(DEV_SETTINGS)
 	echo "MIDDLEWARE.append('allauth.account.middleware.AccountMiddleware')" >> $(SETTINGS)
 	echo "MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')" >> $(DEV_SETTINGS)
 	echo "MIDDLEWARE.append('hijack.middleware.HijackUserMiddleware')" >> $(DEV_SETTINGS)
@@ -1996,6 +2013,8 @@ django-settings-default:
 	echo "TEMPLATES[0]['OPTIONS']['context_processors'].append('wagtail.contrib.settings.context_processors.settings')" >> $(SETTINGS)
 	echo "TEMPLATES[0]['OPTIONS']['context_processors'].append('wagtailmenus.context_processors.wagtailmenus')">> $(SETTINGS)
 	echo "SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']" >> $(SETTINGS)
+	echo "EXPLORER_CONNECTIONS = { 'Default': 'default' }" >> $(SETTINGS)
+	echo "EXPLORER_DEFAULT_CONNECTION = 'default'" >> $(SETTINGS)
 
 django-crispy-default:
 	@echo "CRISPY_TEMPLATE_PACK = 'bootstrap5'" >> $(SETTINGS)
@@ -2428,11 +2447,13 @@ wagtail-install-default:
         django-richtextfield \
         django-sendgrid-v5 \
         django-social-share \
+        django-sql-explorer \
         django-storages \
         django-tables2 \
         django-timezone-field \
 		django-widget-tweaks \
         dj-database-url \
+        dj-rest-auth \
         dj-stripe \
         enmerkar \
         gunicorn \
@@ -2442,6 +2463,7 @@ wagtail-install-default:
         mailchimp-transactional \
         phonenumbers \
         psycopg2-binary \
+        pydotplus \
         python-webpack-boilerplate \
         python-docx \
         reportlab \
@@ -2511,6 +2533,7 @@ clean-default: wagtail-clean
 cp-default: git-commit-push
 d-default: deploy
 db-import-default: db-pg-import
+db-export-default: eb-pg-export
 db-init-default: db-pg-init
 db-init-test-default: db-pg-init-test
 deploy-default: eb-deploy

@@ -1,6 +1,0 @@
-[run]
-source = newsletter
-branch = True
-
-[report]
-omit = newsletter/migrations/*, newsletter/south_migrations/*, newsletter/tests/*

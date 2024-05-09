@@ -43,4 +43,4 @@ INSTALLED_APPS.append("explorer")
 MIDDLEWARE.append("hijack.middleware.HijackUserMiddleware")
 EXPLORER_CONNECTIONS = {"Default": "default"}
 EXPLORER_DEFAULT_CONNECTION = "default"
-# SITE_ID = 1  # newsletter
+SITE_ID = 1  # newsletter
