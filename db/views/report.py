@@ -180,9 +180,6 @@ class ReportListView(BaseReportView, ListView):
     #     else:
     #         self.page_obj = Report.objects.none()
     #     context["page_obj"] = self.page_obj
-    #     if not self.request.user.is_superuser:
-    #         self.exclude_fields.append("Cost")
-    #         self.exclude_fields.append("Net")
     #     queryset = Report.objects.filter(archived=False)
     #     hours = queryset.aggregate(total_hours=Sum("hours"))["total_hours"]
     #     hours = hours or 0

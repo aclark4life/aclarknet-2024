@@ -35,7 +35,6 @@ class BaseProjectView(BaseView, UserPassesTestMixin):
     form_model = ProjectForm
     form_class = ProjectForm
     template_name = "edit.html"
-    exclude_fields = ["Description", "Team"]
     order_by = ["archived", "name", "-created"]
     url_cancel = f"{model_name.lower()}_cancel"
     url_copy = f"{model_name.lower()}_copy"
