@@ -13,6 +13,7 @@ class TimeForm(forms.ModelForm):
         model = Time
         fields = [
             "archived",
+            "user",
             "date",
             "hours",
             "description",
@@ -20,7 +21,6 @@ class TimeForm(forms.ModelForm):
             "project",
             "task",
             "invoice",
-            "user",
         ]
 
     def __init__(self, *args, **kwargs):
