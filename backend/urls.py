@@ -12,6 +12,7 @@ from siteuser.models import User
 
 urlpatterns = [
     path("accounts/", include("allauth.urls")),
+    path('django/doc/', include('django.contrib.admindocs.urls')),
     path("django/", admin.site.urls),
     path("wagtail/", include(wagtailadmin_urls)),
     path("user/", include("siteuser.urls")),
