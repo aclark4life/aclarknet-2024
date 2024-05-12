@@ -51,7 +51,18 @@ class BaseInvoiceView(BaseView, UserPassesTestMixin):
     url_index = f"{model_name.lower()}_index"
     url_view = f"{model_name.lower()}_view"
     template_name = "edit.html"
-    exclude = ["contacts", "company", "start_date", "end_date", "due_date", "user", "client", "project", "task", "issue_date"]
+    exclude = [
+        "contacts",
+        "company",
+        "start_date",
+        "end_date",
+        "due_date",
+        "user",
+        "client",
+        "project",
+        "task",
+        "issue_date",
+    ]
 
     def test_func(self):
         return self.request.user.is_superuser
