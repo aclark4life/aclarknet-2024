@@ -10,6 +10,7 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = (
+            "archived",
             "name",
             "description",
             "client",
@@ -17,7 +18,6 @@ class ProjectForm(forms.ModelForm):
             "start_date",
             "end_date",
             "team",
-            "archived",
         )
         widgets = {
             "start_date": forms.DateInput(attrs={"type": "date"}),
