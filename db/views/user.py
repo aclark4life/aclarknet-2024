@@ -38,7 +38,7 @@ class BaseUserView(BaseView):
     form_class = UserForm
     form_model = UserForm
     order_by = ["-is_active", "username"]
-    exclude = ["rate", "mail", "address"]
+    exclude = ["rate", "mail", "address", "first_name", "last_name"]
     url_cancel = f"{model_name.lower()}_cancel"
     url_create = f"{model_name.lower()}_create"
     url_copy = f"{model_name.lower()}_copy"
