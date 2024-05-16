@@ -4,14 +4,14 @@
             <h1>Get started with {{ model_name_plural }}</h1>
         {% else %}
             <h1>
-                Get started with a <a href="?q=t">test search</a>
+                Get started with a <a class="text-secondary text-decoration-none" href="?q=t">test search</a>
             </h1>
         {% endif %}
         {% if not search %}
             <p class="lead">Cultivate your digital garden with {{ model_name_plural }}</p>
         {% else %}
             <p class="lead">
-                Cultivate your digital garden with  <a href="?q=t">test search</a>
+                Cultivate your digital garden with  <a class="text-secondary text-decoration-none" href="?q=t">test search</a>
             </p>
         {% endif %}
         <p>
@@ -33,7 +33,7 @@
                href="{% url urls.url_create %}"><i class="fa-solid fa-plus"></i> Add {{ model_name }}</a>
         {% else %}
             <a class="btn-toolbar-item input-with-icon btn btn-outline-primary"
-               href="?q=t">Perhaps a test search?</a>
+               href="?q=t"><i class="fa-solid fa-magnifying-glass"></i> Search</a>
         {% endif %}
     </div>
 {% endif %}
