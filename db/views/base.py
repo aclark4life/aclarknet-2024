@@ -83,14 +83,12 @@ class BaseView:
             page_obj = queryset
         context["page_obj"] = page_obj
 
+        page_obj_field_values = []
         if hasattr(self, "form_class"):
             page_obj_field_values = self.get_context_page_obj_field_values(
                 page_obj, related=related
             )
             context["page_obj_field_values"] = page_obj_field_values
-            # Get table headers from first row of results
-            table_headers = [i[0] for i in page_obj_field_values[0]]
-            context["table_headers"] = table_headers
 
         if self.model and hasattr(self, "object"):
             context["page_obj_detail"] = self.get_context_page_obj_detail()
@@ -118,6 +116,11 @@ class BaseView:
             else:
                 context["search_results"] = False
             context["page_obj_field_values"] = page_obj_field_values
+
+        if page_obj_field_values:
+            # Get table headers from first row of results
+            table_headers = [i[0] for i in page_obj_field_values[0]]
+            context["table_headers"] = table_headers
 
         return context
 
