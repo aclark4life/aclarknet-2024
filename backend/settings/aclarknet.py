@@ -41,6 +41,7 @@ INSTALLED_APPS.append("django.contrib.sites")
 INSTALLED_APPS.append("newsletter")
 INSTALLED_APPS.append("explorer")
 INSTALLED_APPS.append("django.contrib.admindocs")
+INSTALLED_APPS.append("sorl.thumbnail")
 MIDDLEWARE.append("hijack.middleware.HijackUserMiddleware")
 EXPLORER_CONNECTIONS = {"Default": "default"}
 EXPLORER_DEFAULT_CONNECTION = "default"
