@@ -9,6 +9,7 @@ class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = (
+            "archived",
             "publish",
             "link",
             "name",
@@ -16,7 +17,6 @@ class ClientForm(forms.ModelForm):
             "address",
             "url",
             "company",
-            "archived",
             "tags",
         )
 

@@ -15,7 +15,7 @@ class CompanyForm(forms.ModelForm):
 
     class Meta:
         model = Company
-        fields = ("name", "url", "description", "client_set", "archived")
+        fields = ("archived", "name", "url", "description", "client_set")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

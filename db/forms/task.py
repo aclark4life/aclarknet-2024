@@ -8,7 +8,7 @@ from ..models.task import Task
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ("name", "rate", "unit", "archived")
+        fields = ("archived", "name", "rate", "unit")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
