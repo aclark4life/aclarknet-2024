@@ -11,7 +11,7 @@
             <p class="lead">Cultivate your digital garden with {{ model_name_plural }}</p>
         {% else %}
             <p class="lead">
-                Cultivate your digital garden with  <a class="text-secondary text-decoration-none" href="?q=t">test search</a>
+                Cultivate your digital garden with <a class="text-secondary text-decoration-none" href="?q=t">test search</a>
             </p>
         {% endif %}
         <p>
@@ -23,9 +23,15 @@
         <p>
             Just like a skilled gardener, you can plant the seeds of your <span class="fw-bold">{{ model_name_plural }}</span> and watch them grow into something truly remarkable. With just a few simple steps, you can bring your vision to life and marvel at the splendor of your digital garden.
         </p>
+        {% if not search %}
         <p>
             So why wait? Take the first step and add an <span class="fw-bold">{{ model_name_plural }}</span> to your garden today. Let your creativity flourish and watch your web application thrive with the beauty of your creations. Get ready to cultivate a world of possibilities and let your digital garden bloom with <span class="fw-bold">{{ model_name_plural }}</span>!
         </p>
+        {% else %}
+        <p>
+            So why wait? Take the first step and add an <span class="fw-bold">{{ model_name_plural }}</span> to your garden today. Let your creativity flourish and watch your web application thrive with the beauty of your creations. Get ready to cultivate a world of possibilities and let your digital garden bloom with a <a class="text-secondary text-decoration-none" href="?q=t">test search</a>!
+        </p>
+        {% endif %}
     </main>
     <div class="btn-toolbar dashhead-toolbar">
         {% if not search %}
