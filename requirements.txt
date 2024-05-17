@@ -105,6 +105,7 @@ opentelemetry-instrumentation-jinja2==0.45b0
 opentelemetry-instrumentation-psycopg2==0.45b0
 opentelemetry-instrumentation-requests==0.45b0
 opentelemetry-instrumentation-sqlite3==0.45b0
+opentelemetry-instrumentation-system-metrics==0.45b0
 opentelemetry-instrumentation-urllib3==0.45b0
 opentelemetry-instrumentation-urllib==0.45b0
 opentelemetry-instrumentation-wsgi==0.45b0
@@ -120,6 +121,7 @@ pilkit==3.0
 pillow==10.3.0
 pillow_heif==0.16.0
 protobuf==4.25.3
+psutil==5.9.8
 psycopg2-binary==2.9.9
 pyHanko==0.23.2
 pycparser==2.22
