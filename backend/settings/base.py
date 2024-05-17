@@ -240,3 +240,7 @@ LOGGING = {
     },
     "root": {"handlers": ["console"], "level": "WARNING"},
 }
+import logfire
+from opentelemetry.instrumentation.django import DjangoInstrumentor
+logfire.configure()
+DjangoInstrumentor().instrument()
