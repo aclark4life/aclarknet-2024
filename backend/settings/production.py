@@ -25,13 +25,13 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "not-a-secret")
 
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG")
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler"}},
-    "root": {"handlers": ["console"], "level": "WARNING"},
-}
+# LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG")
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "handlers": {"console": {"class": "logfire.integrations.logging import LogfireLoggingHandler"}},
+#     "root": {"handlers": ["console"], "level": "WARNING"},
+# }
 
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")

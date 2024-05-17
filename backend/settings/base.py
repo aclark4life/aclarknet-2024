@@ -230,3 +230,11 @@ INSTALLED_APPS.append("contactpage")
 INSTALLED_APPS.append("sitepage")
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG")
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logfire.integrations.logging.LogfireLoggingHandler"}},
+    "root": {"handlers": ["console"], "level": "WARNING"},
+}

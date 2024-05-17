@@ -83,6 +83,7 @@ idna==3.7
 jmespath==1.0.1
 l18n==2021.3
 laces==0.1.1
+logfire==0.32.1
 lxml==5.2.1
 mailchimp-marketing==3.0.80
 mailchimp-transactional==1.0.56
