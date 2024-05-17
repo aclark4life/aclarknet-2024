@@ -5,10 +5,10 @@ from django.contrib import admin
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail import urls as wagtail_urls
 
-from rest_framework import routers, serializers, viewsets
+# from rest_framework import routers, serializers, viewsets
 # from dj_rest_auth.registration.views import RegisterView
 
-from siteuser.models import User
+# from siteuser.models import User
 
 urlpatterns = [
     path("accounts/", include("allauth.urls")),
@@ -40,26 +40,26 @@ if settings.DEBUG:
 
 
 # https://www.django-rest-framework.org/#example
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ["url", "username", "email", "is_staff"]
+# class UserSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ["url", "username", "email", "is_staff"]
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+# class UserViewSet(viewsets.ModelViewSet):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
 
 
-router = routers.DefaultRouter()
-router.register(r"users", UserViewSet)
+# router = routers.DefaultRouter()
+# router.register(r"users", UserViewSet)
 
-urlpatterns += [
-    path("api/", include(router.urls)),
-    path("api/", include("rest_framework.urls", namespace="rest_framework")),
-    # path("api/", include("dj_rest_auth.urls")),
-    # path("api/register/", RegisterView.as_view(), name="register"),
-]
+# urlpatterns += [
+#     path("api/", include(router.urls)),
+#     path("api/", include("rest_framework.urls", namespace="rest_framework")),
+#     # path("api/", include("dj_rest_auth.urls")),
+#     # path("api/register/", RegisterView.as_view(), name="register"),
+# ]
 
 urlpatterns += [
     path("hijack/", include("hijack.urls")),
