@@ -235,6 +235,8 @@ LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logfire.integrations.logging.LogfireLoggingHandler"}},
+    "handlers": {
+        "console": {"class": "logfire.integrations.logging.LogfireLoggingHandler"}
+    },
     "root": {"handlers": ["console"], "level": "WARNING"},
 }
