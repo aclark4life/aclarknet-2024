@@ -5,11 +5,6 @@ from django.contrib import admin
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail import urls as wagtail_urls
 
-# from rest_framework import routers, serializers, viewsets
-# from dj_rest_auth.registration.views import RegisterView
-
-# from siteuser.models import User
-
 urlpatterns = [
     path("accounts/", include("allauth.urls")),
     path("django/doc/", include("django.contrib.admindocs.urls")),
@@ -38,29 +33,6 @@ if settings.DEBUG:
         path("__debug__/", include(debug_toolbar.urls)),
     ]
 
-
-# https://www.django-rest-framework.org/#example
-# class UserSerializer(serializers.HyperlinkedModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ["url", "username", "email", "is_staff"]
-
-
-# class UserViewSet(viewsets.ModelViewSet):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-
-
-# router = routers.DefaultRouter()
-# router.register(r"users", UserViewSet)
-
-# urlpatterns += [
-#     path("api/", include(router.urls)),
-#     path("api/", include("rest_framework.urls", namespace="rest_framework")),
-#     # path("api/", include("dj_rest_auth.urls")),
-#     # path("api/register/", RegisterView.as_view(), name="register"),
-# ]
-
 urlpatterns += [
     path("hijack/", include("hijack.urls")),
 ]
@@ -70,11 +42,5 @@ urlpatterns += [
 ]
 
 urlpatterns += [
-    # For anything not caught by a more specific rule above, hand over to
-    # Wagtail's page serving mechanism. This should be the last pattern in
-    # the list:
     path("", include(wagtail_urls)),
-    # Alternatively, if you want Wagtail pages to be served from a subpath
-    # of your site, rather than the site root:
-    #    path("pages/", include(wagtail_urls)),
 ]
