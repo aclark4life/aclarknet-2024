@@ -32,7 +32,7 @@ const UserMenu = ({ isAuthenticated, isSuperuser }) => {
                 <li><a className="dropdown-item" href="/blog">Blog</a></li>
                 <li><a className="dropdown-item" href="/explorer" target="_blank">SQL Explorer</a></li>
                 <li><a className="dropdown-item" href="/wagtail" target="_blank">Wagtail admin</a></li>
-                <li><a className="dropdown-item" href="https://logfire.pydantic.dev/aclark4life/aclarknet" target="_blank">Logfire</a></li>
+                <li><a className="dropdown-item" href="https://logfire.pydantic.dev/aclark4life/aclarknet" rel="noreferrer" target="_blank">Logfire</a></li>
               </>
             ) : null}
             <li><hr className="dropdown-divider"></hr></li>
