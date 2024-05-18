@@ -387,8 +387,14 @@ class ReportEmailTextView(BaseReportView, View):
 
         for invoice in obj.invoices.all():
             rate = 0
+            cost = 0
+            net = 0
             if invoice.project.task:
                 rate = invoice.project.task.rate
+            if invoice.cost:
+                cost = invoice.cost
+            if invoice.net:
+                net = invoice.net
             table.add_row(
                 [
                     invoice.subject,
@@ -396,8 +402,8 @@ class ReportEmailTextView(BaseReportView, View):
                     locale.currency(rate, grouping=True),
                     invoice.hours,
                     locale.currency(invoice.amount, grouping=True),
-                    locale.currency(invoice.cost, grouping=True),
-                    locale.currency(invoice.net, grouping=True),
+                    locale.currency(cost, grouping=True),
+                    locale.currency(net, grouping=True),
                 ]
             )
             if obj.team:
