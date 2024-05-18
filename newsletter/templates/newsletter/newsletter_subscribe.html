@@ -1,0 +1,23 @@
+<div class="d-flex justify-content-center mt-5">
+    <form enctype="multipart/form-data"
+          method="post"
+          action="/newsletter/python-open-source/subscribe/"
+          class="row row-cols-lg-auto g-3 align-items-center">
+        {% csrf_token %}
+        <div class="col-12">
+            <div class="input-group">
+                <input type="email"
+                       class="form-control"
+                       name="email_field"
+                       required=""
+                       id="id_email_field"
+                       placeholder="Enter email address">
+                <button class="btn btn-light"
+                        id="id_submit"
+                        name="submit"
+                        value="Subscribe"
+                        type="submit">Sign up for our newsletter</button>
+            </div>
+        </div>
+    </form>
+</div>
