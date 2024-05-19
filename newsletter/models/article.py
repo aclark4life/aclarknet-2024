@@ -21,7 +21,7 @@ class Article(models.Model):
     sortorder = models.PositiveIntegerField(
         help_text=_(
             "Sort order determines the order in which articles are "
-            "concatenated in a post."
+            "concatenated in a message."
         ),
         verbose_name=_("sort order"),
         blank=True,
@@ -41,8 +41,7 @@ class Article(models.Model):
     )
 
     # Message this article is associated with
-    # TODO: Refactor post to message (post is legacy notation).
-    post = models.ForeignKey(
+    message = models.ForeignKey(
         "Message",
         verbose_name=_("message"),
         related_name="articles",
@@ -53,7 +52,7 @@ class Article(models.Model):
         ordering = ("sortorder",)
         verbose_name = _("article")
         verbose_name_plural = _("articles")
-        unique_together = ("post", "sortorder")
+        unique_together = ("message", "sortorder")
 
     def __str__(self):
         return self.title
@@ -62,6 +61,6 @@ class Article(models.Model):
         if self.sortorder is None:
             # If saving a new object get the next available Article ordering
             # as to assure uniqueness.
-            self.sortorder = self.post.get_next_article_sortorder()
+            self.sortorder = self.message.get_next_article_sortorder()
 
         super().save()
