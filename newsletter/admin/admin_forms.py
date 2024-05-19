@@ -3,14 +3,19 @@ import logging
 from django import forms
 
 from django.contrib.admin import widgets, options
+from django.contrib import admin
 
 from django.utils.translation import gettext as _
 
-from .models.subscription import Subscription
-from .models.newsletter import Newsletter
-from .models.submission import Submission
-from .addressimport.parsers import parse_csv, parse_vcard, parse_ldif
+from ..models.subscription import Subscription
+from ..models.newsletter import Newsletter
+from ..models.submission import Submission
+from ..models.article import Article
+from ..models.attachment import Attachment
+from ..addressimport.parsers import parse_csv, parse_vcard, parse_ldif
+from ..settings import newsletter_settings
 
+from sorl.thumbnail.admin import AdminImageMixin
 
 logger = logging.getLogger(__name__)
 
@@ -185,3 +190,67 @@ class ArticleFormSet(forms.BaseInlineFormSet):
             next_sortorder = self.instance.get_next_article_sortorder()
             for index, form in enumerate(self.extra_forms):
                 form.initial["sortorder"] = next_sortorder + index * 10
+
+
+StackedInline = admin.StackedInline
+if (
+    newsletter_settings.RICHTEXT_WIDGET
+    and newsletter_settings.RICHTEXT_WIDGET.__name__ == "ImperaviWidget"
+):
+    # Imperavi works a little differently
+    # It's not just a field, it's also a media class and a method.
+    # To avoid complications, we reuse ImperaviStackedInlineAdmin
+    try:
+        from imperavi.admin import ImperaviStackedInlineAdmin
+
+        StackedInline = ImperaviStackedInlineAdmin
+    except ImportError:
+        # Log a warning when import fails as to aid debugging.
+        logger.warning(
+            "Error importing ImperaviStackedInlineAdmin. "
+            "Imperavi WYSIWYG text editor might not work."
+        )
+
+# Creates a base class for the ArticleInline to inherit depending on
+# if the user has decided to use sorl-thumbnail or not
+# https://sorl-thumbnail.readthedocs.io/en/latest/examples.html#admin-examples
+if newsletter_settings.THUMBNAIL == "sorl-thumbnail":
+    ArticleInlineClassTuple = (AdminImageMixin, StackedInline)
+else:
+    ArticleInlineClassTuple = (StackedInline,)
+
+BaseArticleInline = type("BaseArticleInline", ArticleInlineClassTuple, {})
+
+
+class ArticleInline(BaseArticleInline):
+    model = Article
+    extra = 2
+    formset = ArticleFormSet
+    fieldsets = (
+        (None, {"fields": ("title", "text")}),
+        (
+            _("Optional"),
+            {"fields": ("sortorder", "url", "image"), "classes": ("collapse",)},
+        ),
+    )
+
+    # Perform any formfield overrides depending on specified settings
+    formfield_overrides = {}
+
+    if newsletter_settings.RICHTEXT_WIDGET:
+        formfield_overrides[models.TextField] = {
+            "widget": newsletter_settings.RICHTEXT_WIDGET
+        }
+
+    # https://easy-thumbnails.readthedocs.io/en/latest/usage/#forms
+    if newsletter_settings.THUMBNAIL == "easy-thumbnails":
+        formfield_overrides[DynamicImageField] = {"widget": ImageClearableFileInput}
+
+
+class AttachmentInline(admin.TabularInline):
+    model = Attachment
+    extra = 1
+
+    def has_change_permission(self, request, obj=None):
+        """Prevent change of the file (instead needs to be deleted)"""
+        return False

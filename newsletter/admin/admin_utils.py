@@ -4,7 +4,7 @@ from django.contrib.admin.utils import unquote
 from django.http import Http404
 from django.utils.encoding import force_str
 from django.utils.translation import gettext as _
-from .models import Subscription
+from ..models import Subscription
 
 
 class ExtendibleModelAdminMixin:
