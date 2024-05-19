@@ -218,14 +218,3 @@ class Submission(models.Model):
     sending = models.BooleanField(
         default=False, verbose_name=_("sending"), db_index=True, editable=False
     )
-
-
-# def get_address(name, email):
-#    # Converting name to ascii for compatibility with django < 1.9.
-#    # Remove this when django 1.8 is no longer supported.
-#    if LooseVersion(django.get_version()) < LooseVersion("1.9"):
-#        name = name.encode("ascii", "ignore").decode("ascii").strip()
-#    if name:
-#        return f"{name} <{email}>"
-#    else:
-#        return "%s" % email
