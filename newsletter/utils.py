@@ -5,6 +5,7 @@ import logging
 
 from django.contrib.sites.models import Site
 from django.utils.crypto import get_random_string
+# from .models.newsletter import Newsletter
 
 logger = logging.getLogger(__name__)
 
@@ -39,3 +40,7 @@ class Singleton(type):
             cls._instances[cls] = super().__call__(*args, **kwargs)
 
         return cls._instances[cls]
+
+
+# def get_default_newsletter():
+#     return Newsletter.get_default()

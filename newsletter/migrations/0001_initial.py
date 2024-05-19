@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
                 (
                     "file",
                     models.FileField(
-                        upload_to=newsletter.models.attachment_upload_to,
+                        # upload_to=newsletter.models.attachment_upload_to,
                         verbose_name="attachment",
                     ),
                 ),
@@ -128,7 +128,8 @@ class Migration(migrations.Migration):
                 (
                     "site",
                     models.ManyToManyField(
-                        default=newsletter.utils.get_default_sites, to="sites.site"
+                        # default=newsletter.utils.get_default_sites,
+                        to="sites.site",
                     ),
                 ),
             ],
@@ -145,7 +146,7 @@ class Migration(migrations.Migration):
             model_name="message",
             name="newsletter",
             field=models.ForeignKey(
-                default=newsletter.models.get_default_newsletter,
+                # default=newsletter.models.get_default_newsletter,
                 on_delete=django.db.models.deletion.CASCADE,
                 to="newsletter.newsletter",
                 verbose_name="newsletter",

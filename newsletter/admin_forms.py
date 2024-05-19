@@ -6,7 +6,9 @@ from django.contrib.admin import widgets, options
 
 from django.utils.translation import gettext as _
 
-from .models import Subscription, Newsletter, Submission
+from .models.subscription import Subscription
+from .models.newsletter import Newsletter
+from .models.submission import Submission
 from .addressimport.parsers import parse_csv, parse_vcard, parse_ldif
 
 

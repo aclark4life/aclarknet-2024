@@ -44,7 +44,13 @@ try:
 except (ImportError, RuntimeError):
     pass
 
-from .models import Newsletter, Subscription, Attachment, Article, Message, Submission
+# from .models import Newsletter, Subscription, Attachment, Article, Message, Submission
+from .models.newsletter import Newsletter
+from .models.subscription import Subscription
+from .models.attachment import Attachment
+from .models.article import Article
+from .models.submission import Submission
+from .models.message import Message
 
 from django.utils.timezone import now
 from django.urls import reverse
