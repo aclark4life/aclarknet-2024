@@ -223,7 +223,6 @@ TEMPLATES[0]["OPTIONS"]["context_processors"].append(
     "wagtailmenus.context_processors.wagtailmenus"
 )
 SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
-INSTALLED_APPS.append("modelformtest")
 INSTALLED_APPS.append("siteuser")
 INSTALLED_APPS.append("privacy")
 INSTALLED_APPS.append("contactpage")
