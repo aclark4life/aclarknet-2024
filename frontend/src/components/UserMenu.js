@@ -22,17 +22,17 @@ const UserMenu = ({ isAuthenticated, isSuperuser }) => {
             {isSuperuser ? (
               <>
                 <li><hr className="dropdown-divider"></hr></li>
-                <li><a className="dropdown-item" href="/django" target="_blank">Django admin</a></li>
-                <li><a className="dropdown-item" href="/django/newsletter" target="_blank">Django newsletter</a></li>
+                <li><a className="dropdown-item" href="https://aclarknet.signin.aws.amazon.com/console" rel="noreferrer" target="_blank">AWS Console</a></li>
+                <li><a className="dropdown-item" href="/blog">Blog</a></li>
+                <li><a className="dropdown-item" href="/django" target="_blank">Django Admin</a></li>
+                <li><a className="dropdown-item" href="/django/newsletter" target="_blank">Django Newsletter</a></li>
                 <li><a className="dropdown-item" href="https://analytics.google.com" rel="noreferrer" target="_blank">Google Analytics</a></li>
                 <li><a className="dropdown-item" href="https://admin.google.com/ac/home?hl=en" rel="noreferrer" target="_blank">Google Workspace</a></li>
-                <li><a className="dropdown-item" href="https://aclarknet.signin.aws.amazon.com/console" rel="noreferrer" target="_blank">AWS Console</a></li>
-                <li><a className="dropdown-item" href="/lounge" target="_blank">Lounge</a></li>
-                <li><a className="dropdown-item" href="/dashboard/user">Users</a></li>
-                <li><a className="dropdown-item" href="/blog">Blog</a></li>
-                <li><a className="dropdown-item" href="/explorer" target="_blank">SQL Explorer</a></li>
-                <li><a className="dropdown-item" href="/wagtail" target="_blank">Wagtail admin</a></li>
                 <li><a className="dropdown-item" href="https://logfire.pydantic.dev/aclark4life/aclarknet" rel="noreferrer" target="_blank">Logfire</a></li>
+                <li><a className="dropdown-item" href="/lounge" target="_blank">Lounge</a></li>
+                <li><a className="dropdown-item" href="/explorer" target="_blank">SQL Explorer</a></li>
+                <li><a className="dropdown-item" href="/dashboard/user">Users</a></li>
+                <li><a className="dropdown-item" href="/wagtail" target="_blank">Wagtail Admin</a></li>
               </>
             ) : null}
             <li><hr className="dropdown-divider"></hr></li>
