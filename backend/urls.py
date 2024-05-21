@@ -4,6 +4,7 @@ from django.contrib import admin
 
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail import urls as wagtail_urls
+from db.views.base import redirect_admin_to_about_book
 
 urlpatterns = [
     path("accounts/", include("allauth.urls")),
@@ -16,6 +17,7 @@ urlpatterns = [
     path("dashboard/", include("db.urls")),
     path("explorer/", include("explorer.urls")),
     path("newsletter/", include("newsletter.urls")),
+    path('admin/', redirect_admin_to_about_book),
 ]
 
 if settings.DEBUG:
