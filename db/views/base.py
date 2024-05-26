@@ -131,15 +131,16 @@ class BaseView:
     def get_context_page_obj_field_values(self, page_obj, search=False, related=False):
         page_obj_field_values = []
 
+
         if search or related:
-            page_obj_field_items = []
+            page_obj_field_keys = []
         else:
-            page_obj_field_items = self.form_class().fields.items()
+            page_obj_field_keys = self.form_class().fields.keys()
         for item in page_obj:
             object_field_values = []
             object_field_values.append(("type", item._meta.model_name))
             object_field_values.append(("id", item.id))
-            for field_name, field in page_obj_field_items:
+            for field_name in page_obj_field_keys:
                 if field_name not in self.exclude:
                     try:
                         object_field_values.append(
