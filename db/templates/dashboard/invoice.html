@@ -22,7 +22,7 @@
                                 <a class="list-group-item list-group-item-action justify-content-between d-flex"
                                    href="{% url 'invoice_view' item.id %}">
                                     <span class="">{{ item.description|default:item }}</span>
-                                    <span class="text-muted">{{ item.user|default:"" }}</span>
+                                    <span class="text-muted">{{ item.amount|currencyfmt:"USD" }}</span>
                                 </a>
                             {% endfor %}
                         </div>
