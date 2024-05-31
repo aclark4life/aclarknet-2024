@@ -1,8 +1,8 @@
 # Project Makefile
 #
-# A generic makefile for projects.
+# A generic makefile for Python projects
 #
-# https://github.com/project-makefile/project-makefile
+# https://github.com/aclark4life/project-makefile
 
 # --------------------------------------------------------------------------------
 # Variables (override)
@@ -19,8 +19,8 @@ PROJECT_MAKEFILE := project.mk
 PROJECT_NAME = project-makefile
 PROJECT_DIRS = backend contactpage home privacy siteuser
 
-WAGTAIL_CLEAN_DIRS = home search backend sitepage siteuser privacy frontend contactpage modelformtest
-WAGTAIL_CLEAN_FILES = README.rst .dockerignore Dockerfile manage.py requirements.txt
+WAGTAIL_CLEAN_DIRS = home search backend sitepage siteuser privacy frontend contactpage model_form_demo logging_demo
+WAGTAIL_CLEAN_FILES = README.rst .dockerignore Dockerfile manage.py requirements.txt requirements-test.txt docker-compose.yml
 
 REVIEW_EDITOR = subl
 
@@ -58,6 +58,8 @@ endif
 # --------------------------------------------------------------------------------
 # Variables (no override)
 # --------------------------------------------------------------------------------
+
+AWS_OPTS := --no-cli-pager --output table
 
 GIT_REV := $(shell git rev-parse --short HEAD)
 GIT_BRANCH := $(shell git branch --show-current)
@@ -109,6 +111,96 @@ define BABELRC
   ]
 }
 endef
+
+define BACKEND_APPS
+from django.contrib.admin.apps import AdminConfig
+
+class CustomAdminConfig(AdminConfig):
+    default_site = "backend.admin.CustomAdminSite"
+endef
+
+define BACKEND_URLS
+from django.conf import settings
+from django.urls import include, path
+from django.contrib import admin
+
+from wagtail.admin import urls as wagtailadmin_urls
+from wagtail import urls as wagtail_urls
+from wagtail.documents import urls as wagtaildocs_urls
+
+from rest_framework import routers, serializers, viewsets
+from dj_rest_auth.registration.views import RegisterView
+
+from siteuser.models import User
+
+urlpatterns = []
+
+if settings.DEBUG:
+	urlpatterns += [
+		path("django/doc/", include("django.contrib.admindocs.urls")),
+	]
+
+urlpatterns += [
+    path('accounts/', include('allauth.urls')),
+    path('django/', admin.site.urls),
+    path('wagtail/', include(wagtailadmin_urls)),
+    path('user/', include('siteuser.urls')),
+    path('search/', include('search.urls')),
+    path('model-form-demo/', include('model_form_demo.urls')),
+    path('explorer/', include('explorer.urls')),
+    path('logging-demo/', include('logging_demo.urls')),
+]
+
+if settings.DEBUG:
+    from django.conf.urls.static import static
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+    # Serve static and media files from development server
+    urlpatterns += staticfiles_urlpatterns()
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    import debug_toolbar
+    urlpatterns += [
+        path("__debug__/", include(debug_toolbar.urls)),
+    ]
+
+
+# https://www.django-rest-framework.org/#example
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ['url', 'username', 'email', 'is_staff']
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+router = routers.DefaultRouter()
+router.register(r'users', UserViewSet)
+
+urlpatterns += [
+    path("api/", include(router.urls)),
+    path("api/", include("rest_framework.urls", namespace="rest_framework")),
+    path("api/", include("dj_rest_auth.urls")),
+    # path("api/register/", RegisterView.as_view(), name="register"),
+]
+
+urlpatterns += [
+    path("hijack/", include("hijack.urls")),
+]
+
+urlpatterns += [
+    # For anything not caught by a more specific rule above, hand over to
+    # Wagtail's page serving mechanism. This should be the last pattern in
+    # the list:
+    path("", include(wagtail_urls)),
+
+    # Alternatively, if you want Wagtail pages to be served from a subpath
+    # of your site, rather than the site root:
+    #    path("pages/", include(wagtail_urls)),
+]
+endef
+
 
 define BASE_TEMPLATE
 {% load static wagtailcore_tags wagtailuserbar webpack_loader %}
@@ -385,8 +477,9 @@ const UserMenu = ({ isAuthenticated, isSuperuser, textColor }) => {
               <i className="fa-solid fa-circle-user"></i>
           </a>
           <ul className="dropdown-menu">
-            <li><a className="dropdown-item" href="/user/profile">Profile</a></li>
-            <li><a className="dropdown-item" href="/modelformtest/test-models">Model Form Test</a></li>
+            <li><a className="dropdown-item" href="/user/profile/">Profile</a></li>
+            <li><a className="dropdown-item" href="/model-form-demo/">Model Form Demo</a></li>
+            <li><a className="dropdown-item" href="/logging-demo/">Logging Demo</a></li>
             {isSuperuser ? (
               <>
                 <li><hr className="dropdown-divider"></hr></li>
@@ -542,6 +635,59 @@ endef
 define CONTACT_PAGE_LANDING
 {% extends 'base.html' %}
 {% block content %}<div class="container"><h1>Thank you!</h1></div>{% endblock %}
+endef
+
+define CUSTOM_ADMIN
+# admin.py
+from django.contrib.admin import AdminSite
+
+class CustomAdminSite(AdminSite):
+    site_header = 'Project Makefile'
+    site_title = 'Project Makefile'
+    index_title = 'Project Makefile'
+
+custom_admin_site = CustomAdminSite(name='custom_admin')
+endef
+
+define CUSTOM_ENV_EC2_USER
+files:
+    "/home/ec2-user/.bashrc":
+        mode: "000644"
+        owner: ec2-user
+        group: ec2-user
+        content: |
+            # .bashrc
+
+            # Source global definitions
+            if [ -f /etc/bashrc ]; then
+                    . /etc/bashrc
+            fi
+
+            # User specific aliases and functions
+            set -o vi
+
+            source <(sed -E -n 's/[^#]+/export &/ p' /opt/elasticbeanstalk/deployment/custom_env_var)
+endef
+
+define CUSTOM_ENV_VAR_FILE
+#!/bin/bash
+
+# Via https://aws.amazon.com/premiumsupport/knowledge-center/elastic-beanstalk-env-variables-linux2/
+
+#Create a copy of the environment variable file.
+cat /opt/elasticbeanstalk/deployment/env | perl -p -e 's/(.*)=(.*)/export $$1="$$2"/;' > /opt/elasticbeanstalk/deployment/custom_env_var
+
+#Set permissions to the custom_env_var file so this file can be accessed by any user on the instance. You can restrict permissions as per your requirements.
+chmod 644 /opt/elasticbeanstalk/deployment/custom_env_var
+
+# add the virtual env path in.
+VENV=/var/app/venv/`ls /var/app/venv`
+cat <<EOF >> /opt/elasticbeanstalk/deployment/custom_env_var
+VENV=$$ENV
+EOF
+
+#Remove duplicate files upon deployment.
+rm -f /opt/elasticbeanstalk/deployment/*.bak
 endef
 
 define DOCKERFILE
@@ -798,79 +944,6 @@ urlpatterns = [
     path('profile/', UserProfileView.as_view(), name='user-profile'),
     path('update_theme_preference/', UpdateThemePreferenceView.as_view(), name='update_theme_preference'),
     path('<int:pk>/edit/', UserEditView.as_view(), name='user-edit'),
-]
-endef
-
-define BACKEND_URLS
-from django.conf import settings
-from django.urls import include, path
-from django.contrib import admin
-
-from wagtail.admin import urls as wagtailadmin_urls
-from wagtail import urls as wagtail_urls
-from wagtail.documents import urls as wagtaildocs_urls
-
-from rest_framework import routers, serializers, viewsets
-from dj_rest_auth.registration.views import RegisterView
-
-from siteuser.models import User
-
-urlpatterns = [
-    path('accounts/', include('allauth.urls')),
-    path('django/', admin.site.urls),
-    path('wagtail/', include(wagtailadmin_urls)),
-    path('user/', include('siteuser.urls')),
-    path('search/', include('search.urls')),
-    path('modelformtest/', include('modelformtest.urls')),
-    path('explorer/', include('explorer.urls')),
-]
-
-if settings.DEBUG:
-    from django.conf.urls.static import static
-    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-
-    # Serve static and media files from development server
-    urlpatterns += staticfiles_urlpatterns()
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-    import debug_toolbar
-    urlpatterns += [
-        path("__debug__/", include(debug_toolbar.urls)),
-    ]
-
-# https://www.django-rest-framework.org/#example
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'is_staff']
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-
-urlpatterns += [
-    path("api/", include(router.urls)),
-    path("api/", include("rest_framework.urls", namespace="rest_framework")),
-    path("api/", include("dj_rest_auth.urls")),
-    # path("api/register/", RegisterView.as_view(), name="register"),
-]
-
-urlpatterns += [
-    path("hijack/", include("hijack.urls")),
-]
-
-urlpatterns += [
-    # For anything not caught by a more specific rule above, hand over to
-    # Wagtail's page serving mechanism. This should be the last pattern in
-    # the list:
-    path("", include(wagtail_urls)),
-
-    # Alternatively, if you want Wagtail pages to be served from a subpath
-    # of your site, rather than the site root:
-    #    path("pages/", include(wagtail_urls)),
 ]
 endef
 
@@ -1184,11 +1257,48 @@ define HTML_OFFCANVAS
 </div>
 endef
 
-define MODEL_FORM_TEST_MODEL
+define LOGGING_DEMO_VIEWS
+from django.http import HttpResponse
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
+def logging_demo(request):
+    logger.debug('Hello, world!')
+    return HttpResponse("Hello, world!")
+endef
+
+define LOGGING_DEMO_URLS
+from django.urls import path
+from .views import logging_demo
+
+urlpatterns = [
+    path('', logging_demo, name='logging_demo'),
+]
+endef
+
+define LOGGING_DEMO_SETTINGS
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
+endef
+
+define MODEL_FORM_DEMO_MODEL
 from django.db import models
 from django.shortcuts import reverse
 
-class TestModel(models.Model):
+class ModelFormDemo(models.Model):
     name = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     age = models.IntegerField(blank=True, null=True)
@@ -1199,63 +1309,63 @@ class TestModel(models.Model):
         return self.name or f"test-model-{self.pk}"
 
     def get_absolute_url(self):
-        return reverse('test_model_detail', kwargs={'pk': self.pk})
+        return reverse('model_form_demo_detail', kwargs={'pk': self.pk})
 endef
 
-define MODEL_FORM_TEST_ADMIN
+define MODEL_FORM_DEMO_ADMIN
 from django.contrib import admin
-from .models import TestModel
+from .models import ModelFormDemo
 
-@admin.register(TestModel)
-class TestModelAdmin(admin.ModelAdmin):
+@admin.register(ModelFormDemo)
+class ModelFormDemoAdmin(admin.ModelAdmin):
     pass
 endef
 
-define MODEL_FORM_TEST_VIEWS
+define MODEL_FORM_DEMO_VIEWS
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
-from .models import TestModel
-from .forms import TestModelForm
+from .models import ModelFormDemo
+from .forms import ModelFormDemoForm
 
 
-class TestModelListView(ListView):
-    model = TestModel
-    template_name = "test_model_list.html"
-    context_object_name = "test_models"
+class ModelFormDemoListView(ListView):
+    model = ModelFormDemo
+    template_name = "model_form_demo_list.html"
+    context_object_name = "model_form_demos"
 
 
-class TestModelCreateView(CreateView):
-    model = TestModel
-    form_class = TestModelForm
-    template_name = "test_model_form.html"
+class ModelFormDemoCreateView(CreateView):
+    model = ModelFormDemo
+    form_class = ModelFormDemoForm
+    template_name = "model_form_demo_form.html"
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
 
 
-class TestModelUpdateView(UpdateView):
-    model = TestModel
-    form_class = TestModelForm
-    template_name = "test_model_form.html"
+class ModelFormDemoUpdateView(UpdateView):
+    model = ModelFormDemo
+    form_class = ModelFormDemoForm
+    template_name = "model_form_demo_form.html"
 
 
-class TestModelDetailView(DetailView):
-    model = TestModel
-    template_name = "test_model_detail.html"
-    context_object_name = "test_model"
+class ModelFormDemoDetailView(DetailView):
+    model = ModelFormDemo
+    template_name = "model_form_demo_detail.html"
+    context_object_name = "model_form_demo"
 endef
 
-define MODEL_FORM_TEST_FORMS
+define MODEL_FORM_DEMO_FORMS
 from django import forms
-from .models import TestModel
+from .models import ModelFormDemo
 
-class TestModelForm(forms.ModelForm):
+class ModelFormDemoForm(forms.ModelForm):
     class Meta:
-        model = TestModel
+        model = ModelFormDemo
         fields = ['name', 'email', 'age', 'is_active']  # Add or remove fields as needed
 endef
 
-define MODEL_FORM_TEST_TEMPLATE_FORM
+define MODEL_FORM_DEMO_TEMPLATE_FORM
 {% extends 'base.html' %}
 {% block content %}
     <h1>{% if form.instance.pk %}Update Test Model{% else %}Create Test Model{% endif %}</h1>
@@ -1267,46 +1377,46 @@ define MODEL_FORM_TEST_TEMPLATE_FORM
 {% endblock %}
 endef
 
-define MODEL_FORM_TEST_TEMPLATE_DETAIL
+define MODEL_FORM_DEMO_TEMPLATE_DETAIL
 {% extends 'base.html' %}
 {% block content %}
-    <h1>Test Model Detail: {{ test_model.name }}</h1>
-    <p>Name: {{ test_model.name }}</p>
-    <p>Email: {{ test_model.email }}</p>
-    <p>Age: {{ test_model.age }}</p>
-    <p>Active: {{ test_model.is_active }}</p>
-    <p>Created At: {{ test_model.created_at }}</p>
-    <a href="{% url 'test_model_update' test_model.pk %}">Edit Test Model</a>
+    <h1>Test Model Detail: {{ model_form_demo.name }}</h1>
+    <p>Name: {{ model_form_demo.name }}</p>
+    <p>Email: {{ model_form_demo.email }}</p>
+    <p>Age: {{ model_form_demo.age }}</p>
+    <p>Active: {{ model_form_demo.is_active }}</p>
+    <p>Created At: {{ model_form_demo.created_at }}</p>
+    <a href="{% url 'model_form_demo_update' model_form_demo.pk %}">Edit Test Model</a>
 {% endblock %}
 endef
 
-define MODEL_FORM_TEST_TEMPLATE_LIST
+define MODEL_FORM_DEMO_TEMPLATE_LIST
 {% extends 'base.html' %}
 {% block content %}
     <h1>Test Models List</h1>
     <ul>
-        {% for test_model in test_models %}
-            <li><a href="{% url 'test_model_detail' test_model.pk %}">{{ test_model.name }}</a></li>
+        {% for model_form_demo in model_form_demos %}
+            <li><a href="{% url 'model_form_demo_detail' model_form_demo.pk %}">{{ model_form_demo.name }}</a></li>
         {% endfor %}
     </ul>
-    <a href="{% url 'test_model_create' %}">Create New Test Model</a>
+    <a href="{% url 'model_form_demo_create' %}">Create New Test Model</a>
 {% endblock %}
 endef
 
-define MODEL_FORM_TEST_URLS
+define MODEL_FORM_DEMO_URLS
 from django.urls import path
 from .views import (
-    TestModelListView,
-    TestModelCreateView,
-    TestModelUpdateView,
-    TestModelDetailView,
+    ModelFormDemoListView,
+    ModelFormDemoCreateView,
+    ModelFormDemoUpdateView,
+    ModelFormDemoDetailView,
 )
 
 urlpatterns = [
-    path('test-models/', TestModelListView.as_view(), name='test_model_list'),
-    path('test-models/create/', TestModelCreateView.as_view(), name='test_model_create'),
-    path('test-models/<int:pk>/update/', TestModelUpdateView.as_view(), name='test_model_update'),
-    path('test-models/<int:pk>/', TestModelDetailView.as_view(), name='test_model_detail'),
+    path('', ModelFormDemoListView.as_view(), name='model_form_demo_list'),
+    path('create/', ModelFormDemoCreateView.as_view(), name='model_form_demo_create'),
+    path('<int:pk>/update/', ModelFormDemoUpdateView.as_view(), name='model_form_demo_update'),
+    path('<int:pk>/', ModelFormDemoDetailView.as_view(), name='model_form_demo_detail'),
 ]
 endef
 
@@ -1683,6 +1793,7 @@ endef
 export ALLAUTH_LAYOUT_BASE
 export AUTHENTICATION_BACKENDS
 export BABELRC
+export BACKEND_APPS
 export BACKEND_URLS
 export BASE_TEMPLATE
 export BLOCK_CAROUSEL
@@ -1694,6 +1805,9 @@ export CONTACT_PAGE_MODEL
 export CONTACT_PAGE_TEMPLATE
 export CONTACT_PAGE_LANDING
 export CONTACT_PAGE_TEST
+export CUSTOM_ADMIN
+export CUSTOM_ENV_EC2_USER
+export CUSTOM_ENV_VAR_FILE
 export DOCKERFILE
 export DOCKERCOMPOSE
 export ESLINTRC
@@ -1713,14 +1827,17 @@ export HTML_HEADER
 export HTML_OFFCANVAS
 export INTERNAL_IPS
 export JENKINS_FILE
-export MODEL_FORM_TEST_ADMIN
-export MODEL_FORM_TEST_FORMS
-export MODEL_FORM_TEST_MODEL
-export MODEL_FORM_TEST_URLS
-export MODEL_FORM_TEST_VIEWS
-export MODEL_FORM_TEST_TEMPLATE_DETAIL
-export MODEL_FORM_TEST_TEMPLATE_FORM
-export MODEL_FORM_TEST_TEMPLATE_LIST
+export LOGGING_DEMO_VIEWS
+export LOGGING_DEMO_URLS
+export LOGGING_DEMO_SETTINGS
+export MODEL_FORM_DEMO_ADMIN
+export MODEL_FORM_DEMO_FORMS
+export MODEL_FORM_DEMO_MODEL
+export MODEL_FORM_DEMO_URLS
+export MODEL_FORM_DEMO_VIEWS
+export MODEL_FORM_DEMO_TEMPLATE_DETAIL
+export MODEL_FORM_DEMO_TEMPLATE_FORM
+export MODEL_FORM_DEMO_TEMPLATE_LIST
 export PRIVACY_PAGE_MODEL
 export REST_FRAMEWORK
 export FRONTEND_CONTEXT_INDEX
@@ -1754,17 +1871,30 @@ export WEBPACK_REVEAL_INDEX_JS
 # Rules
 # ------------------------------------------------------------------------------  
 
-aws-ssm-describe-parameters-default:
-	@aws ssm describe-parameters | cat
-
-aws-ssm-default:
-ifdef AWS_PROFILE
-	@echo "Environment variable is set: $(AWS_PROFILE)"
-	aws ssm describe-parameters | cat
-	@echo "Get parameter values with: aws ssm getparameter --name <Name>."
-else
-	@echo "Environment variable not set. Set AWS_PROFILE before running this target."
+aws-check-env-default:  # https://stackoverflow.com/a/4731504/185820
+ifndef AWS_PROFILE
+	$(error AWS_PROFILE is undefined)
 endif
+ifndef AWS_REGION
+	$(error AWS_REGION is undefined)
+endif
+
+aws-secret-default: aws-check-env
+	@SECRET_KEY=$$(openssl rand -base64 48); \
+    aws ssm put-parameter --name "SECRET_KEY" --value "$$SECRET_KEY" --type String
+
+aws-sg-default: aws-check-env
+	aws ec2 describe-security-groups $(AWS_OPTS)
+
+aws-ssm-default: aws-check-env
+	aws ssm describe-parameters $(AWS_OPTS)
+	@echo "Get parameter values with: aws ssm getparameter --name <Name>."
+
+aws-subnet-default: aws-check-env
+	aws ec2 describe-subnets $(AWS_OPTS)
+
+aws-vpc-default: aws-check-env
+	aws ec2 describe-vpcs $(AWS_OPTS)
 
 docker-build-default:
 	podman build -t $(PROJECT_NAME) .
@@ -1819,6 +1949,14 @@ eb-create-default: eb-check-env
          --vpc.elbsubnets $(VPC_SUBNET_ELB) \
          --vpc.securitygroups $(VPC_SG)
 
+eb-custom-env-default:
+	$(ADD_DIR) .ebextensions
+	echo "$$CUSTOM_ENV_EC2_USER" > .ebextensions/bash.config
+	$(GIT_ADD) .ebextensions/bash.config
+	$(ADD_DIR) .platform/hooks/postdeploy
+	echo "$$CUSTOM_ENV_VAR_FILE" > .platform/hooks/postdeploy/setenv.sh
+	$(GIT_ADD) .platform/hooks/postdeploy/setenv.sh
+
 eb-deploy-default:
 	eb deploy
 
@@ -1830,13 +1968,6 @@ eb-pg-export-default:
         eb ssh --quiet -c "export PGPASSWORD=$(DATABASE_PASS); pg_dump -U $(DATABASE_USER) -h $(DATABASE_HOST) $(DATABASE_NAME)" > $(DATABASE_NAME).sql; \
         echo "Wrote $(DATABASE_NAME).sql"; \
     fi
-
-#     @if [ ! -d .elasticbeanstalk ]; then \
-#         echo "Sorry, no .elasticbeanstalk/ found. Please run `eb init`." \
-#     else \
-#         eb ssh --quiet -c "export PGPASSWORD=$(DATABASE_PASS); pg_dump -U $(DATABASE_USER) -h $(DATABASE_HOST) $(DATABASE_NAME)" > $(DATABASE_NAME).sql;
-#         echo "Wrote $(DATABASE_NAME).sql" \
-#     fi
 
 eb-restart-default:
 	eb ssh -c "systemctl restart web"
@@ -1856,9 +1987,8 @@ eb-list-databases-default:
 eb-logs-default:
 	eb logs
 
-eb-secret-default:
-	@SECRET_KEY=$$(openssl rand -base64 48); \
-    aws ssm put-parameter --name "SECRET_KEY" --value "$$SECRET_KEY" --type String
+eb-print-env-default:
+	eb printenv
 
 npm-init-default:
 	npm init -y
@@ -1895,6 +2025,10 @@ db-pg-init-test-default:
 
 db-pg-import-default:
 	@psql $(DATABASE_NAME) < $(DATABASE_NAME).sql
+
+django-custom-admin-default:
+	echo "$$CUSTOM_ADMIN" > backend/admin.py
+	echo "$$BACKEND_APPS" > backend/apps.py
 
 django-frontend-app-default: python-webpack-init
 	$(ADD_DIR) frontend/src/context
@@ -1955,20 +2089,28 @@ django-migrations-default:
 django-migrations-show-default:
 	python manage.py showmigrations
 
-django-model-form-test-default:
-	python manage.py startapp modelformtest
-	@echo "$$MODEL_FORM_TEST_ADMIN" > modelformtest/admin.py
-	@echo "$$MODEL_FORM_TEST_FORMS" > modelformtest/forms.py
-	@echo "$$MODEL_FORM_TEST_MODEL" > modelformtest/models.py
-	@echo "$$MODEL_FORM_TEST_URLS" > modelformtest/urls.py
-	@echo "$$MODEL_FORM_TEST_VIEWS" > modelformtest/views.py
-	$(ADD_DIR) modelformtest/templates/modelformtest
-	@echo "$$MODEL_FORM_TEST_TEMPLATE_DETAIL" > modelformtest/templates/test_model_detail.html
-	@echo "$$MODEL_FORM_TEST_TEMPLATE_FORM" > modelformtest/templates/test_model_form.html
-	@echo "$$MODEL_FORM_TEST_TEMPLATE_LIST" > modelformtest/templates/modelformtest/testmodel_list.html
-	@echo "INSTALLED_APPS.append('modelformtest')" >> $(SETTINGS)
+django-model-form-demo-default:
+	python manage.py startapp model_form_demo
+	@echo "$$MODEL_FORM_DEMO_ADMIN" > model_form_demo/admin.py
+	@echo "$$MODEL_FORM_DEMO_FORMS" > model_form_demo/forms.py
+	@echo "$$MODEL_FORM_DEMO_MODEL" > model_form_demo/models.py
+	@echo "$$MODEL_FORM_DEMO_URLS" > model_form_demo/urls.py
+	@echo "$$MODEL_FORM_DEMO_VIEWS" > model_form_demo/views.py
+	$(ADD_DIR) model_form_demo/templates
+	@echo "$$MODEL_FORM_DEMO_TEMPLATE_DETAIL" > model_form_demo/templates/model_form_demo_detail.html
+	@echo "$$MODEL_FORM_DEMO_TEMPLATE_FORM" > model_form_demo/templates/model_form_demo_form.html
+	@echo "$$MODEL_FORM_DEMO_TEMPLATE_LIST" > model_form_demo/templates/model_form_demo_list.html
+	@echo "INSTALLED_APPS.append('model_form_demo')" >> $(SETTINGS)
 	python manage.py makemigrations
-	$(GIT_ADD) modelformtest
+	$(GIT_ADD) model_form_demo
+
+django-logging-demo-default:
+	python manage.py startapp logging_demo
+	@echo "$$LOGGING_DEMO_VIEWS" > logging_demo/views.py
+	@echo "$$LOGGING_DEMO_URLS" > logging_demo/urls.py
+	@echo "$$LOGGING_DEMO_SETTINGS" >> $(SETTINGS)
+	@echo "INSTALLED_APPS.append('logging_demo')" >> $(SETTINGS)
+	$(GIT_ADD) logging_demo
 
 django-serve-default:
 	cd frontend; npm run watch &
@@ -1999,6 +2141,9 @@ django-settings-default:
 	echo "INSTALLED_APPS.append('crispy_bootstrap5')" >> $(SETTINGS)
 	echo "INSTALLED_APPS.append('django_recaptcha')" >> $(SETTINGS)
 	echo "INSTALLED_APPS.append('explorer')" >> $(DEV_SETTINGS)
+	echo "INSTALLED_APPS.append('django.contrib.admindocs')" >> $(DEV_SETTINGS)
+	echo "# INSTALLED_APPS = [app for app in INSTALLED_APPS if app != 'django.contrib.admin']" >> $(SETTINGS)
+	echo "# INSTALLED_APPS.append('backend.apps.CustomAdminConfig')" >> $(SETTINGS)
 	echo "MIDDLEWARE.append('allauth.account.middleware.AccountMiddleware')" >> $(SETTINGS)
 	echo "MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')" >> $(DEV_SETTINGS)
 	echo "MIDDLEWARE.append('hijack.middleware.HijackUserMiddleware')" >> $(DEV_SETTINGS)
@@ -2206,6 +2351,9 @@ pip-install-upgrade-default:
 	python -m pip freeze | sort > $(TMPDIR)/requirements.txt
 	mv -f $(TMPDIR)/requirements.txt .
 
+pip-deps-default:
+	pipdeptree
+
 pip-upgrade-default:
 	$(ENSURE_PIP)
 	python -m pip install -U pip
@@ -2213,6 +2361,22 @@ pip-upgrade-default:
 pip-uninstall-default:
 	$(ENSURE_PIP)
 	python -m pip freeze | xargs python -m pip uninstall -y
+
+plone-clean-default:
+	$(DEL_DIR) $(PROJECT_NAME)
+
+plone-init-default:
+	$(ENSURE_PIP)
+	python -m pip install plone
+	mkwsgiinstance -d $(PROJECT_NAME) -u admin:admin
+	@echo "Created $(PROJECT_NAME)!"
+	$(MAKE) plone-serve
+
+plone-serve-default:
+	runwsgi $(PROJECT_NAME)/etc/zope.ini
+
+plone-build-default:
+	buildout
 
 project-mk-default:
 	touch project.mk
@@ -2226,7 +2390,8 @@ python-setup-sdist-default:
 	python3 setup.py sdist --format=zip
 
 python-webpack-init-default:
-	python manage.py webpack_init --no-input
+	# python manage.py webpack_init --no-input
+	python manage.py webpack_init
 
 rand-default:
 	@openssl rand -base64 12 | sed 's/\///g'
@@ -2383,9 +2548,12 @@ wagtail-init-default: db-init wagtail-install wagtail-start
 	export SETTINGS=backend/settings/base.py DEV_SETTINGS=backend/settings/dev.py; \
 		$(MAKE) django-settings
 	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) django-model-form-test
+		$(MAKE) django-model-form-demo
+	export SETTINGS=backend/settings/base.py; \
+		$(MAKE) django-logging-demo
 	export URLS=urls.py; \
 		$(MAKE) django-url-patterns
+	$(MAKE) django-custom-admin
 	$(GIT_ADD) backend
 	$(GIT_ADD) requirements.txt
 	$(GIT_ADD) manage.py
@@ -2455,6 +2623,7 @@ wagtail-install-default:
         dj-database-url \
         dj-rest-auth \
         dj-stripe \
+        docutils \
         enmerkar \
         gunicorn \
         html2docx \
@@ -2462,6 +2631,7 @@ wagtail-install-default:
         mailchimp-marketing \
         mailchimp-transactional \
         phonenumbers \
+        pipdeptree \
         psycopg2-binary \
         pydotplus \
         python-webpack-boilerplate \
@@ -2521,6 +2691,13 @@ wagtail-sitepage-default:
 	python manage.py makemigrations sitepage
 	$(GIT_ADD) sitepage/
 
+zope-init-default:  # Zope 4 on Python 2
+	$(ENSURE_PIP)
+	python -m pip install -r https://zopefoundation.github.io/Zope/releases/4.6.3/requirements-full.txt
+	mkwsgiinstance -d $(PROJECT_NAME) -u admin:admin
+	@echo "Created $(PROJECT_NAME)!"
+	$(MAKE) plone-serve
+
 # ------------------------------------------------------------------------------  
 # More rules
 # ------------------------------------------------------------------------------  
@@ -2541,6 +2718,7 @@ django-clean-default: wagtail-clean
 django-init-default: wagtail-init
 djlint-default: lint-djlint
 e-default: edit
+eb-env-default: eb-print-env
 edit-default: readme-edit-md
 empty-default: git-commit-empty
 force-push-default: git-push-force
@@ -2552,6 +2730,7 @@ h-default: help
 i-default: install
 index-default: html-index
 error-default: html-error
+eb-up-default: eb-upgrade
 init-default: wagtail-init
 install-default: pip-install
 install-dev-default: pip-install-dev
@@ -2576,7 +2755,7 @@ serve-default: django-serve
 shell-default: django-shell
 show-urls-default: django-show-urls
 show-migrations-default: migrations-show
-ssm-list-default: aws-ssm-describe-parameters
+ssm-list-default: aws-ssm
 static-default: django-static
 su-default: django-su
 test-default: django-test
