@@ -17,7 +17,7 @@ urlpatterns = [
     path("dashboard/", include("db.urls")),
     path("explorer/", include("explorer.urls")),
     path("newsletter/", include("newsletter.urls")),
-    path('admin/', redirect_admin_to_about_book),
+    path("admin/", redirect_admin_to_about_book),
 ]
 
 if settings.DEBUG:

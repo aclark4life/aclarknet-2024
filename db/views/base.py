@@ -2,7 +2,6 @@ from django.db.models import BooleanField, Case, Value, When
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.shortcuts import redirect
-from django.urls import reverse
 
 archived_annotation = Case(
     When(is_active=False, then=Value(True)),
@@ -10,8 +9,10 @@ archived_annotation = Case(
     output_field=BooleanField(),
 )
 
+
 def redirect_admin_to_about_book(request):
-    return redirect('/about/#book')
+    return redirect("/about/#book")
+
 
 class BaseView:
     model = None
@@ -130,7 +131,6 @@ class BaseView:
 
     def get_context_page_obj_field_values(self, page_obj, search=False, related=False):
         page_obj_field_values = []
-
 
         if search or related:
             page_obj_field_keys = []
