@@ -148,6 +148,7 @@ class BaseView:
                         )
                     except AttributeError:
                         object_field_values.append((field_name, ""))
+            object_field_values.append(("item", item))
             page_obj_field_values.append(object_field_values)
         return page_obj_field_values
 
