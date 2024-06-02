@@ -31,16 +31,18 @@
                                 {% endif %}
                                 {% if request.user.is_superuser %}
                                     {% if model_name == "user" %}
-                                        <td class="text-center" onclick="event.stopPropagation();">
-                                            <div data-bs-toggle="modal"
-                                                 data-bs-target="#hijackModal"
-                                                 data-userid="{{ object_id }}"
-                                                 data-firstname="{{ object_field_values.4.1 }}"
-                                                 data-lastname="{{ object_field_values.5.1 }}"
-                                                 data-username="{{ object_field_values.3.1 }}">
-                                                <i class="fa-solid fa-user-secret"></i>
-                                            </div>
-                                        </td>
+                                        {% with object_user_first_name=object_field_values.4.1 object_user_last_name=object_field_values.5.1 object_user_username=object_field_values.3.1 %}
+                                            <td class="text-center" onclick="event.stopPropagation();">
+                                                <div data-bs-toggle="modal"
+                                                     data-bs-target="#hijackModal"
+                                                     data-userid="{{ object_id }}"
+                                                     data-firstname="{{ object_user_first_name }}"
+                                                     data-lastname="{{ object_user_last_name }}"
+                                                     data-username="{{ object_user_username }}">
+                                                    <i class="fa-solid fa-user-secret"></i>
+                                                </div>
+                                            </td>
+                                        {% endwith %}
                                     {% endif %}
                                 {% endif %}
                                 {% for field_name, field_value in object_field_values %}
