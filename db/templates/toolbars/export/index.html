@@ -1,13 +1,11 @@
-<div class="btn-group">
-    {% if model_name == "report" %}
-        {% include 'toolbars/export/report.html' %}
-    {% elif model_name == "invoice" %}
-        {% include 'toolbars/export/invoice.html' %}
-    {% elif model_name == "user" %}
-        {% include 'toolbars/export/user.html' %}
-    {% elif model_name == "contact" %}
-        {% include 'toolbars/export/contact.html' %}
-    {% elif model_name == "client" %}
-        {% include 'toolbars/export/open.html' %}
-    {% endif %}
-</div>
+{% if model_name == "report" %}
+    <div class="btn-group">{% include 'toolbars/export/report.html' %}</div>
+{% elif model_name == "invoice" %}
+    <div class="btn-toolbar">{% include 'toolbars/export/invoice/index.html' %}</div>
+{% elif model_name == "user" %}
+    <div class="btn-group">{% include 'toolbars/export/user.html' %}</div>
+{% elif model_name == "contact" %}
+    <div class="btn-group">{% include 'toolbars/export/contact.html' %}</div>
+{% elif model_name == "client" %}
+    <div class="btn-group">{% include 'toolbars/export/open.html' %}</div>
+{% endif %}
