@@ -507,9 +507,6 @@ class InvoiceEmailTextView(BaseInvoiceView, View):
         doc_type = settings.DOC_TYPES[obj.doc_type]
         text_content = f"{doc_type.upper()}\n\n"
         body = ""
-        contact_emails = [
-            contact.email for contact in obj.contacts.all() if contact.email is not None
-        ]
         header = Texttable()
         header.set_deco(Texttable.VLINES)
         header.set_cols_align(["r", "l", "r", "l"])
@@ -592,6 +589,9 @@ class InvoiceEmailTextView(BaseInvoiceView, View):
             [settings.DEFAULT_FROM_EMAIL],
         )
         email.attach_alternative(html_content, "text/html")
+        contact_emails = [
+            contact.email for contact in obj.contacts.all() if contact.email is not None
+        ]
         if contact_emails:
             for contact_email in contact_emails:
                 email.to = [contact_email]
