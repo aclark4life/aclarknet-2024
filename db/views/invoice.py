@@ -506,9 +506,6 @@ class InvoiceEmailTextView(BaseInvoiceView, View):
         subject = obj.subject
         doc_type = settings.DOC_TYPES[obj.doc_type]
         text_content = f"{doc_type.upper()}\n\n"
-        # Amy
-        amy = self.request.GET.get("amy", 0)
-        amy = bool(amy)
         body = ""
         contact_emails = [
             contact.email for contact in obj.contacts.all() if contact.email is not None
@@ -577,48 +574,6 @@ class InvoiceEmailTextView(BaseInvoiceView, View):
                 amount = rate * hours
             total["amount"] += amount
             total["hours"] += hours
-            # Amy
-            body += f"- {entry.description}\n"
-            table.add_row(
-                [
-                    entry.date,
-                    entry.task,
-                    entry.description,
-                    entry.hours,
-                    locale.currency(rate, grouping=True),
-                    locale.currency(amount, grouping=True),
-                ]
-            )
-        if amy:
-            body = (
-                f"{total['hours']:,.2f} hours @ {locale.currency(total['rate'], grouping=True)}/hour = {locale.currency(total['amount'], grouping=True)}\n\n"
-                + body
-            )
-            if contact_emails:
-                for contact_email in contact_emails:
-                    email = EmailMessage(
-                        subject=f"{doc_type} for {subject}",
-                        body=body,
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        to=[contact_email],
-                    )
-                    email.send()
-                    messages.success(
-                        request, f"Email sent successfully to: {contact_email}"
-                    )
-            else:
-                email = EmailMessage(
-                    subject=f"{doc_type} for {subject}",
-                    body=body,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    to=[settings.DEFAULT_FROM_EMAIL],
-                )
-                email.send()
-                messages.success(
-                    request,
-                    f"Email sent successfully to: {settings.DEFAULT_FROM_EMAIL}",
-                )
-            return redirect(obj)
         table.add_row(
             ["Total", "", "", "", "", locale.currency(total["amount"], grouping=True)]
         )
