@@ -226,7 +226,7 @@ class InvoiceDetailView(BaseInvoiceView, DetailView):
         invoice = self.get_object()
         contacts = invoice.contacts.all()
         notes = invoice.notes.all()
-        times = invoice.times.all().order_by("date")
+        times = invoice.times.all().order_by("-id")
         project = invoice.project
         client = invoice.client
         task = invoice.task
