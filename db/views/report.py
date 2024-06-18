@@ -77,6 +77,9 @@ class BaseReportView(BaseView, UserPassesTestMixin):
 
 
 class CreateOrUpdateReportView(BaseReportView):
+
+    update = False
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -84,9 +87,10 @@ class CreateOrUpdateReportView(BaseReportView):
         last_month = now - timezone.timedelta(days=now.day)
         last_month = last_month.strftime("%B")
 
-        context["form"].initial = {
-            "name": f"{last_month} {now.year}",
-        }
+        if not self.update:
+            context["form"].initial = {
+                "name": f"{last_month} {now.year}",
+            }
 
         clients = Client.objects.filter(archived=False)
         invoices = Invoice.objects.filter(archived=False)
@@ -289,6 +293,9 @@ class ReportDetailView(BaseReportView, DetailView):
 
 
 class ReportUpdateView(CreateOrUpdateReportView, UpdateView):
+
+    update = True
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["url_cancel"] = f"{self.model_name}_view"
