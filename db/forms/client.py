@@ -27,8 +27,9 @@ class ClientForm(forms.ModelForm):
         self.helper.form_class = "form-inline"
         self.helper.form_tag = False
         self.helper.layout = Div(
-            Div(Field("publish"), css_class="col-sm-2"),
-            Div(Field("link"), css_class="col-sm-10"),
+            Div(Field("archived"), css_class="col-sm-3"),
+            Div(Field("publish"), css_class="col-sm-3"),
+            Div(Field("link"), css_class="col-sm-3"),
             Div(
                 Field("name", css_class="form-control bg-transparent border"),
                 css_class="col-sm-6",
