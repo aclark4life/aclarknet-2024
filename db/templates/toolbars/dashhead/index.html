@@ -6,6 +6,8 @@
             {% include 'toolbars/dashhead/invoice.html' %}
         {% elif model_name == "project" %}
             {% include 'toolbars/dashhead/project.html' %}
+        {% elif model_name == "client" %}
+            {% include 'toolbars/dashhead/client.html' %}
         {% else %}
             {% include 'toolbars/dashhead/model.html' %}
         {% endif %}
