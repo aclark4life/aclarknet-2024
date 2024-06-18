@@ -95,11 +95,11 @@ class BaseView:
             )
             context["page_obj_field_values"] = page_obj_field_values
 
-        if self.model and hasattr(self, "object"):
-            context["page_obj_detail_view"] = self.get_page_obj_detail_view()
+        if hasattr(self, "object") and hasattr(self, "form_class"):
+            context["object_field_values"] = self.get_obj_field_values()
 
-        if hasattr(self, "form_class") and hasattr(self, "object"):
-            context["object_field_values"] = self.get_object_field_values()
+        if hasattr(self, "object") and self.model:
+            context["page_obj_detail_view"] = self.get_page_obj_detail_view()
 
         if self.search:
             context["search"] = self.search
@@ -119,12 +119,11 @@ class BaseView:
 
         return context
 
-    def get_object_field_values(self):
-        object = self.object
+    def get_obj_field_values(self):
         object_fields = self.form_class().fields.keys()
         try:
             object_field_values = [
-                (field_name, getattr(object, field_name))
+                (field_name, getattr(self.object, field_name))
                 for field_name in object_fields
                 if field_name not in self.exclude
             ]
