@@ -52,8 +52,8 @@ class BaseView:
             context["model_name_plural"] = self.model_name_plural
 
         context["statcards"] = {}
-        context["statcard"] = self.get_context_statcards()
-        context["urls"] = self.get_context_urls()
+        context["statcard"] = self.get_statcards()
+        context["urls"] = self.get_urls()
 
         per_page = self.request.GET.get("items_per_page", settings.PER_PAGE)
         per_page = int(per_page)
@@ -96,7 +96,7 @@ class BaseView:
             context["page_obj_field_values"] = page_obj_field_values
 
         if self.model and hasattr(self, "object"):
-            context["page_obj_detail_view"] = self.get_context_page_obj_detail_view()
+            context["page_obj_detail_view"] = self.get_page_obj_detail_view()
 
         if hasattr(self, "form_class") and hasattr(self, "object"):
             context["object_field_values"] = self.get_object_field_values()
@@ -142,7 +142,7 @@ class BaseView:
             page_obj_field_values.append(object_field_values)
         return page_obj_field_values
 
-    def get_context_page_obj_detail_view(self):
+    def get_page_obj_detail_view(self):
         context = {}
         first_object = None
         last_object = None
@@ -173,7 +173,7 @@ class BaseView:
         context["page_obj"] = page_obj_detail
         return context
 
-    def get_context_statcards(self):
+    def get_statcards(self):
         context = {}
 
         context["times"] = {}
@@ -187,7 +187,7 @@ class BaseView:
 
         return context
 
-    def get_context_urls(self):
+    def get_urls(self):
         context = {}
 
         context["url_cancel"] = self.url_cancel
