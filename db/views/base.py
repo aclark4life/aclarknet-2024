@@ -90,30 +90,20 @@ class BaseView:
 
         page_obj_field_values = []
         if hasattr(self, "form_class"):
-            page_obj_field_values = self.get_context_page_obj_field_values(
+            page_obj_field_values = self.get_page_obj_field_values(
                 page_obj, related=related
             )
             context["page_obj_field_values"] = page_obj_field_values
 
         if self.model and hasattr(self, "object"):
-            context["page_obj_detail"] = self.get_context_page_obj_detail()
+            context["page_obj_detail_view"] = self.get_context_page_obj_detail_view()
 
         if hasattr(self, "form_class") and hasattr(self, "object"):
-            object = self.object
-            object_fields = self.form_class().fields.keys()
-            try:
-                object_field_values = [
-                    (field_name, getattr(object, field_name))
-                    for field_name in object_fields
-                    if field_name not in self.exclude
-                ]
-            except AttributeError:
-                object_field_values = []
-            context["object_field_values"] = object_field_values
+            context["object_field_values"] = self.get_object_field_values()
 
         if self.search:
             context["search"] = self.search
-            page_obj_field_values = self.get_context_page_obj_field_values(
+            page_obj_field_values = self.get_page_obj_field_values(
                 page_obj, search=True
             )
             if len(page_obj_field_values) > 0:
@@ -123,13 +113,26 @@ class BaseView:
             context["page_obj_field_values"] = page_obj_field_values
 
         if page_obj_field_values:
-            # Get table headers from first row of results
+            # Table headers via first row
             table_headers = [i[0] for i in page_obj_field_values[0]]
             context["table_headers"] = table_headers
 
         return context
 
-    def get_context_page_obj_field_values(self, page_obj, search=False, related=False):
+    def get_object_field_values(self):
+        object = self.object
+        object_fields = self.form_class().fields.keys()
+        try:
+            object_field_values = [
+                (field_name, getattr(object, field_name))
+                for field_name in object_fields
+                if field_name not in self.exclude
+            ]
+        except AttributeError:
+            object_field_values = []
+        return object_field_values
+
+    def get_page_obj_field_values(self, page_obj, search=False, related=False):
         page_obj_field_values = []
         for item in page_obj:
             object_field_values = []
@@ -139,7 +142,7 @@ class BaseView:
             page_obj_field_values.append(object_field_values)
         return page_obj_field_values
 
-    def get_context_page_obj_detail(self):
+    def get_context_page_obj_detail_view(self):
         context = {}
         first_object = None
         last_object = None

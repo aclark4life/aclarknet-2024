@@ -1,10 +1,10 @@
 <div class="btn-group">
     <button class="btn btn-outline-primary" disabled>
-        {{ model_name.title }} {{ page_obj_detail.page_obj.number }} of {{ page_obj_detail.page_obj.paginator.num_pages }}
+        {{ model_name.title }} {{ page_obj_detail_view.page_obj.number }} of {{ page_obj_detail_view.page_obj.paginator.num_pages }}
     </button>
-    {% if page_obj_detail.first_object %}
+    {% if page_obj_detail_view.first_object %}
         <a class="btn btn-outline-primary btn-block d-flex align-items-center"
-           href="{% url urls.url_view page_obj_detail.first_object.pk %}?page_number_detail=1">
+           href="{% url urls.url_view page_obj_detail_view.first_object.pk %}?page_number_detail=1">
             <i class="fa fa-step-backward"></i><span class="visually-hidden">Link text</span>
         </a>
     {% else %}
@@ -13,28 +13,28 @@
             <span class="visually-hidden">Link text</span>
         </button>
     {% endif %}
-    {% if page_obj_detail.page_obj.has_previous %}
+    {% if page_obj_detail_view.page_obj.has_previous %}
         <a class="btn btn-outline-primary btn-block d-flex align-items-center"
-           href="{% url urls.url_view page_obj_detail.previous_object.pk %}?page_number_detail={{ page_obj_detail.page_obj.previous_page_number }}"><i class="fa fa-chevron-circle-left"></i><span class="visually-hidden">Link text</span></a>
+           href="{% url urls.url_view page_obj_detail_view.previous_object.pk %}?page_number_detail={{ page_obj_detail_view.page_obj.previous_page_number }}"><i class="fa fa-chevron-circle-left"></i><span class="visually-hidden">Link text</span></a>
     {% else %}
         <button class="btn btn-outline-primary" disabled>
             <i class="fa fa-chevron-circle-left"></i>
             <span class="visually-hidden">Link text</span>
         </button>
     {% endif %}
-    {% if page_obj_detail.page_obj.has_next %}
+    {% if page_obj_detail_view.page_obj.has_next %}
         {# https://stackoverflow.com/a/50874653/185820 #}
         <a class="btn btn-outline-primary btn-block d-flex align-items-center"
-           href="{% url urls.url_view page_obj_detail.next_object.pk %}?page_number_detail={{ page_obj_detail.page_obj.next_page_number }}"><i class="fa fa-chevron-circle-right"></i><span class="visually-hidden">Link text</span></a>
+           href="{% url urls.url_view page_obj_detail_view.next_object.pk %}?page_number_detail={{ page_obj_detail_view.page_obj.next_page_number }}"><i class="fa fa-chevron-circle-right"></i><span class="visually-hidden">Link text</span></a>
     {% else %}
         <button class="btn btn-outline-primary" disabled>
             <i class="fa fa-chevron-circle-right"></i>
             <span class="visually-hidden">Link text</span>
         </button>
     {% endif %}
-    {% if page_obj_detail.last_object %}
+    {% if page_obj_detail_view.last_object %}
         <a class="btn btn-outline-primary btn-block d-flex align-items-center"
-           href="{% url urls.url_view page_obj_detail.last_object.pk %}?page_number_detail={{ page_obj_detail.count }}"><i class="fa fa-step-forward"></i><span class="visually-hidden">Link text</span></a>
+           href="{% url urls.url_view page_obj_detail_view.last_object.pk %}?page_number_detail={{ page_obj_detail_view.count }}"><i class="fa fa-step-forward"></i><span class="visually-hidden">Link text</span></a>
     {% else %}
         <button class="btn btn-outline-primary" disabled>
             <i class="fa fa-step-forward"></i>
