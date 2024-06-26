@@ -89,6 +89,7 @@ class BaseView:
         context["page_obj"] = page_obj
 
         page_obj_field_values = []
+
         if hasattr(self, "form_class"):
             page_obj_field_values = self.get_page_obj_field_values(
                 page_obj, related=related

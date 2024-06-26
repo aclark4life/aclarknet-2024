@@ -87,64 +87,6 @@ class NoteCreateView(BaseNoteView, CreateView):
             }
         return context
 
-    def form_valid(self, form):
-        company_id = self.request.GET.get("company_id")
-        contact_id = self.request.GET.get("contact_id")
-        client_id = self.request.GET.get("client_id")
-        note_id = self.request.GET.get("note_id")
-        user_id = self.request.GET.get("user_id")
-        time_id = self.request.GET.get("time_id")
-        project_id = self.request.GET.get("project_id")
-        invoice_id = self.request.GET.get("invoice_id")
-        task_id = self.request.GET.get("task_id")
-        report_id = self.request.GET.get("report_id")
-        obj = form.save()
-        if company_id:
-            company = Company.objects.get(pk=company_id)
-            company.notes.add(obj)
-            return HttpResponseRedirect(reverse("company_view", args=[company_id]))
-        if contact_id:
-            contact = Contact.objects.get(pk=contact_id)
-            contact.notes.add(obj)
-            return HttpResponseRedirect(reverse("contact_view", args=[contact_id]))
-        if note_id:
-            note = Note.objects.get(pk=note_id)
-            note.notes.add(obj)
-            return HttpResponseRedirect(reverse("note_view", args=[note_id]))
-        if client_id:
-            client = Client.objects.get(pk=client_id)
-            client.notes.add(obj)
-            return HttpResponseRedirect(reverse("client_view", args=[client_id]))
-        if user_id:
-            user = User.objects.get(pk=user_id)
-            user.note_set.add(obj)
-            return HttpResponseRedirect(reverse("user_view", args=[user_id]))
-        if invoice_id:
-            invoice = Invoice.objects.get(pk=invoice_id)
-            invoice.notes.add(obj)
-            return HttpResponseRedirect(reverse("invoice_view", args=[invoice_id]))
-        if time_id:
-            time = Time.objects.get(pk=time_id)
-            time.notes.add(obj)
-            return HttpResponseRedirect(reverse("time_view", args=[time_id]))
-        if project_id:
-            project = Project.objects.get(pk=project_id)
-            project.notes.add(obj)
-            return HttpResponseRedirect(reverse("project_view", args=[project_id]))
-        if task_id:
-            task = Task.objects.get(pk=task_id)
-            task.notes.add(obj)
-            return HttpResponseRedirect(reverse("task_view", args=[task_id]))
-        if report_id:
-            report = Report.objects.get(pk=report_id)
-            report.notes.add(obj)
-            return HttpResponseRedirect(reverse("report_view", args=[report_id]))
-        if note_id:
-            note = Note.objects.get(pk=note_id)
-            note.notes.add(obj)
-            return HttpResponseRedirect(reverse("note_view", args=[note_id]))
-        return super().form_valid(form)
-
 
 class NoteDetailView(BaseNoteView, DetailView):
     model = Note
