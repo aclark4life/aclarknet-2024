@@ -12,4 +12,7 @@
 {% block dashboard %}
     {% include 'toolbars/view.html' %}
     {% include 'table/view.html' %}
+    {% if has_related %}
+        {% include 'related.html' %}
+    {% endif %}
 {% endblock %}
