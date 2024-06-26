@@ -1,26 +1,4 @@
 {% load babel humanize tz %}
-{# Comment #}
-{% if False %}
-    {% if model_name == "note" and field_name.lower == "text" and object_field_values.1.1 %}
-        {{ field_value|safe|default:'' }}
-    {% elif field_name.lower == "archived" and field_value %}
-        <i class="fa-solid fa-box-archive"></i>
-    {% else %}
-        {% if field_name.lower == "active" %}
-            {% if field_value %}
-                <i class="fa-solid fa-user-large"></i>
-            {% else %}
-                <i class="fa-solid fa-user-large-slash"></i>
-            {% endif %}
-        {% elif field_name.lower == "amount" or field_name.lower == "net" or field_name.lower == "cost" %}
-            {{ field_value|default:0|currencyfmt:"USD" }}
-        {% elif field_name == "Updated" %}
-            {{ field_value|date:"Y-m-d" }}
-        {% else %}
-            {{ field_value|default:"" }}
-        {% endif %}
-    {% endif %}
-{% endif %}
 {# Show archived icon if archived or inactive #}
 {% if field_name == "is_active" and field_value == False %}
     <i class="fa-solid fa-box-archive"></i>
