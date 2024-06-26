@@ -155,19 +155,7 @@ class NoteDetailView(BaseNoteView, DetailView):
 
     def get_context_data(self, **kwargs):
         note = self.get_object()
-        companies = note.company_set.all()
-        clients = note.client_set.all()
-        contacts = note.contact_set.all()
-        projects = note.project_set.all()
-        times = note.time_set.all()
-        invoices = note.invoice_set.all()
-        queryset_related = list(
-            chain(companies, clients, contacts, projects, times, invoices)
-        )
-        self.queryset_related = queryset_related
-        self.has_related = True
         context = super().get_context_data(**kwargs)
-
         context["url_export_pdf"] = self.url_export_pdf
         context["url_email_pdf"] = self.url_email_pdf
         context["url_email_text"] = self.url_email_text
