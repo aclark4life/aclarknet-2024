@@ -1,10 +1,16 @@
 {% load babel humanize tz %}
-{# Show archived icon if archived or inactive #}
+
 {% if field_name == "is_active" and field_value == False %}
+    {# Show archived icon if inactive user #}
+    <i class="fa-solid fa-box-archive"></i>
+{% elif field_name == "archived" and field_value == True %}
+    {# Show archived icon if item archived #}
     <i class="fa-solid fa-box-archive"></i>
 {% elif field_name == "is_active" and field_value == True %}
-{% elif field_name == "archived" and field_value == True %}
-    <i class="fa-solid fa-box-archive"></i>
+    {# Show nothing if active user #}
+{% elif object.html and field_name == "text" %}
+    {# Render html if html #}
+    {{ field_value|default:""|safe }}
 {% else %}
     {{ field_value|default:"" }}
 {% endif %}
