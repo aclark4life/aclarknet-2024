@@ -37,7 +37,8 @@ class UserForm(forms.ModelForm):
         self.helper.form_class = "form-inline"
         self.helper.form_tag = False
         self.helper.layout = Div(
-            Div(Field("mail", css_class=""), css_class="col-sm-12"),
+            Div(Field("is_active"), css_class="col-sm-3"),
+            Div(Field("mail", css_class=""), css_class="col-sm-9"),
             Div(
                 Field("username", css_class="form-control bg-transparent border"),
                 css_class="col-sm-4",

@@ -30,6 +30,7 @@ class TimeForm(forms.ModelForm):
         self.helper.form_class = "form-inline"
         self.helper.form_tag = False
         self.helper.layout = Div(
+            Div(Field("archived"), css_class="col-sm-12"),
             Div(Field("date", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("hours", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("user", css_class="form-control"), css_class="col-sm-6"),

@@ -35,6 +35,7 @@ class ProjectForm(forms.ModelForm):
             "client"
         ].queryset = Client.objects.all()  # Fetch all clients for the dropdown
         self.helper.layout = Div(
+            Div(Field("archived"), css_class="col-sm-12"),
             Div(
                 Field("name", css_class="form-control bg-transparent border"),
                 css_class="col-sm-6",

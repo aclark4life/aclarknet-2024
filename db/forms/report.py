@@ -36,6 +36,7 @@ class ReportForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Div(
+            Div(Field("archived"), css_class="col-sm-12"),
             Div(
                 Field("name", css_class="form-control bg-transparent border"),
                 css_class="col-sm-4",

@@ -24,6 +24,7 @@ class CompanyForm(forms.ModelForm):
         self.helper.form_class = "form-inline"
         self.helper.form_tag = False
         self.helper.layout = Div(
+            Div(Field("archived"), css_class="col-sm-3"),
             Div(
                 Field("name", css_class="form-control bg-transparent border"),
                 css_class="col-sm-6",

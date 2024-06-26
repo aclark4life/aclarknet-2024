@@ -17,7 +17,8 @@ class NoteForm(forms.ModelForm):
         self.helper.form_class = "form-inline"
         self.helper.form_tag = False
         self.helper.layout = Div(
-            Div(Field("html", css_class=""), css_class="col-sm-12"),
+            Div(Field("archived", css_class=""), css_class="col-sm-3"),
+            Div(Field("html", css_class=""), css_class="col-sm-3"),
             Div(
                 Field("title", css_class="form-control bg-transparent border"),
                 css_class="col-sm-12",
