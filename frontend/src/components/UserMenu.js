@@ -30,6 +30,7 @@ const UserMenu = ({ isAuthenticated, isSuperuser }) => {
                 <li><a className="dropdown-item" href="https://admin.google.com/ac/home?hl=en" rel="noreferrer" target="_blank">Google Workspace</a></li>
                 <li><a className="dropdown-item" href="https://logfire.pydantic.dev/aclark4life/aclarknet" rel="noreferrer" target="_blank">Logfire</a></li>
                 <li><a className="dropdown-item" href="/lounge" target="_blank">Lounge</a></li>
+                <li><a className="dropdown-item" href="/dashboard/note">Notes</a></li>
                 <li><a className="dropdown-item" href="/explorer" target="_blank">SQL Explorer</a></li>
                 <li><a className="dropdown-item" href="/dashboard/user">Users</a></li>
                 <li><a className="dropdown-item" href="/wagtail" target="_blank">Wagtail Admin</a></li>
