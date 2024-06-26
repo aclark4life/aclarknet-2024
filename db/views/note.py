@@ -51,7 +51,7 @@ class BaseNoteView(BaseView, UserPassesTestMixin):
     url_edit = f"{model_name.lower()}_edit"
     url_index = f"{model_name.lower()}_index"
     url_view = f"{model_name.lower()}_view"
-    exclude = ["text", "html"]
+    exclude = ["html"]
 
     def test_func(self):
         return self.request.user.is_superuser
