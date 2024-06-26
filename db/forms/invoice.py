@@ -78,7 +78,6 @@ class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
         fields = (
-            "archived",
             "client",
             "user",
             "project",
@@ -91,6 +90,7 @@ class InvoiceForm(forms.ModelForm):
             "end_date",
             "due_date",
             "contacts",
+            "archived",
         )
         widgets = {
             "ein": forms.widgets.NumberInput(),

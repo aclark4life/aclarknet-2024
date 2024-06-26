@@ -9,7 +9,6 @@ class ContactForm(forms.ModelForm):
     class Meta:
         model = Contact
         fields = (
-            "archived",
             "first_name",
             "last_name",
             "name",
@@ -17,6 +16,7 @@ class ContactForm(forms.ModelForm):
             "client",
             "url",
             "number",
+            "archived",
         )
         labels = {
             "name": "Full name",

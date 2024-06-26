@@ -14,7 +14,6 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = [
-            "is_active",
             "username",
             "first_name",
             "last_name",
@@ -22,6 +21,7 @@ class UserForm(forms.ModelForm):
             "rate",
             "mail",
             "address",
+            "is_active",
         ]
 
     def __init__(self, *args, **kwargs):

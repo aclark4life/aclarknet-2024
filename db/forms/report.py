@@ -14,7 +14,6 @@ class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
         fields = (
-            "archived",
             "name",
             "date",
             "hours",
@@ -29,6 +28,7 @@ class ReportForm(forms.ModelForm):
             "user",
             "company",
             "team",
+            "archived",
         )
 
     def __init__(self, *args, **kwargs):

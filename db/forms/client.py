@@ -9,7 +9,6 @@ class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = (
-            "archived",
             "publish",
             "link",
             "name",
@@ -18,6 +17,7 @@ class ClientForm(forms.ModelForm):
             "url",
             "company",
             "tags",
+            "archived",
         )
 
     def __init__(self, *args, **kwargs):
