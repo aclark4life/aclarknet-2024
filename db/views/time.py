@@ -176,9 +176,10 @@ class TimeDetailView(BaseTimeView, DetailView):
 
     def get_context_data(self, **kwargs):
         time = self.get_object()
-        queryset_related = list(chain([time.invoice]))
-        self.queryset_related = queryset_related
-        self.has_related = True
+        if time.invoice:
+            queryset_related = list(chain([time.invoice]))
+            self.queryset_related = queryset_related
+            self.has_related = True
         context = super().get_context_data(**kwargs)
         return context
 
@@ -250,13 +251,14 @@ class TimeCopyView(BaseTimeView, CreateView):
 
     def get_initial(self):
         original_time = Time.objects.get(pk=self.kwargs["pk"])
-        tomorrow = original_time.date + timezone.timedelta(days=1)
+        # tomorrow = original_time.date + timezone.timedelta(days=1)
         return {
             "user": original_time.user,
             "name": original_time.name,
             "hours": original_time.hours,
             "description": original_time.description,
-            "date": tomorrow,
+            # "date": tomorrow,
+            "date": timezone.now,
             "invoice": original_time.invoice,
             "task": original_time.task,
             "project": original_time.project,

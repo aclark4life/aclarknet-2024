@@ -21,35 +21,38 @@
                 </thead>
                 <tbody>
                     {% for object_field_values in page_obj_field_values %}
-                        {% with model_name=object_field_values.0.1 object_id=object_field_values.1.1 %}
-                            <tr onclick="window.location='{% url model_name|add:"_view" object_id %}'"
-                                style="cursor: pointer">
-                                {% if request.user.is_superuser %}
-                                    <td onclick="event.stopPropagation();">
-                                        <input type="checkbox" name="entry_id" value="{{ object_id }}" />
-                                    </td>
-                                {% endif %}
-                                {% if request.user.is_superuser %}
-                                    {% if model_name == "user" %}
-                                        {% with object_user_first_name=object_field_values.4.1 object_user_last_name=object_field_values.5.1 object_user_username=object_field_values.3.1 %}
-                                            <td class="text-center" onclick="event.stopPropagation();">
-                                                <div data-bs-toggle="modal"
-                                                     data-bs-target="#hijackModal"
-                                                     data-userid="{{ object_id }}"
-                                                     data-firstname="{{ object_user_first_name }}"
-                                                     data-lastname="{{ object_user_last_name }}"
-                                                     data-username="{{ object_user_username }}">
-                                                    <i class="fa-solid fa-user-secret"></i>
-                                                </div>
-                                            </td>
-                                        {% endwith %}
+
+                        {% if object_field_values %}
+                            {% with model_name=object_field_values.0.1 object_id=object_field_values.1.1 %}
+                                <tr onclick="window.location='{% url model_name|add:"_view" object_id %}'"
+                                    style="cursor: pointer">
+                                    {% if request.user.is_superuser %}
+                                        <td onclick="event.stopPropagation();">
+                                            <input type="checkbox" name="entry_id" value="{{ object_id }}" />
+                                        </td>
                                     {% endif %}
-                                {% endif %}
-                                {% for field_name, field_value in object_field_values %}
-                                    <td>{% include 'table/field_value.html' %}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endwith %}
+                                    {% if request.user.is_superuser %}
+                                        {% if model_name == "user" %}
+                                            {% with object_user_first_name=object_field_values.4.1 object_user_last_name=object_field_values.5.1 object_user_username=object_field_values.3.1 %}
+                                                <td class="text-center" onclick="event.stopPropagation();">
+                                                    <div data-bs-toggle="modal"
+                                                         data-bs-target="#hijackModal"
+                                                         data-userid="{{ object_id }}"
+                                                         data-firstname="{{ object_user_first_name }}"
+                                                         data-lastname="{{ object_user_last_name }}"
+                                                         data-username="{{ object_user_username }}">
+                                                        <i class="fa-solid fa-user-secret"></i>
+                                                    </div>
+                                                </td>
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endif %}
+                                    {% for field_name, field_value in object_field_values %}
+                                        <td>{% include 'table/field_value.html' %}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endwith %}
+                        {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
