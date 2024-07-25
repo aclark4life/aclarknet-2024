@@ -21,7 +21,6 @@
                 </thead>
                 <tbody>
                     {% for object_field_values in page_obj_field_values %}
-
                         {% if object_field_values %}
                             {% with model_name=object_field_values.0.1 object_id=object_field_values.1.1 %}
                                 <tr onclick="window.location='{% url model_name|add:"_view" object_id %}'"

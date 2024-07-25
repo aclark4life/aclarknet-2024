@@ -77,7 +77,6 @@ class BaseReportView(BaseView, UserPassesTestMixin):
 
 
 class CreateOrUpdateReportView(BaseReportView):
-
     update = False
 
     def get_context_data(self, **kwargs):
@@ -293,7 +292,6 @@ class ReportDetailView(BaseReportView, DetailView):
 
 
 class ReportUpdateView(CreateOrUpdateReportView, UpdateView):
-
     update = True
 
     def get_context_data(self, **kwargs):

@@ -1,13 +1,9 @@
-from itertools import chain
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, reverse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -20,14 +16,6 @@ from django.views.generic import (
 
 from ..forms.note import NoteForm
 from ..models.note import Note
-from ..models.client import Client
-from ..models.company import Company
-from ..models.contact import Contact
-from ..models.invoice import Invoice
-from ..models.project import Project
-from ..models.report import Report
-from ..models.task import Task
-from ..models.time import Time
 from .base import BaseView
 
 
