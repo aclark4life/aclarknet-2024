@@ -136,7 +136,7 @@ class BaseView:
         page_obj_field_values = []
         for item in page_obj:
             object_field_values = []
-            if page_obj.object_list:
+            if hasattr(page_obj, "object_list"):
                 if page_obj.object_list[0] is not None:
                     object_field_values.append(("type", item._meta.model_name))
                     object_field_values.append(("id", item.id))
