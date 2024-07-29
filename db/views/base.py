@@ -142,6 +142,12 @@ class BaseView:
                     object_field_values.append(("id", item.id))
                     object_field_values.append(("archived", self.get_archived(item)))
                     object_field_values.append(("item", item))
+
+            else:
+                object_field_values.append(("type", item._meta.model_name))
+                object_field_values.append(("id", item.id))
+                object_field_values.append(("archived", self.get_archived(item)))
+                object_field_values.append(("item", item))
             page_obj_field_values.append(object_field_values)
         return page_obj_field_values
 
