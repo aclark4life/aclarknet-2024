@@ -252,6 +252,11 @@ class InvoiceDetailView(BaseInvoiceView, DetailView):
         context["url_email_text"] = self.url_email_text
         if self.object.doc_type in settings.DOC_TYPES:
             context["doc_type"] = settings.DOC_TYPES[self.object.doc_type]
+        contacts = self.object.contacts.all()
+        context["object_field_values"].append(("Contacts", ""))
+        if contacts:
+            for contact in contacts:
+                context["object_field_values"].append(("↳", contact))
         return context
 
 
@@ -502,11 +507,9 @@ class InvoiceEmailTextView(BaseInvoiceView, View):
     def get(self, request, *args, **kwargs):
         object_id = self.kwargs["object_id"]
         obj = get_object_or_404(self.model, id=object_id)
-        now = timezone.now()
         subject = obj.subject
         doc_type = settings.DOC_TYPES[obj.doc_type]
         text_content = f"{doc_type.upper()}\n\n"
-        body = ""
         header = Texttable()
         header.set_deco(Texttable.VLINES)
         header.set_cols_align(["r", "l", "r", "l"])
