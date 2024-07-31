@@ -261,6 +261,7 @@ class InvoiceDetailView(BaseInvoiceView, DetailView):
         context["object_field_values"].append(
             ("Net", locale.currency(self.object.net, grouping=True))
         )
+        context["object_field_values"].append(("Company", self.object.company))
         contacts = self.object.contacts.all()
         context["object_field_values"].append(("Contacts", ""))
         if contacts:
