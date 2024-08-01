@@ -97,8 +97,6 @@ class CreateOrUpdateReportView(BaseReportView):
         tasks = [project.task for project in projects]
         companies = Company.objects.filter(archived=False)
 
-        # contacts = self.get_object().contacts.all()
-
         report_hours = invoices.aggregate(hours=Sum("hours"))["hours"]
         report_amount = invoices.aggregate(amount=Sum(F("amount")))["amount"]
         report_cost = invoices.aggregate(cost=Sum(F("cost")))["cost"]
@@ -173,41 +171,6 @@ class ReportListView(BaseReportView, ListView):
     url_export_pdf = "report_export_pdf"
     url_email_pdf = "report_email_pdf"
     url_email_text = "report_email_text"
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     if self.request.user.is_superuser:
-    #         self.page_obj = self.get_queryset()
-    #     elif self.request.user.is_authenticated:
-    #         self.page_obj = Report.objects.filter(user=self.request.user)
-    #     else:
-    #         self.page_obj = Report.objects.none()
-    #     context["page_obj"] = self.page_obj
-    #     queryset = Report.objects.filter(archived=False)
-    #     hours = queryset.aggregate(total_hours=Sum("hours"))["total_hours"]
-    #     hours = hours or 0
-    #     hours = f"{hours:.2f}"
-    #     hours = {"total": hours}
-    #     gross = queryset.aggregate(total_gross=Sum("amount"))["total_gross"]
-    #     net = queryset.aggregate(total_net=Sum("net"))["total_net"]
-    #     cost = queryset.aggregate(total_cost=Sum("cost"))["total_cost"]
-
-    #     context["statcard"]["invoices"]["gross"] = gross or 0
-    #     context["statcard"]["invoices"]["cost"] = cost or 0
-    #     context["statcard"]["invoices"]["net"] = net or 0
-    #     context["statcard"]["times"]["entered"] = hours
-    #     context["statcard"]["times"]["approved"] = hours
-
-    #     context["url_export_pdf"] = self.url_export_pdf
-    #     context["url_email_pdf"] = self.url_email_pdf
-    #     context["url_email_text"] = self.url_email_text
-
-    #     context["index"] = True
-
-    #     return context
-
-    # def get_queryset(self):
-    #     return Report.objects.all().order_by("archived", "-created")
 
 
 class ReportCreateView(CreateOrUpdateReportView, CreateView):
