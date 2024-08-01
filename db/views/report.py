@@ -285,7 +285,10 @@ class ReportDetailView(BaseReportView, DetailView):
             if contact.email:
                 contact_emails.append(contact.email)
         context["contact_emails"] = ", ".join(contact_emails)
-
+        context["object_field_values"].append(("Contacts", ""))
+        if contacts:
+            for contact in contacts:
+                context["object_field_values"].append(("↳", contact))
         return context
 
     template_name = "view.html"
@@ -394,8 +397,9 @@ class ReportEmailTextView(BaseReportView, View):
             rate = 0
             cost = 0
             net = 0
-            if invoice.project.task:
-                rate = invoice.project.task.rate
+            if invoice.project:
+                if invoice.project.task:
+                    rate = invoice.project.task.rate
             if invoice.cost:
                 cost = invoice.cost
             if invoice.net:
@@ -414,36 +418,37 @@ class ReportEmailTextView(BaseReportView, View):
             if obj.team:
                 for project in obj.team:
                     team_member_data = ast.literal_eval(obj.team[project]).items()
-                    if invoice.project.name == project:
-                        for field in team_member_data:
-                            user = User.objects.get(username=field[0])
-                            full_name = "↳ " + " ".join(
-                                [user.first_name, user.last_name]
-                            )
-                            try:
-                                table.add_row(
-                                    [
-                                        full_name or user.username,
-                                        "",
-                                        locale.currency(float(field[1]["rate"])),
-                                        float(field[1]["hours"]),
-                                        locale.currency(float(field[1]["gross"])),
-                                        locale.currency(float(field[1]["net"])),
-                                        locale.currency(float(field[1]["cost"])),
-                                    ]
+                    if invoice.project:
+                        if invoice.project.name == project:
+                            for field in team_member_data:
+                                user = User.objects.get(username=field[0])
+                                full_name = "↳ " + " ".join(
+                                    [user.first_name, user.last_name]
                                 )
-                            except ValueError:
-                                table.add_row(
-                                    [
-                                        full_name or user.username,
-                                        "",
-                                        locale.currency(float(0)),
-                                        float(field[1]["hours"]),
-                                        locale.currency(float(field[1]["gross"])),
-                                        locale.currency(float(field[1]["net"])),
-                                        locale.currency(float(field[1]["cost"])),
-                                    ]
-                                )
+                                try:
+                                    table.add_row(
+                                        [
+                                            full_name or user.username,
+                                            "",
+                                            locale.currency(float(field[1]["rate"])),
+                                            float(field[1]["hours"]),
+                                            locale.currency(float(field[1]["gross"])),
+                                            locale.currency(float(field[1]["net"])),
+                                            locale.currency(float(field[1]["cost"])),
+                                        ]
+                                    )
+                                except ValueError:
+                                    table.add_row(
+                                        [
+                                            full_name or user.username,
+                                            "",
+                                            locale.currency(float(0)),
+                                            float(field[1]["hours"]),
+                                            locale.currency(float(field[1]["gross"])),
+                                            locale.currency(float(field[1]["net"])),
+                                            locale.currency(float(field[1]["cost"])),
+                                        ]
+                                    )
 
         text_content += table.draw()
 
