@@ -19,7 +19,7 @@
                                padding: 3px 3px 0 0;
                                border-right: 1px solid #ddd">Subject</td>
                     <td style="text-align: left; padding: 3px 0 8px 3px;">
-                        <div>{{ object.subject }}</div>
+                        <div>{{ object.name }}</div>
                     </td>
                 </tr>
                 <tr>
@@ -28,7 +28,7 @@
                                font-weight: bold;
                                padding: 3px 3px 0 0;
                                width: 15%;
-                               border-right: 1px solid #ddd">Invoice Number</td>
+                               border-right: 1px solid #ddd">Report Number</td>
                     <td valign="top" style="text-align: left; padding: 3px 0 8px 3px;">{{ object.id }}</td>
                     <td valign="top"
                         style="text-align: right;
@@ -49,7 +49,7 @@
                                font-weight: bold;
                                padding: 3px 3px 0 0;
                                border-right: 1px solid #ddd">Issue Date</td>
-                    <td valign="top" style="text-align: left; padding: 3px 0 8px 3px;">{{ object.issue_date }}</td>
+                    <td valign="top" style="text-align: left; padding: 3px 0 8px 3px;">{{ object.date }}</td>
                     <td valign="top"
                         style="text-align: right;
                                font-weight: bold;
@@ -65,38 +65,6 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <td valign="top"
-                        style="text-align: right;
-                               font-weight: bold;
-                               padding: 0 3px 0 0;
-                               border-right: 1px solid #ddd">Performance Period</td>
-                    <td style="text-align: left; padding: 0 0 8px 3px;">
-                        <div>{{ object.start_date }}&mdash;{{ object.end_date }}</div>
-                    </td>
-                    <td valign="top"
-                        style="text-align: right;
-                               font-weight: bold;
-                               padding: 0 3px 0 0;
-                               border-right: 1px solid #ddd">
-                        {% if object.due_date %}Due Date{% endif %}
-                    </td>
-                    <td valign="top" style="text-align: left; padding: 0 0 8px 3px;">
-                        {% if object.due_date %}{{ object.due_date }}{% endif %}
-                    </td>
-                </tr>
-                {% if object.po_number %}
-                <tr>
-                    <td valign="top"
-                        style="text-align: right;
-                               font-weight: bold;
-                               padding: 0 3px 0 0;
-                               border-right: 1px solid #ddd">Purchase Order Number</td>
-                    <td style="text-align: left; padding: 0 0 8px 3px;">
-                        <div>{{ object.po_number }}</div>
-                    </td>
-                </tr>
-                {% endif %}
             </table>
         </div>
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
@@ -104,27 +72,31 @@
                 <th style="border: 1px solid #ddd;
                            background-color: #f2f2f2;
                            padding: 8px;
-                           text-align: left">Date</th>
+                           text-align: left">Invoice</th>
                 <th style="border: 1px solid #ddd;
                            background-color: #f2f2f2;
                            padding: 8px;
-                           text-align: left">Task</th>
+                           text-align: left">Issue Date</th>
                 <th style="border: 1px solid #ddd;
                            background-color: #f2f2f2;
                            padding: 8px;
-                           text-align: left">Description</th>
+                           text-align: left">Hourly</th>
                 <th style="border: 1px solid #ddd;
                            background-color: #f2f2f2;
                            padding: 8px;
-                           text-align: left">Quantity</th>
+                           text-align: left">Hours</th>
                 <th style="border: 1px solid #ddd;
                            background-color: #f2f2f2;
                            padding: 8px;
-                           text-align: left">Unit Price</th>
+                           text-align: left">Gross</th>
                 <th style="border: 1px solid #ddd;
                            background-color: #f2f2f2;
                            padding: 8px;
-                           text-align: left">Amount</th>
+                           text-align: left">Cost</th>
+                <th style="border: 1px solid #ddd;
+                           background-color: #f2f2f2;
+                           padding: 8px;
+                           text-align: left">Net</th>
             </tr>
             {% for time_entry in times %}
                 <tr>
