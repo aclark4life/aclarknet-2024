@@ -139,17 +139,9 @@ class CreateOrUpdateReportView(BaseReportView):
                 team[project.name][member.username]["cost"] = str(cost)
                 team[project.name][member.username]["net"] = str(net)
 
-            context["statcards"][project.name] = {}
-            context["statcards"][project.name]["name"] = project.name
-            context["statcards"][project.name]["invoices"] = {}
-            context["statcards"][project.name]["invoices"]["gross"] = f"{gross:.2f}"
-            context["statcards"][project.name]["invoices"]["cost"] = f"{cost:.2f}"
-            context["statcards"][project.name]["invoices"]["net"] = f"{net:.2f}"
-
             context["form"].initial.update(
                 {
                     "clients": clients,
-                    # "contacts": contacts,
                     "projects": projects,
                     "tasks": tasks,
                     "invoices": invoices,
