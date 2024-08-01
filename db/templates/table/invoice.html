@@ -28,7 +28,7 @@
                                font-weight: bold;
                                padding: 3px 3px 0 0;
                                width: 15%;
-                               border-right: 1px solid #ddd">Number</td>
+                               border-right: 1px solid #ddd">Invoice Number</td>
                     <td valign="top" style="text-align: left; padding: 3px 0 8px 3px;">{{ object.id }}</td>
                     <td valign="top"
                         style="text-align: right;
@@ -83,6 +83,16 @@
                     </td>
                     <td valign="top" style="text-align: left; padding: 0 0 8px 3px;">
                         {% if object.due_date %}{{ object.due_date }}{% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top"
+                        style="text-align: right;
+                               font-weight: bold;
+                               padding: 0 3px 0 0;
+                               border-right: 1px solid #ddd">Purchase Order Number</td>
+                    <td style="text-align: left; padding: 0 0 8px 3px;">
+                        <div>{{ object.po_number }}</div>
                     </td>
                 </tr>
             </table>
