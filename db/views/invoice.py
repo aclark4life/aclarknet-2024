@@ -570,7 +570,10 @@ class InvoiceEmailTextView(BaseInvoiceView, View):
         total = {}
         total["amount"] = 0
         total["hours"] = 0
-        total["rate"] = obj.project.task.rate
+        total["rate"] = 0
+        if obj.project:
+            if obj.project.task:
+                total["rate"] = obj.project.task.rate
         for entry in obj.times.all():
             rate = 0
             amount = entry.amount
