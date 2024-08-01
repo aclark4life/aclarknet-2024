@@ -53,6 +53,11 @@ class BaseReportView(BaseView, UserPassesTestMixin):
     url_edit = f"{model_name.lower()}_edit"
     url_index = f"{model_name.lower()}_index"
     url_view = f"{model_name.lower()}_view"
+
+    url_export_pdf = "report_export_pdf"
+    url_email_pdf = "report_email_pdf"
+    url_email_text = "report_email_text"
+
     exclude = [
         "date",
         "hours",
@@ -74,6 +79,13 @@ class BaseReportView(BaseView, UserPassesTestMixin):
 
     def handle_no_permission(self):
         raise PermissionDenied
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["url_export_pdf"] = self.url_export_pdf
+        context["url_email_pdf"] = self.url_email_pdf
+        context["url_email_text"] = self.url_email_text
+        return context
 
 
 class CreateOrUpdateReportView(BaseReportView):
@@ -160,9 +172,6 @@ class CreateOrUpdateReportView(BaseReportView):
 
 class ReportListView(BaseReportView, ListView):
     template_name = "index.html"
-    url_export_pdf = "report_export_pdf"
-    url_email_pdf = "report_email_pdf"
-    url_email_text = "report_email_text"
 
 
 class ReportCreateView(CreateOrUpdateReportView, CreateView):
@@ -180,9 +189,6 @@ class ReportCreateView(CreateOrUpdateReportView, CreateView):
 
 
 class ReportDetailView(BaseReportView, DetailView):
-    url_export_pdf = "report_export_pdf"
-    url_email_pdf = "report_email_pdf"
-    url_email_text = "report_email_text"
 
     def get_context_data(self, **kwargs):
         report = self.get_object()
@@ -218,9 +224,6 @@ class ReportDetailView(BaseReportView, DetailView):
         self.has_related = True
         context = super().get_context_data(**kwargs)
 
-        context["url_export_pdf"] = self.url_export_pdf
-        context["url_email_pdf"] = self.url_email_pdf
-        context["url_email_text"] = self.url_email_text
 
         entered = {"total": report.hours}
         approved = {"total": report.hours}
@@ -245,7 +248,6 @@ class ReportUpdateView(CreateOrUpdateReportView, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["url_cancel"] = f"{self.model_name}_view"
         context["pk"] = self.kwargs["pk"]
         return context
 
