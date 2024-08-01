@@ -39,6 +39,23 @@ fake = Faker()
 locale.setlocale(locale.LC_ALL, "")
 
 
+def get_queryset_related(self):
+        report = self.get_object()
+        company = report.company
+        notes = report.notes.all()
+        clients = report.clients.all()
+        invoices = report.invoices.all()
+        projects = report.projects.all()
+        contacts = report.contacts.all()
+        reports = report.reports.all()
+        queryset_related = [
+            q
+            for q in [clients, contacts, invoices, notes, projects, reports]
+            if q.exists()
+        ]
+        return company, projects, invoices, report, contacts, queryset_related
+
+
 class BaseReportView(BaseView, UserPassesTestMixin):
     model = Report
     model_name = model._meta.model_name
@@ -86,6 +103,50 @@ class BaseReportView(BaseView, UserPassesTestMixin):
         context["url_email_pdf"] = self.url_email_pdf
         context["url_email_text"] = self.url_email_text
         return context
+
+
+class ReportDetailView(BaseReportView, DetailView):
+
+    def get_context_data(self, **kwargs):
+
+        company, projects, invoices, report, contacts, queryset_related = get_queryset_related(self)
+
+        if company:
+            queryset_related.insert(0, [company])
+
+        queryset_related = list(chain(*queryset_related))
+
+        for project in projects:
+            for team_member in project.team.all():
+                if team_member and team_member not in queryset_related:
+                    queryset_related.append(team_member)
+
+        for invoice in invoices:
+            for time_entry in invoice.times.all():
+                if time_entry:
+                    queryset_related.append(time_entry)
+
+        self.queryset_related = queryset_related
+        self.has_related = True
+        context = super().get_context_data(**kwargs)
+
+
+        entered = {"total": report.hours}
+        approved = {"total": report.hours}
+
+        contact_emails = []
+
+        for contact in contacts:
+            if contact.email:
+                contact_emails.append(contact.email)
+        context["contact_emails"] = ", ".join(contact_emails)
+        context["object_field_values"].append(("Contacts", ""))
+        if contacts:
+            for contact in contacts:
+                context["object_field_values"].append(("↳", contact))
+        return context
+
+    template_name = "view.html"
 
 
 class CreateOrUpdateReportView(BaseReportView):
@@ -186,61 +247,6 @@ class ReportCreateView(CreateOrUpdateReportView, CreateView):
 
     def get_success_url(self):
         return reverse_lazy("report_view", args=[self.object.pk])
-
-
-class ReportDetailView(BaseReportView, DetailView):
-
-    def get_context_data(self, **kwargs):
-        report = self.get_object()
-        company = report.company
-        notes = report.notes.all()
-        clients = report.clients.all()
-        invoices = report.invoices.all()
-        projects = report.projects.all()
-        contacts = report.contacts.all()
-        reports = report.reports.all()
-        queryset_related = [
-            q
-            for q in [clients, contacts, invoices, notes, projects, reports]
-            if q.exists()
-        ]
-
-        if company:
-            queryset_related.insert(0, [company])
-
-        queryset_related = list(chain(*queryset_related))
-
-        for project in projects:
-            for team_member in project.team.all():
-                if team_member and team_member not in queryset_related:
-                    queryset_related.append(team_member)
-
-        for invoice in invoices:
-            for time_entry in invoice.times.all():
-                if time_entry:
-                    queryset_related.append(time_entry)
-
-        self.queryset_related = queryset_related
-        self.has_related = True
-        context = super().get_context_data(**kwargs)
-
-
-        entered = {"total": report.hours}
-        approved = {"total": report.hours}
-
-        contact_emails = []
-
-        for contact in contacts:
-            if contact.email:
-                contact_emails.append(contact.email)
-        context["contact_emails"] = ", ".join(contact_emails)
-        context["object_field_values"].append(("Contacts", ""))
-        if contacts:
-            for contact in contacts:
-                context["object_field_values"].append(("↳", contact))
-        return context
-
-    template_name = "view.html"
 
 
 class ReportUpdateView(CreateOrUpdateReportView, UpdateView):
