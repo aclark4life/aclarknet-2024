@@ -233,17 +233,8 @@ class ReportDetailView(BaseReportView, DetailView):
         entered = {"total": report.hours}
         approved = {"total": report.hours}
 
-        context["statcard"]["times"]["entered"] = entered or 0
-        context["statcard"]["times"]["approved"] = approved or 0
-
-        context["statcards"]["Report"] = {}
-        context["statcards"]["Report"]["name"] = "Report"
-        context["statcards"]["Report"]["invoices"] = {}
-        context["statcards"]["Report"]["invoices"]["gross"] = report.amount or 0
-        context["statcards"]["Report"]["invoices"]["cost"] = report.cost or 0
-        context["statcards"]["Report"]["invoices"]["net"] = report.net or 0
-
         contact_emails = []
+
         for contact in contacts:
             if contact.email:
                 contact_emails.append(contact.email)
