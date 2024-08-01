@@ -98,21 +98,21 @@
                            padding: 8px;
                            text-align: left">Net</th>
             </tr>
-            {% for time_entry in times %}
+            {% for invoice in invoices %}
                 <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.date }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.task }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.description }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.hours|floatformat:2|intcomma }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.date }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.task }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.description }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.hours|floatformat:2|intcomma }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
                         {% if object.doc_type == "task-order" %}
-                            {{ time_entry.user.profile.rate|default:0|currencyfmt:"USD" }}
+                            {{ invoice.user.profile.rate|default:0|currencyfmt:"USD" }}
                         {% else %}
-                            {{ time_entry.project.task.rate|default:0|currencyfmt:"USD" }}
+                            {{ invoice.project.task.rate|default:0|currencyfmt:"USD" }}
                         {% endif %}
                     </td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
-                        {{ time_entry.amount|default:0|currencyfmt:"USD" }}
+                        {{ invoice.amount|default:0|currencyfmt:"USD" }}
                     </td>
                 </tr>
             {% endfor %}

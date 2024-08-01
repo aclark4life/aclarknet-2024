@@ -14,8 +14,17 @@ from ..models.article import Article
 from ..models.attachment import Attachment
 from ..addressimport.parsers import parse_csv, parse_vcard, parse_ldif
 from ..settings import newsletter_settings
+from django.db import models
 
 from sorl.thumbnail.admin import AdminImageMixin
+
+from dynamic_image.fields import DynamicImageField
+
+try:
+    from easy_thumbnails.widgets import ImageClearableFileInput  # noqa
+except (ImportError, RuntimeError):
+    pass
+
 
 logger = logging.getLogger(__name__)
 

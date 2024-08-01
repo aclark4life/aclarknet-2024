@@ -38,7 +38,7 @@ INSTALLED_APPS.append("puput")  # noqa
 INSTALLED_APPS.append("colorful")  # noqa
 INSTALLED_APPS.append("nowpage")  # noqa
 INSTALLED_APPS.append("django.contrib.sites")  # noqa
-INSTALLED_APPS.append("newsletter")  # noqa
+# INSTALLED_APPS.append("newsletter")  # noqa
 INSTALLED_APPS.append("explorer")  # noqa
 INSTALLED_APPS.append("django.contrib.admindocs")  # noqa
 INSTALLED_APPS.append("sorl.thumbnail")  # noqa

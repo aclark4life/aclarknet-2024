@@ -2,9 +2,6 @@ import logging
 
 from django.urls import path
 
-logger = logging.getLogger(__name__)
-
-
 from django.conf import settings
 
 from django.contrib import admin
@@ -22,7 +19,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 try:
-    from django.views.i18n import JavaScriptCatalog
+    from django.views.i18n import JavaScriptCatalog  # noqa
 
     HAS_CBV_JSCAT = True
 except ImportError:  # Django < 1.10
@@ -30,12 +27,12 @@ except ImportError:  # Django < 1.10
 
 # Conditional imports as only one Thumbnail app is required
 try:
-    from sorl.thumbnail.admin import AdminImageMixin
+    from sorl.thumbnail.admin import AdminImageMixin  # noqa
 except ImportError:
     pass
 
 try:
-    from easy_thumbnails.widgets import ImageClearableFileInput
+    from easy_thumbnails.widgets import ImageClearableFileInput  # noqa
 except (ImportError, RuntimeError):
     pass
 
@@ -52,6 +49,9 @@ from .admin_forms import (
 )
 from .admin_utils import ExtendibleModelAdminMixin
 from .newsletter import NewsletterAdminLinkMixin
+
+
+logger = logging.getLogger(__name__)
 
 
 class MessageAdmin(

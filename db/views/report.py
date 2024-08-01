@@ -40,20 +40,18 @@ locale.setlocale(locale.LC_ALL, "")
 
 
 def get_queryset_related(self):
-        report = self.get_object()
-        company = report.company
-        notes = report.notes.all()
-        clients = report.clients.all()
-        invoices = report.invoices.all()
-        projects = report.projects.all()
-        contacts = report.contacts.all()
-        reports = report.reports.all()
-        queryset_related = [
-            q
-            for q in [clients, contacts, invoices, notes, projects, reports]
-            if q.exists()
-        ]
-        return company, projects, invoices, report, contacts, queryset_related
+    report = self.get_object()
+    company = report.company
+    notes = report.notes.all()
+    clients = report.clients.all()
+    invoices = report.invoices.all()
+    projects = report.projects.all()
+    contacts = report.contacts.all()
+    reports = report.reports.all()
+    queryset_related = [
+        q for q in [clients, contacts, invoices, notes, projects, reports] if q.exists()
+    ]
+    return company, projects, invoices, report, contacts, queryset_related
 
 
 class BaseReportView(BaseView, UserPassesTestMixin):
@@ -106,10 +104,14 @@ class BaseReportView(BaseView, UserPassesTestMixin):
 
 
 class ReportDetailView(BaseReportView, DetailView):
-
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-        company, projects, invoices, report, contacts, queryset_related = get_queryset_related(self)
+        company, projects, invoices, report, contacts, queryset_related = (
+            get_queryset_related(self)
+        )
+
+        context["invoices"] = invoices
 
         if company:
             queryset_related.insert(0, [company])
@@ -128,11 +130,6 @@ class ReportDetailView(BaseReportView, DetailView):
 
         self.queryset_related = queryset_related
         self.has_related = True
-        context = super().get_context_data(**kwargs)
-
-
-        entered = {"total": report.hours}
-        approved = {"total": report.hours}
 
         contact_emails = []
 
@@ -141,9 +138,11 @@ class ReportDetailView(BaseReportView, DetailView):
                 contact_emails.append(contact.email)
         context["contact_emails"] = ", ".join(contact_emails)
         context["object_field_values"].append(("Contacts", ""))
+
         if contacts:
             for contact in contacts:
                 context["object_field_values"].append(("↳", contact))
+
         return context
 
     template_name = "view.html"
@@ -166,9 +165,10 @@ class CreateOrUpdateReportView(BaseReportView):
 
         clients = Client.objects.filter(archived=False)
         invoices = Invoice.objects.filter(archived=False)
+        companies = Company.objects.filter(archived=False)
+
         projects = [invoice.project for invoice in invoices if invoice.project]
         tasks = [project.task for project in projects]
-        companies = Company.objects.filter(archived=False)
 
         report_hours = invoices.aggregate(hours=Sum("hours"))["hours"]
         report_amount = invoices.aggregate(amount=Sum(F("amount")))["amount"]
@@ -239,10 +239,11 @@ class ReportCreateView(CreateOrUpdateReportView, CreateView):
     success_url = reverse_lazy("report_view")
 
     def get_form(self, form_class=None):
+        companies = Company.objects.filter(archived=False)
         if self.request.user.is_superuser:
             form_class = AdminReportForm
         form = super().get_form(form_class)
-        form.fields["company"].queryset = Company.objects.filter(archived=False)
+        form.fields["company"].queryset = companies
         return form
 
     def get_success_url(self):
@@ -321,6 +322,7 @@ class ReportEmailTextView(BaseReportView, View):
             amount = obj.amount
 
         contacts = obj.contacts.all()
+
         header.add_rows(
             [
                 ["", "", "", ""],
@@ -333,7 +335,6 @@ class ReportEmailTextView(BaseReportView, View):
                     "Cost:",
                     locale.currency(cost, grouping=True),
                 ],
-                # ["", "", "For:", ", ".join([i.name for i in contacts])]
                 ["", "", "", ""] if contacts else ["", "", "", ""],
                 ["", "", "", ""],
             ]

@@ -7,34 +7,9 @@
 # --------------------------------------------------------------------------------
 # Variables (override)
 # --------------------------------------------------------------------------------
-
+#
 .DEFAULT_GOAL := git-commit-push
-
-UNAME := $(shell uname)
-RANDIR := $(shell openssl rand -base64 12 | sed 's/\///g')
-TMPDIR := $(shell mktemp -d)
-
-PROJECT_EMAIL := aclark@aclark.net
-PROJECT_MAKEFILE := project.mk
-PROJECT_NAME = project-makefile
-PROJECT_DIRS = backend contactpage home privacy siteuser
-
-PACKAGE_NAME = $(shell echo $(PROJECT_NAME) | sed 's/-/_/g')
-
-WAGTAIL_CLEAN_DIRS = home search backend sitepage siteuser privacy frontend contactpage model_form_demo logging_demo payments node_modules
-WAGTAIL_CLEAN_FILES = README.rst .dockerignore Dockerfile manage.py requirements.txt requirements-test.txt docker-compose.yml
-
-REVIEW_EDITOR = subl
-
-GIT_BRANCHES = $(shell git branch -a | grep remote | grep -v HEAD | grep -v main |\
-    grep -v master)
-GIT_MESSAGE = "Update $(PROJECT_NAME)"
-GIT_COMMIT = git commit -a -m $(GIT_MESSAGE)
-GIT_PUSH = git push
-GIT_PUSH_FORCE = git push --force-with-lease
-
-GET_DATABASE_URL = eb ssh -c "source /opt/elasticbeanstalk/deployment/custom_env_var;\
-    env | grep DATABASE_URL"
+CUSTOM_MAKEFILE_NAME := project.mk
 DATABASE_AWK = awk -F\= '{print $$2}'
 DATABASE_HOST = $(shell $(GET_DATABASE_URL) | $(DATABASE_AWK) |\
     python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["HOST"])')
@@ -44,41 +19,58 @@ DATABASE_PASS = $(shell $(GET_DATABASE_URL) | $(DATABASE_AWK) |\
     python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["PASSWORD"])')
 DATABASE_USER = $(shell $(GET_DATABASE_URL) | $(DATABASE_AWK) |\
     python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["USER"])')
-
+DJANGO_SETTINGS_DIR = backend/settings
+DJANGO_SETTINGS_FILE_BASE = $(DJANGO_SETTINGS_DIR)/base.py
+DJANGO_SETTINGS_FILE_DEV = $(DJANGO_SETTINGS_DIR)/dev.py
+DJANGO_SETTINGS_FILE_PROD = $(DJANGO_SETTINGS_DIR)/production.py
 ENV_NAME ?= $(PROJECT_NAME)-$(GIT_BRANCH)-$(GIT_REV)
+FRONTEND_FILES = frontend .babelrc .browserslistrc .eslintrc .nvmrc .stylelintrc.json package-lock.json package.json postcss.config.js
+GET_DATABASE_URL = eb ssh -c "source /opt/elasticbeanstalk/deployment/custom_env_var;\
+    env | grep DATABASE_URL"
+GIT_BRANCH = $(shell git branch --show-current)
+GIT_BRANCHES = $(shell git branch -a) 
+GIT_COMMIT = git commit -a -m $(GIT_MESSAGE)
+GIT_MESSAGE = "Update $(PROJECT_NAME)"
+GIT_PUSH = git push
+GIT_PUSH_FORCE = git push --force-with-lease
+GIT_REV = $(shell git rev-parse --short HEAD)
 INSTANCE_MAX ?= 1
 INSTANCE_MIN ?= 1
-INSTANCE_TYPE ?= t4g.small
 INSTANCE_PROFILE ?= aws-elasticbeanstalk-ec2-role
-PLATFORM ?= "Python 3.11 running on 64bit Amazon Linux 2023"
+INSTANCE_TYPE ?= t4g.small
 LB_TYPE ?= application
-
-ifneq ($(wildcard $(PROJECT_MAKEFILE)),)
-    include $(PROJECT_MAKEFILE)
-endif
-
+PACKAGE_NAME = $(shell echo $(PROJECT_NAME) | sed 's/-/_/g')
+PAGER ?= less
+PLATFORM ?= "Python 3.11 running on 64bit Amazon Linux 2023"
 PLONE_CONSTRAINTS = https://dist.plone.org/release/6.0.11.1/constraints.txt
+PROJECT_DIRS = backend contactpage home privacy siteuser
+PROJECT_EMAIL := aclark@aclark.net
+PROJECT_NAME = project-makefile
+RANDIR := $(shell openssl rand -base64 12 | sed 's/\///g')
+REVIEW_EDITOR = subl
+TMPDIR := $(shell mktemp -d)
+UNAME := $(shell uname)
+WAGTAIL_CLEAN_DIRS = home search backend sitepage siteuser privacy frontend contactpage model_form_demo logging_demo payments node_modules
+WAGTAIL_CLEAN_FILES = README.rst README.md .dockerignore Dockerfile manage.py requirements.txt requirements-test.txt docker-compose.yml .babelrc .browserslistrc .eslintrc .gitignore .nvmrc .stylelintrc.json package-lock.json package.json postcss.config.js
+
+ifneq ($(wildcard $(CUSTOM_MAKEFILE_NAME)),)
+    include $(CUSTOM_MAKEFILE_NAME)
+endif
 
 # --------------------------------------------------------------------------------
 # Variables (no override)
 # --------------------------------------------------------------------------------
 
-AWS_OPTS := --no-cli-pager --output table
-
-GIT_REV := $(shell git rev-parse --short HEAD)
-GIT_BRANCH := $(shell git branch --show-current)
-
 ADD_DIR := mkdir -pv
 ADD_FILE := touch
+AWS_OPTS := --no-cli-pager --output table
 COPY_DIR := cp -rv
 COPY_FILE := cp -v
 DEL_DIR := rm -rv
 DEL_FILE := rm -v
-GIT_ADD := git add
-
-ENSURE_PIP := python -m ensurepip
-
 EB_DIR = .elasticbeanstalk
+ENSURE_PIP := python -m ensurepip
+GIT_ADD := git add
 
 # --------------------------------------------------------------------------------
 # Multi-line variables
@@ -121,84 +113,6 @@ from django.contrib.admin.apps import AdminConfig
 
 class CustomAdminConfig(AdminConfig):
     default_site = "backend.admin.CustomAdminSite"
-endef
-
-define BACKEND_UTILS
-import requests
-
-
-def get_ec2_metadata():
-    try:
-        # Step 1: Get the token
-        token_url = "http://169.254.169.254/latest/api/token"
-        headers = {"X-aws-ec2-metadata-token-ttl-seconds": "21600"}
-        response = requests.put(token_url, headers=headers)
-        response.raise_for_status()  # Raise an error for bad responses
-
-        token = response.text
-
-        # Step 2: Use the token to get the instance metadata
-        metadata_url = "http://169.254.169.254/latest/meta-data/local-ipv4"
-        headers = {"X-aws-ec2-metadata-token": token}
-        response = requests.get(metadata_url, headers=headers)
-        response.raise_for_status()  # Raise an error for bad responses
-
-        metadata = response.text
-        return metadata
-    except requests.RequestException as e:
-        print(f"Error retrieving EC2 metadata: {e}")
-        return None
-
-endef
-
-define DJANGO_URLS
-from django.conf import settings
-from django.urls import include, path
-from django.contrib import admin
-from rest_framework import routers, serializers, viewsets
-from dj_rest_auth.registration.views import RegisterView
-from siteuser.models import User
-urlpatterns = []
-if settings.DEBUG:
-	urlpatterns += [
-		path("django/doc/", include("django.contrib.admindocs.urls")),
-	]
-urlpatterns += [
-    path('accounts/', include('allauth.urls')),
-    path('django/', admin.site.urls),
-    path('user/', include('siteuser.urls')),
-    path('explorer/', include('explorer.urls')),
-    path('hijack/', include('hijack.urls')),
-    path('search/', include('search.urls')),
-    path('', include('home.urls')),
-]
-if settings.DEBUG:
-    from django.conf.urls.static import static
-    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-    # Serve static and media files from development server
-    urlpatterns += staticfiles_urlpatterns()
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    import debug_toolbar
-    urlpatterns += [
-        path("__debug__/", include(debug_toolbar.urls)),
-    ]
-# https://www.django-rest-framework.org/#example
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'is_staff']
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-urlpatterns += [
-    path("api/", include(router.urls)),
-    path("api/", include("rest_framework.urls", namespace="rest_framework")),
-    path("api/", include("dj_rest_auth.urls")),
-    # path("api/register/", RegisterView.as_view(), name="register"),
-]
 endef
 
 define BLOCK_CAROUSEL
@@ -356,12 +270,13 @@ const UserMenu = ({ isAuthenticated, isSuperuser, textColor }) => {
             <li><a className="dropdown-item" href="/user/profile/">Profile</a></li>
             <li><a className="dropdown-item" href="/model-form-demo/">Model Form Demo</a></li>
             <li><a className="dropdown-item" href="/logging-demo/">Logging Demo</a></li>
+            <li><a className="dropdown-item" href="/payments/">Payments Demo</a></li>
             {isSuperuser ? (
               <>
                 <li><hr className="dropdown-divider"></hr></li>
                 <li><a className="dropdown-item" href="/django" target="_blank">Django admin</a></li>
+                <li><a className="dropdown-item" href="/api" target="_blank">Django API</a></li>
                 <li><a className="dropdown-item" href="/wagtail" target="_blank">Wagtail admin</a></li>
-                <li><a className="dropdown-item" href="/api" target="_blank">Django REST framework</a></li>
                 <li><a className="dropdown-item" href="/explorer" target="_blank">SQL Explorer</a></li>
               </>
             ) : null}
@@ -566,6 +481,13 @@ EOF
 rm -f /opt/elasticbeanstalk/deployment/*.bak
 endef
 
+define CUSTOM_MAKEFILE
+# Custom Makefile
+# Add your custom makefile commands here
+#
+# PROJECT_NAME := my-new-project
+endef
+
 define DJANGO_HOME_PAGE_VIEWS
 from django.views.generic import TemplateView
 
@@ -695,6 +617,107 @@ define DJANGO_BASE_TEMPLATE
 </html>
 endef
 
+define DJANGO_HEADER
+<div class="app-header">
+    <div class="container py-4 app-navbar">
+        <nav class="navbar navbar-transparent navbar-padded navbar-expand-md">
+            <a class="navbar-brand me-auto" href="/">{{ current_site.site_name|default:"Project Makefile" }}</a>
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasExample"
+                    aria-controls="offcanvasExample"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="d-none d-md-block">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a id="home-nav"
+                           class="nav-link {% if request.path == '/' %}active{% endif %}"
+                           aria-current="page"
+                           href="/">Home</a>
+                    </li>
+                    {% for child in current_site.root_page.get_children %}
+                        {% if child.show_in_menus %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.path == child.url %}active{% endif %}" aria-current="page"
+                                    href="{{ child.url }}">{{ child }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    <div data-component="UserMenu"
+                         data-is-authenticated="{{ request.user.is_authenticated }}"
+                         data-is-superuser="{{ request.user.is_superuser }}"></div>
+                    <li class="nav-item" id="{% if request.user.is_authenticated %}theme-toggler-authenticated{% else %}theme-toggler-anonymous{% endif %}">
+                        <span class="nav-link" data-bs-toggle="tooltip" title="Toggle dark mode">
+                            <i class="fas fa-circle-half-stroke"></i>
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <form class="form" action="/search">
+                            <div class="row">
+                                <div class="col-8">
+                                    <input class="form-control"
+                                           type="search"
+                                           name="query"
+                                           {% if search_query %}value="{{ search_query }}"{% endif %}>
+                                </div>
+                                <div class="col-4">
+                                    <input type="submit" value="Search" class="form-control">
+                                </div>
+                            </div>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>
+endef 
+
+define DJANGO_FOOTER
+  <footer class="footer mt-auto py-3 bg-body-tertiary pt-5 text-center text-small">
+    <p class="mb-1">&copy; {% now "Y" %} {{ current_site.site_name|default:"Project Makefile" }}</p>
+    <ul class="list-inline">
+      <li class="list-inline-item"><a class="text-secondary text-decoration-none {% if request.path == '/' %}active{% endif %}" href="/">Home</a></li>
+      {% for child in current_site.root_page.get_children %}
+          <li class="list-inline-item"><a class="text-secondary text-decoration-none {% if request.path == child.url %}active{% endif %}" href="{{ child.url }}">{{ child }}</a></li>
+      {% endfor %}
+    </ul>
+  </footer>
+endef
+
+define DJANGO_REST_SERIALIZERS
+from rest_framework import serializers
+from siteuser.models import User
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ['url', 'username', 'email', 'is_staff']
+
+endef
+
+define DJANGO_REST_VIEWS
+from ninja import NinjaAPI
+from rest_framework import viewsets
+from siteuser.models import User
+from .serializers import UserSerializer
+
+api = NinjaAPI()
+
+@api.get("/hello")
+def hello(request):
+    return "Hello world"
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+endef
+
 define DJANGO_SEARCH_FORMS
 from django import forms
 
@@ -727,7 +750,8 @@ endef
 
 define DJANGO_SEARCH_VIEWS
 from django.views.generic import ListView
-from django.db.models import Q
+from django.db import models
+from django.db.models import Q 
 from .forms import SearchForm
 from .utils import get_search_models
 
@@ -810,33 +834,105 @@ define DJANGO_SEARCH_TEMPLATE
 {% endblock %}
 endef
 
+define DJANGO_SETTINGS_BASE_MINIMAL
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
+ALLOWED_HOSTS = []
+INSTALLED_APPS = [
+    # "django.contrib.admin",
+    # "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+]
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+ROOT_URLCONF = "backend.urls"
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
+WSGI_APPLICATION = "backend.wsgi.application"
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
+USE_I18N = True
+USE_TZ = True
+STATIC_URL = "static/"
+endef
+
 define DJANGO_SETTINGS_DEV
-from .base import *
+from .base import *  # noqa
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-#t%ohiokp+8!7#xh4qzoxuyy=-&sxl*!z-&w%y83h87-jm7p9="
 
 # SECURITY WARNING: define the correct hosts in production!
 ALLOWED_HOSTS = ["*"]
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-
 try:
-    from .local import *
+    from .local import *  # noqa
 except ImportError:
     pass
 endef
 
 define DJANGO_SETTINGS_PROD
-# project-makefile
+from .base import *  # noqa
 from backend.utils import get_ec2_metadata
 
+DEBUG = False
+
+try:
+    from .local import *  # noqa
+except ImportError:
+    pass
+
 LOCAL_IPV4 = get_ec2_metadata()
-ALLOWED_HOSTS.append(LOCAL_IPV4)
+ALLOWED_HOSTS.append(LOCAL_IPV4)  # noqa
+endef
+
+define DJANGO_SETTINGS_REST_FRAMEWORK
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 endef
 
 define DJANGO_MANAGE_PY
@@ -862,6 +958,70 @@ def main():
 
 if __name__ == "__main__":
     main()
+endef
+
+define DJANGO_URLS_MINIMAL
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+
+urlpatterns = [
+    # path("django/", admin.site.urls),
+]
+endef
+
+define DJANGO_URLS
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+
+urlpatterns = [
+    path("django/", admin.site.urls),
+]
+endef
+
+define DJANGO_URLS_API
+from rest_framework import routers  # noqa
+from .api import UserViewSet, api  # noqa
+
+router = routers.DefaultRouter()
+router.register(r'users', UserViewSet)
+# urlpatterns += [path("api/", include(router.urls))]
+urlpatterns += [path("api/", api.urls)]
+endef
+
+define DJANGO_UTILS
+from django.urls import URLResolver
+import requests
+
+
+def get_ec2_metadata():
+    try:
+        # Step 1: Get the token
+        token_url = "http://169.254.169.254/latest/api/token"
+        headers = {"X-aws-ec2-metadata-token-ttl-seconds": "21600"}
+        response = requests.put(token_url, headers=headers)
+        response.raise_for_status()  # Raise an error for bad responses
+
+        token = response.text
+
+        # Step 2: Use the token to get the instance metadata
+        metadata_url = "http://169.254.169.254/latest/meta-data/local-ipv4"
+        headers = {"X-aws-ec2-metadata-token": token}
+        response = requests.get(metadata_url, headers=headers)
+        response.raise_for_status()  # Raise an error for bad responses
+
+        metadata = response.text
+        return metadata
+    except requests.RequestException as e:
+        print(f"Error retrieving EC2 metadata: {e}")
+        return None
+
+# Function to remove a specific URL pattern based on its route (including catch-all)
+def remove_urlpattern(urlpatterns, route_to_remove):
+    urlpatterns[:] = [urlpattern for urlpattern in urlpatterns if not (
+        isinstance(urlpattern, URLResolver) and urlpattern.pattern._route == route_to_remove
+    )]
 endef
 
 define DOCKERFILE
@@ -962,7 +1122,7 @@ endef
 
 define FRONTEND_APP_CONFIG
 import '../utils/themeToggler.js';
-import '../utils/tinymce.js';
+// import '../utils/tinymce.js';
 endef
 
 define FRONTEND_PORTAL
@@ -1151,6 +1311,8 @@ dist/
 node_modules/
 _build/
 .elasticbeanstalk/
+db.sqlite3
+home/static
 endef
 
 define HTML_INDEX
@@ -1160,78 +1322,6 @@ endef
 define HTML_ERROR
 <h1>500</h1>
 endef
-
-define HTML_FOOTER
-  <footer class="footer mt-auto py-3 bg-body-tertiary pt-5 text-center text-small">
-    <p class="mb-1">&copy; {% now "Y" %} {{ current_site.site_name|default:"Project Makefile" }}</p>
-    <ul class="list-inline">
-      <li class="list-inline-item"><a class="text-secondary text-decoration-none {% if request.path == '/' %}active{% endif %}" href="/">Home</a></li>
-      {% for child in current_site.root_page.get_children %}
-          <li class="list-inline-item"><a class="text-secondary text-decoration-none {% if request.path == child.url %}active{% endif %}" href="{{ child.url }}">{{ child }}</a></li>
-      {% endfor %}
-    </ul>
-  </footer>
-endef
-
-define HTML_HEADER
-<div class="app-header">
-    <div class="container py-4 app-navbar">
-        <nav class="navbar navbar-transparent navbar-padded navbar-expand-md">
-            <a class="navbar-brand me-auto" href="/">{{ current_site.site_name|default:"Project Makefile" }}</a>
-            <button class="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasExample"
-                    aria-controls="offcanvasExample"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="d-none d-md-block">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a id="home-nav"
-                           class="nav-link {% if request.path == '/' %}active{% endif %}"
-                           aria-current="page"
-                           href="/">Home</a>
-                    </li>
-                    {% for child in current_site.root_page.get_children %}
-                        {% if child.show_in_menus %}
-                            <li class="nav-item">
-                                <a class="nav-link {% if request.path == child.url %}active{% endif %}" aria-current="page"
-                                    href="{{ child.url }}">{{ child }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                    <div data-component="UserMenu"
-                         data-is-authenticated="{{ request.user.is_authenticated }}"
-                         data-is-superuser="{{ request.user.is_superuser }}"></div>
-                    <li class="nav-item" id="{% if request.user.is_authenticated %}theme-toggler-authenticated{% else %}theme-toggler-anonymous{% endif %}">
-                        <span class="nav-link" data-bs-toggle="tooltip" title="Toggle dark mode">
-                            <i class="fas fa-circle-half-stroke"></i>
-                        </span>
-                    </li>
-                    <li class="nav-item">
-                        <form class="form" action="{% url 'search' %}">
-                            <div class="row">
-                                <div class="col-8">
-                                    <input class="form-control"
-                                           type="search"
-                                           name="query"
-                                           {% if search_query %}value="{{ search_query }}"{% endif %}>
-                                </div>
-                                <div class="col-4">
-                                    <input type="submit" value="Search" class="form-control">
-                                </div>
-                            </div>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </div>
-</div>
-endef 
 
 define INTERNAL_IPS
 INTERNAL_IPS = ["127.0.0.1",]
@@ -1443,24 +1533,11 @@ define PRIVACY_PAGE_TEMPLATE
 endef
 
 define PAYMENTS_ADMIN
-# admin.py
-
 from django.contrib import admin
-from .models import Payment
+from .models import Product, Order
 
-@admin.register(Payment)
-class PaymentsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'amount', 'stripe_charge_id', 'timestamp')
-    search_fields = ('stripe_charge_id',)
-    list_filter = ('timestamp',)
-
-    # readonly_fields = ('amount', 'stripe_charge_id', 'timestamp')
-
-    # def has_add_permission(self, request):
-    #     return False
-
-    # def has_delete_permission(self, request, obj=None):
-    #     return False
+admin.site.register(Product)
+admin.site.register(Order)
 endef
 
 define PAYMENTS_FORM
@@ -1473,7 +1550,7 @@ class PaymentsForm(forms.Form):
     amount = forms.DecimalField(max_digits=10, decimal_places=2, widget=forms.HiddenInput())
 endef
 
-define PAYMENTS_MIGRATION
+define PAYMENTS_MIGRATION_0002
 from django.db import migrations
 import os
 import secrets
@@ -1520,137 +1597,641 @@ class Migration(migrations.Migration):
 
 endef
 
-define PAYMENTS_MODEL
-# models.py
+define PAYMENTS_MIGRATION_0003
+from django.db import migrations
 
+def create_initial_products(apps, schema_editor):
+    Product = apps.get_model('payments', 'Product')
+    Product.objects.create(name='T-shirt', description='A cool T-shirt', price=20.00)
+    Product.objects.create(name='Mug', description='A nice mug', price=10.00)
+    Product.objects.create(name='Hat', description='A stylish hat', price=15.00)
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('payments', '0002_set_stripe_api_keys'),  # Adjust this to match your initial migration file
+    ]
+
+    operations = [
+        migrations.RunPython(create_initial_products),
+    ]
+endef
+
+define PAYMENTS_MODELS
 from django.db import models
 
-class Payment(models.Model):
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    stripe_charge_id = models.CharField(max_length=255)
-    timestamp = models.DateTimeField(auto_now_add=True)
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"Payment of {self.amount} with charge ID {self.stripe_charge_id}"
+        return self.name
+
+class Order(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    stripe_checkout_session_id = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"Order {self.id} for {self.product.name}"
 endef
 
 define PAYMENTS_URLS
-# urls.py
-
 from django.urls import path
-from django.views.generic import TemplateView
-from .views import PaymentsView
+from .views import CheckoutView, SuccessView, CancelView, ProductListView, ProductDetailView
 
 urlpatterns = [
-    path('', PaymentsView.as_view(), name='payments'),
-    path('success/', TemplateView.as_view(template_name='payments_success.html'), name='payments_success'),
+    path('', ProductListView.as_view(), name='product_list'),
+    path('product/<int:pk>/', ProductDetailView.as_view(), name='product_detail'),
+    path('checkout/', CheckoutView.as_view(), name='checkout'),
+    path('success/', SuccessView.as_view(), name='success'),
+    path('cancel/', CancelView.as_view(), name='cancel'),
 ]
 endef
 
 define PAYMENTS_VIEW
-# views.py
-
-import stripe
 from django.conf import settings
-from django.shortcuts import render, redirect
-from django.views import View
-from .forms import PaymentsForm
-from .models import Payment
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import TemplateView, View, ListView, DetailView
+import stripe
+from .models import Product, Order
 
-class PaymentsView(View):
-    def get(self, request):
-        # Set the amount you want to charge
-        amount = 50.00  # for example, $50.00
-        form = PaymentsForm(initial={'amount': amount})
-        return render(request, 'payments.html', {'form': form, 'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY})
+stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
 
-    def post(self, request):
-        form = PaymentsForm(request.POST)
-        if form.is_valid():
-            stripe.api_key = settings.STRIPE_SECRET_KEY
-            token = form.cleaned_data['stripeToken']
-            amount = int(form.cleaned_data['amount'] * 100)  # Stripe uses cents
+class ProductListView(ListView):
+    model = Product
+    template_name = 'payments/product_list.html'
+    context_object_name = 'products'
 
-            try:
-                charge = stripe.Charge.create(
-                    amount=amount,
-                    currency='usd',
-                    description='Example charge',
-                    source=token,
-                )
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'payments/product_detail.html'
+    context_object_name = 'product'
 
-                # Save the payments in the database
-                payments = Payments.objects.create(
-                    amount=form.cleaned_data['amount'],
-                    stripe_charge_id=charge.id
-                )
+class CheckoutView(View):
+    template_name = 'payments/checkout.html'
 
-                return redirect('payments_success')  # Redirect to a success page
+    def get(self, request, *args, **kwargs):
+        products = Product.objects.all()
+        return render(request, self.template_name, {'products': products})
 
-            except stripe.error.StripeError as e:
-                # Handle error
-                return render(request, 'payments.html', {'form': form, 'error': str(e), 'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY})
+    def post(self, request, *args, **kwargs):
+        product_id = request.POST.get('product_id')
+        product = get_object_or_404(Product, id=product_id)
+        
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': product.name,
+                    },
+                    'unit_amount': int(product.price * 100),
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url='http://localhost:8000/payments/success/',
+            cancel_url='http://localhost:8000/payments/cancel/',
+        )
 
-        return render(request, 'payments.html', {'form': form, 'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY})
+        Order.objects.create(product=product, stripe_checkout_session_id=session.id)
+        return redirect(session.url, code=303)
+
+class SuccessView(TemplateView):
+    template_name = 'payments/success.html'
+
+class CancelView(TemplateView):
+    template_name = 'payments/cancel.html'
 endef
 
-define PAYMENTS_VIEW_TEMPLATE
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Payments</title>
-    <script src="https://js.stripe.com/v3/"></script>
-</head>
-<body>
-    <h1>Make a Payments</h1>
-    <form method="post" id="payments-form">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Pay</button>
-    </form>
-    <script>
-        var stripe = Stripe('{{ stripe_publishable_key }}');
-        var elements = stripe.elements();
+define PAYMENTS_TEMPLATE_CANCEL
+{% extends "base.html" %}
 
-        var card = elements.create('card');
-        card.mount('#card-element');
+{% block title %}Cancel{% endblock %}
 
-        var form = document.getElementById('payments-form');
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            stripe.createToken(card).then(function(result) {
-                if (result.error) {
-                    // Inform the customer that there was an error.
-                } else {
-                    // Send the token to your server.
-                    var hiddenInput = document.createElement('input');
-                    hiddenInput.setAttribute('type', 'hidden');
-                    hiddenInput.setAttribute('name', 'stripeToken');
-                    hiddenInput.setAttribute('value', result.token.id);
-                    form.appendChild(hiddenInput);
-
-                    // Submit the form
-                    form.submit();
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+{% block content %}
+<h1>Payment Cancelled</h1>
+<p>Your payment was cancelled.</p>
+{% endblock %}
 endef
 
-define PAYMENTS_VIEW_TEMPLATE_SUCCESS
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Payments Success</title>
-</head>
-<body>
-    <h1>Payment Successful</h1>
-    <p>Thank you for your payment!</p>
-</body>
-</html>
+define PAYMENTS_TEMPLATE_CHECKOUT
+{% extends "base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<h1>Checkout</h1>
+<form action="{% url 'checkout' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Pay</button>
+</form>
+{% endblock %}
+endef
+
+define PAYMENTS_TEMPLATE_SUCCESS
+{% extends "base.html" %}
+
+{% block title %}Success{% endblock %}
+
+{% block content %}
+<h1>Payment Successful</h1>
+<p>Thank you for your purchase!</p>
+{% endblock %}
+endef
+
+define PAYMENTS_TEMPLATE_PRODUCT_DETAIL
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<h1>{{ product.name }}</h1>
+<p>{{ product.description }}</p>
+<p>Price: ${{ product.price }}</p>
+<form action="{% url 'checkout' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <button type="submit">Buy Now</button>
+</form>
+{% endblock %}
+endef
+
+define PAYMENTS_TEMPLATE_PRODUCT_LIST
+{% extends "base.html" %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<h1>Products</h1>
+<ul>
+    {% for product in products %}
+    <li>
+        <a href="{% url 'product_detail' product.pk %}">{{ product.name }} - {{ product.price }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+endef
+
+define PROGRAMMING_INTERVIEW
+from rich import print as rprint
+from rich.console import Console
+from rich.panel import Panel
+
+import argparse
+import locale
+import math
+import time
+
+import code  # noqa
+import readline  # noqa
+import rlcompleter  # noqa
+
+
+locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
+
+
+class DataStructure:
+    # Data Structure: Binary Tree
+    class TreeNode:
+        def __init__(self, value=0, left=None, right=None):
+            self.value = value
+            self.left = left
+            self.right = right
+
+    # Data Structure: Stack
+    class Stack:
+        def __init__(self):
+            self.items = []
+
+        def push(self, item):
+            self.items.append(item)
+
+        def pop(self):
+            if not self.is_empty():
+                return self.items.pop()
+            return None
+
+        def peek(self):
+            if not self.is_empty():
+                return self.items[-1]
+            return None
+
+        def is_empty(self):
+            return len(self.items) == 0
+
+        def size(self):
+            return len(self.items)
+
+    # Data Structure: Queue
+    class Queue:
+        def __init__(self):
+            self.items = []
+
+        def enqueue(self, item):
+            self.items.append(item)
+
+        def dequeue(self):
+            if not self.is_empty():
+                return self.items.pop(0)
+            return None
+
+        def is_empty(self):
+            return len(self.items) == 0
+
+        def size(self):
+            return len(self.items)
+
+    # Data Structure: Linked List
+    class ListNode:
+        def __init__(self, value=0, next=None):
+            self.value = value
+            self.next = next
+
+
+class Interview(DataStructure):
+    # Protected methods for factorial calculation
+    def _factorial_recursive(self, n):
+        if n == 0:
+            return 1
+        return n * self._factorial_recursive(n - 1)
+
+    def _factorial_divide_and_conquer(self, low, high):
+        if low > high:
+            return 1
+        if low == high:
+            return low
+        mid = (low + high) // 2
+        return self._factorial_divide_and_conquer(
+            low, mid
+        ) * self._factorial_divide_and_conquer(mid + 1, high)
+
+    # Recursive Factorial with Timing
+    def factorial_recursive(self, n):
+        start_time = time.time()  # Start timing
+        result = self._factorial_recursive(n)  # Calculate factorial
+        end_time = time.time()  # End timing
+        elapsed_time = end_time - start_time
+        return f"  Factorial: {locale.format_string("%.2f", result, grouping=True)}  Elapsed time: {elapsed_time:.6f}"
+
+    # Iterative Factorial with Timing
+    def factorial_iterative(self, n):
+        start_time = time.time()  # Start timing
+        result = 1
+        for i in range(1, n + 1):
+            result *= i
+        end_time = time.time()  # End timing
+        elapsed_time = end_time - start_time
+        return f"  Factorial: {locale.format_string("%.2f", result, grouping=True)}  Elapsed time: {elapsed_time:.6f}"
+
+    # Divide and Conquer Factorial with Timing
+    def factorial_divide_and_conquer(self, n):
+        start_time = time.time()  # Start timing
+        result = self._factorial_divide_and_conquer(1, n)  # Calculate factorial
+        end_time = time.time()  # End timing
+        elapsed_time = end_time - start_time
+        return f"  Factorial: {locale.format_string("%.2f", result, grouping=True)}  Elapsed time: {elapsed_time:.6f}"
+
+    # Built-in Factorial with Timing
+    def factorial_builtin(self, n):
+        start_time = time.time()  # Start timing
+        result = math.factorial(n)  # Calculate factorial using built-in
+        end_time = time.time()  # End timing
+
+        # Calculate elapsed time
+        elapsed_time = end_time - start_time
+
+        # Print complexity and runtime
+        return f"  Factorial: {locale.format_string("%.2f", result, grouping=True)}  Elapsed time: {elapsed_time:.6f}"
+
+    # Recursion: Fibonacci
+    def fibonacci_recursive(self, n):
+        if n <= 1:
+            return n
+        return self.fibonacci_recursive(n - 1) + self.fibonacci_recursive(n - 2)
+
+    # Iteration: Fibonacci
+    def fibonacci_iterative(self, n):
+        if n <= 1:
+            return n
+        a, b = 0, 1
+        for _ in range(n - 1):
+            a, b = b, a + b
+        return b
+
+    # Searching: Linear Search
+    def linear_search(self, arr, target):
+        for i, value in enumerate(arr):
+            if value == target:
+                return i
+        return -1
+
+    # Searching: Binary Search
+    def binary_search(self, arr, target):
+        left, right = 0, len(arr) - 1
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == target:
+                return mid
+            elif arr[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return -1
+
+    # Sorting: Bubble Sort
+    def bubble_sort(self, arr):
+        n = len(arr)
+        for i in range(n):
+            for j in range(0, n - i - 1):
+                if arr[j] > arr[j + 1]:
+                    arr[j], arr[j + 1] = arr[j + 1], arr[j]
+        return arr
+
+    # Sorting: Merge Sort
+    def merge_sort(self, arr):
+        if len(arr) > 1:
+            mid = len(arr) // 2
+            left_half = arr[:mid]
+            right_half = arr[mid:]
+
+            self.merge_sort(left_half)
+            self.merge_sort(right_half)
+
+            i = j = k = 0
+
+            while i < len(left_half) and j < len(right_half):
+                if left_half[i] < right_half[j]:
+                    arr[k] = left_half[i]
+                    i += 1
+                else:
+                    arr[k] = right_half[j]
+                    j += 1
+                k += 1
+
+            while i < len(left_half):
+                arr[k] = left_half[i]
+                i += 1
+                k += 1
+
+            while j < len(right_half):
+                arr[k] = right_half[j]
+                j += 1
+                k += 1
+        return arr
+
+    def insert_linked_list(self, head, value):
+        new_node = self.ListNode(value)
+        if not head:
+            return new_node
+        current = head
+        while current.next:
+            current = current.next
+        current.next = new_node
+        return head
+
+    def print_linked_list(self, head):
+        current = head
+        while current:
+            print(current.value, end=" -> ")
+            current = current.next
+        print("None")
+
+    def inorder_traversal(self, root):
+        return (
+            self.inorder_traversal(root.left)
+            + [root.value]
+            + self.inorder_traversal(root.right)
+            if root
+            else []
+        )
+
+    def preorder_traversal(self, root):
+        return (
+            [root.value]
+            + self.preorder_traversal(root.left)
+            + self.preorder_traversal(root.right)
+            if root
+            else []
+        )
+
+    def postorder_traversal(self, root):
+        return (
+            self.postorder_traversal(root.left)
+            + self.postorder_traversal(root.right)
+            + [root.value]
+            if root
+            else []
+        )
+
+    # Graph Algorithms: Depth-First Search
+    def dfs(self, graph, start):
+        visited, stack = set(), [start]
+        while stack:
+            vertex = stack.pop()
+            if vertex not in visited:
+                visited.add(vertex)
+                stack.extend(set(graph[vertex]) - visited)
+        return visited
+
+    # Graph Algorithms: Breadth-First Search
+    def bfs(self, graph, start):
+        visited, queue = set(), [start]
+        while queue:
+            vertex = queue.pop(0)
+            if vertex not in visited:
+                visited.add(vertex)
+                queue.extend(set(graph[vertex]) - visited)
+        return visited
+
+
+def setup_readline(local):
+    # Enable tab completion
+    readline.parse_and_bind("tab: complete")
+    # Optionally, you can set the completer function manually
+    readline.set_completer(rlcompleter.Completer(local).complete)
+
+
+def main():
+    console = Console()
+    interview = Interview()
+
+    parser = argparse.ArgumentParser(description="Programming Interview Questions")
+
+    parser.add_argument(
+        "-f", "--factorial", type=int, help="Factorial algorithm examples"
+    )
+    parser.add_argument("--fibonacci", type=int, help="Fibonacci algorithm examples")
+    parser.add_argument(
+        "--search", action="store_true", help="Search algorithm examples"
+    )
+    parser.add_argument("--sort", action="store_true", help="Search algorithm examples")
+    parser.add_argument("--stack", action="store_true", help="Stack algorithm examples")
+    parser.add_argument("--queue", action="store_true", help="Queue algorithm examples")
+    parser.add_argument(
+        "--list", action="store_true", help="Linked List algorithm examples"
+    )
+    parser.add_argument(
+        "--tree", action="store_true", help="Tree traversal algorithm examples"
+    )
+    parser.add_argument("--graph", action="store_true", help="Graph algorithm examples")
+    parser.add_argument(
+        "-i", "--interactive", action="store_true", help="Interactive mode"
+    )
+
+    args = parser.parse_args()
+
+    if args.factorial:
+        # Factorial examples
+        console.rule("Factorial Examples")
+        rprint(
+            Panel(
+                "[bold cyan]Recursive Factorial - Time Complexity: O(n)[/bold cyan]\n"
+                + str(interview.factorial_recursive(args.factorial)),
+                title="Factorial Recursive",
+            )
+        )
+        rprint(
+            Panel(
+                "[bold cyan]Iterative Factorial - Time Complexity: O(n)[/bold cyan]\n"
+                + str(interview.factorial_iterative(args.factorial)),
+                title="Factorial Iterative",
+            )
+        )
+        rprint(
+            Panel(
+                "[bold cyan]Built-in Factorial - Time Complexity: O(n)[/bold cyan]\n"
+                + str(interview.factorial_builtin(args.factorial)),
+                title="Factorial Built-in",
+            )
+        )
+        rprint(
+            Panel(
+                "[bold cyan]Divide and Conquer Factorial - Time Complexity: O(n log n)[/bold cyan]\n"
+                + str(interview.factorial_divide_and_conquer(args.factorial)),
+                title="Factorial Divide and Conquer",
+            )
+        )
+        exit()
+
+    if args.fibonacci:
+        # Fibonacci examples
+        console.rule("Fibonacci Examples")
+        rprint(
+            Panel(
+                str(interview.fibonacci_recursive(args.fibonacci)),
+                title="Fibonacci Recursive",
+            )
+        )
+        rprint(
+            Panel(
+                str(interview.fibonacci_iterative(args.fibonacci)),
+                title="Fibonacci Iterative",
+            )
+        )
+        exit()
+
+    if args.search:
+        # Searching examples
+        console.rule("Searching Examples")
+        array = [1, 3, 5, 7, 9]
+        rprint(Panel(str(interview.linear_search(array, 5)), title="Linear Search"))
+        rprint(Panel(str(interview.binary_search(array, 5)), title="Binary Search"))
+        exit()
+
+    if args.sort:
+        # Sorting examples
+        console.rule("Sorting Examples")
+        unsorted_array = [64, 34, 25, 12, 22, 11, 90]
+        rprint(
+            Panel(
+                str(interview.bubble_sort(unsorted_array.copy())), title="Bubble Sort"
+            )
+        )
+        rprint(
+            Panel(str(interview.merge_sort(unsorted_array.copy())), title="Merge Sort")
+        )
+        exit()
+
+    if args.stack:
+        # Stack example
+        console.rule("Stack Example")
+        stack = interview.Stack()
+        stack.push(1)
+        stack.push(2)
+        stack.push(3)
+        rprint(Panel(str(stack.pop()), title="Stack Pop"))
+        rprint(Panel(str(stack.peek()), title="Stack Peek"))
+        rprint(Panel(str(stack.size()), title="Stack Size"))
+
+    if args.queue:
+        # Queue example
+        console.rule("Queue Example")
+        queue = interview.Queue()
+        queue.enqueue(1)
+        queue.enqueue(2)
+        queue.enqueue(3)
+        rprint(Panel(str(queue.dequeue()), title="Queue Dequeue"))
+        rprint(Panel(str(queue.is_empty()), title="Queue Is Empty"))
+        rprint(Panel(str(queue.size()), title="Queue Size"))
+
+    if args.list:
+        # Linked List example
+        console.rule("Linked List Example")
+        head = None
+        head = interview.insert_linked_list(head, 1)
+        head = interview.insert_linked_list(head, 2)
+        head = interview.insert_linked_list(head, 3)
+        interview.print_linked_list(head)  # Output: 1 -> 2 -> 3 -> None
+
+    if args.tree:
+        # Tree Traversal example
+        console.rule("Tree Traversal Example")
+        root = interview.TreeNode(1)
+        root.left = interview.TreeNode(2)
+        root.right = interview.TreeNode(3)
+        root.left.left = interview.TreeNode(4)
+        root.left.right = interview.TreeNode(5)
+        rprint(Panel(str(interview.inorder_traversal(root)), title="Inorder Traversal"))
+        rprint(
+            Panel(str(interview.preorder_traversal(root)), title="Preorder Traversal")
+        )
+        rprint(
+            Panel(str(interview.postorder_traversal(root)), title="Postorder Traversal")
+        )
+
+    if args.graph:
+        # Graph Algorithms example
+        console.rule("Graph Algorithms Example")
+        graph = {
+            "A": ["B", "C"],
+            "B": ["A", "D", "E"],
+            "C": ["A", "F"],
+            "D": ["B"],
+            "E": ["B", "F"],
+            "F": ["C", "E"],
+        }
+        rprint(Panel(str(interview.dfs(graph, "A")), title="DFS"))
+        rprint(Panel(str(interview.bfs(graph, "A")), title="BFS"))
+
+    if args.interactive:
+        # Starting interactive session with tab completion
+        setup_readline(locals())
+        banner = "Interactive programming interview session started. Type 'exit()' or 'Ctrl-D' to exit."
+        code.interact(
+            banner=banner,
+            local=locals(),
+            exitmsg="Great interview!",
+        )
+
+
+if __name__ == "__main__":
+    main()
+
 endef
 
 define PYTHON_CI_YAML
@@ -1699,16 +2280,6 @@ flake8
 tox
 endef
 
-define REST_FRAMEWORK
-REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
-}
-endef
-
 define SEPARATOR
 .==========================================================================================================================================.
 |                                                                                                                                          |  
@@ -1733,168 +2304,7 @@ class SitePage(Page):
         verbose_name = "Site Page"
 endef
 
-define WAGTAIL_HTML_OFFCANVAS
-{% load wagtailcore_tags %}
-{% wagtail_site as current_site %}
-<div class="offcanvas offcanvas-start bg-dark" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
-  <div class="offcanvas-header">
-    <a class="offcanvas-title text-light h5 text-decoration-none" id="offcanvasExampleLabel" href="/">{{ current_site.site_name|default:"Project Makefile" }}</a>
-    <button type="button" class="btn-close bg-light" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body bg-dark">
-    {% wagtail_site as current_site %}
-    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-      <li class="nav-item">
-        <a class="nav-link text-light active" aria-current="page" href="/">Home</a>
-      </li>
-      {% for child in current_site.root_page.get_children %}
-      <li class="nav-item">
-        <a class="nav-link text-light" href="{{ child.url }}">{{ child }}</a>
-      </li>
-      {% endfor %}
-      <li class="nav-item" id="{% if request.user.is_authenticated %}theme-toggler-authenticated{% else %}theme-toggler-anonymous{% endif %}">
-          <span class="nav-link text-light" data-bs-toggle="tooltip" title="Toggle dark mode">
-              <i class="fas fa-circle-half-stroke"></i>
-          </span>
-      </li>
-      <div data-component="UserMenu" data-text-color="light" data-is-authenticated="{{ request.user.is_authenticated }}" data-is-superuser="{{ request.user.is_superuser }}"></div>
-    </ul>
-  </div>
-</div>
-endef
-
-define WAGTAIL_SEARCH_TEMPLATE
-{% extends "base.html" %}
-{% load static wagtailcore_tags %}
-{% block body_class %}template-searchresults{% endblock %}
-{% block title %}Search{% endblock %}
-{% block content %}
-    <h1>Search</h1>
-    <form action="{% url 'search' %}" method="get">
-        <input type="text"
-               name="query"
-               {% if search_query %}value="{{ search_query }}"{% endif %}>
-        <input type="submit" value="Search" class="button">
-    </form>
-    {% if search_results %}
-        <ul>
-            {% for result in search_results %}
-                <li>
-                    <h4>
-                        <a href="{% pageurl result %}">{{ result }}</a>
-                    </h4> 
-                    {% if result.search_description %}{{ result.search_description }}{% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-        {% if search_results.has_previous %}
-            <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.previous_page_number }}">Previous</a>
-        {% endif %}
-        {% if search_results.has_next %}
-            <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.next_page_number }}">Next</a>
-        {% endif %}
-    {% elif search_query %}
-        No results found
-    {% else %}
-        No results found. Try a <a href="?query=test">test query</a>?
-    {% endif %}
-{% endblock %}
-endef
-
-define WAGTAIL_SEARCH_URLS
-from django.urls import path
-from .views import search
-
-urlpatterns = [
-    path("", search, name="search")
-]
-endef
-
-define WAGTAIL_URLS
-from django.conf import settings
-from django.urls import include, path
-from django.contrib import admin
-
-from wagtail.admin import urls as wagtailadmin_urls
-from wagtail import urls as wagtail_urls
-from wagtail.documents import urls as wagtaildocs_urls
-
-from rest_framework import routers, serializers, viewsets
-from dj_rest_auth.registration.views import RegisterView
-
-from siteuser.models import User
-
-urlpatterns = []
-
-if settings.DEBUG:
-	urlpatterns += [
-		path("django/doc/", include("django.contrib.admindocs.urls")),
-	]
-
-urlpatterns += [
-    path('accounts/', include('allauth.urls')),
-    path('django/', admin.site.urls),
-    path('wagtail/', include(wagtailadmin_urls)),
-    path('user/', include('siteuser.urls')),
-    path('search/', include('search.urls')),
-    path('model-form-demo/', include('model_form_demo.urls')),
-    path('explorer/', include('explorer.urls')),
-    path('logging-demo/', include('logging_demo.urls')),
-    path('payments/', include('payments.urls')),
-]
-
-if settings.DEBUG:
-    from django.conf.urls.static import static
-    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-
-    # Serve static and media files from development server
-    urlpatterns += staticfiles_urlpatterns()
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-    import debug_toolbar
-    urlpatterns += [
-        path("__debug__/", include(debug_toolbar.urls)),
-    ]
-
-
-# https://www.django-rest-framework.org/#example
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'is_staff']
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-
-urlpatterns += [
-    path("api/", include(router.urls)),
-    path("api/", include("rest_framework.urls", namespace="rest_framework")),
-    path("api/", include("dj_rest_auth.urls")),
-    # path("api/register/", RegisterView.as_view(), name="register"),
-]
-
-urlpatterns += [
-    path("hijack/", include("hijack.urls")),
-]
-
-urlpatterns += [
-    # For anything not caught by a more specific rule above, hand over to
-    # Wagtail's page serving mechanism. This should be the last pattern in
-    # the list:
-    path("", include(wagtail_urls)),
-
-    # Alternatively, if you want Wagtail pages to be served from a subpath
-    # of your site, rather than the site root:
-    #    path("pages/", include(wagtail_urls)),
-]
-endef
-
-
-define SETTINGS_THEMES
+define DJANGO_SETTINGS_THEMES
 THEMES = [
     ('light', 'Light Theme'),
     ('dark', 'Dark Theme'),
@@ -2138,11 +2548,114 @@ tinymce.init({
 });
 endef
 
+define WAGTAIL_HTML_OFFCANVAS
+{% load wagtailcore_tags %}
+{% wagtail_site as current_site %}
+<div class="offcanvas offcanvas-start bg-dark" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+  <div class="offcanvas-header">
+    <a class="offcanvas-title text-light h5 text-decoration-none" id="offcanvasExampleLabel" href="/">{{ current_site.site_name|default:"Project Makefile" }}</a>
+    <button type="button" class="btn-close bg-light" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body bg-dark">
+    {% wagtail_site as current_site %}
+    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+      <li class="nav-item">
+        <a class="nav-link text-light active" aria-current="page" href="/">Home</a>
+      </li>
+      {% for child in current_site.root_page.get_children %}
+      <li class="nav-item">
+        <a class="nav-link text-light" href="{{ child.url }}">{{ child }}</a>
+      </li>
+      {% endfor %}
+      <li class="nav-item" id="{% if request.user.is_authenticated %}theme-toggler-authenticated{% else %}theme-toggler-anonymous{% endif %}">
+          <span class="nav-link text-light" data-bs-toggle="tooltip" title="Toggle dark mode">
+              <i class="fas fa-circle-half-stroke"></i>
+          </span>
+      </li>
+      <div data-component="UserMenu" data-text-color="light" data-is-authenticated="{{ request.user.is_authenticated }}" data-is-superuser="{{ request.user.is_superuser }}"></div>
+    </ul>
+  </div>
+</div>
+endef
+
+define WAGTAIL_SEARCH_TEMPLATE
+{% extends "base.html" %}
+{% load static wagtailcore_tags %}
+{% block body_class %}template-searchresults{% endblock %}
+{% block title %}Search{% endblock %}
+{% block content %}
+    <h1>Search</h1>
+    <form action="{% url 'search' %}" method="get">
+        <input type="text"
+               name="query"
+               {% if search_query %}value="{{ search_query }}"{% endif %}>
+        <input type="submit" value="Search" class="button">
+    </form>
+    {% if search_results %}
+        <ul>
+            {% for result in search_results %}
+                <li>
+                    <h4>
+                        <a href="{% pageurl result %}">{{ result }}</a>
+                    </h4> 
+                    {% if result.search_description %}{{ result.search_description }}{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        {% if search_results.has_previous %}
+            <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.previous_page_number }}">Previous</a>
+        {% endif %}
+        {% if search_results.has_next %}
+            <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.next_page_number }}">Next</a>
+        {% endif %}
+    {% elif search_query %}
+        No results found
+    {% else %}
+        No results found. Try a <a href="?query=test">test query</a>?
+    {% endif %}
+{% endblock %}
+endef
+
+define WAGTAIL_SEARCH_URLS
+from django.urls import path
+from .views import search
+
+urlpatterns = [
+    path("", search, name="search")
+]
+endef
+
+define WAGTAIL_URLS
+from django.conf import settings
+from django.urls import include, path
+from django.contrib import admin
+
+from wagtail.admin import urls as wagtailadmin_urls
+from wagtail.documents import urls as wagtaildocs_urls
+
+from search import views as search_views
+
+urlpatterns = [
+    path("django/", admin.site.urls),
+    path("wagtail/", include(wagtailadmin_urls)),
+    path("documents/", include(wagtaildocs_urls)),
+    path("search/", search_views.search, name="search"),
+]
+
+if settings.DEBUG:
+    from django.conf.urls.static import static
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+    # Serve static and media files from development server
+    urlpatterns += staticfiles_urlpatterns()
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+endef
+
 define WAGTAIL_HTML_FOOTER
 {% load wagtailcore_tags %}
 endef 
 
-define WAGTAIL_HTML_HEADER
+define WAGTAIL_HEADER_PREFIX
 {% load wagtailcore_tags %}
 {% wagtail_site as current_site %}
 endef 
@@ -2188,7 +2701,9 @@ class MarketingBlock(blocks.StructBlock):
 
 
 class HomePage(Page):
+
     template = 'home/home_page.html'  # Create a template for rendering the home page
+
     marketing_blocks = StreamField([
         ('marketing_block', MarketingBlock()),
     ], blank=True, null=True, use_json_field=True)
@@ -2413,15 +2928,27 @@ export CONTACT_PAGE_TEST
 export CUSTOM_ADMIN
 export CUSTOM_ENV_EC2_USER
 export CUSTOM_ENV_VAR_FILE
+export CUSTOM_MAKEFILE
 export DJANGO_BASE_TEMPLATE
 export DJANGO_MANAGE_PY
+export DJANGO_SETTINGS_BASE_MINIMAL
 export DJANGO_SETTINGS_DEV
 export DJANGO_SETTINGS_PROD
+export DJANGO_SETTINGS_FILE_BASE
+export DJANGO_SETTINGS_FILE_DEV
+export DJANGO_SETTINGS_FILE_PROD
+export DJANGO_SETTINGS_REST_FRAMEWORK
+export DJANGO_SETTINGS_THEMES
 export DJANGO_URLS
+export DJANGO_URLS_API
+export DJANGO_URLS_MINIMAL
+export DJANGO_UTILS
 export DJANGO_HOME_PAGE_URLS
 export DJANGO_HOME_PAGE_VIEWS
 export DJANGO_HOME_PAGE_TEMPLATE
 export DJANGO_HTML_OFFCANVAS
+export DJANGO_REST_SERIALIZERS
+export DJANGO_REST_VIEWS
 export DJANGO_SEARCH_FORMS
 export DJANGO_SEARCH_SETTINGS
 export DJANGO_SEARCH_TEMPLATE
@@ -2440,8 +2967,8 @@ export FRONTEND_STYLES
 export GIT_IGNORE
 export HTML_ERROR
 export HTML_INDEX
-export HTML_FOOTER
-export HTML_HEADER
+export DJANGO_FOOTER
+export DJANGO_HEADER
 export INTERNAL_IPS
 export JENKINS_FILE
 export LOGGING_DEMO_VIEWS
@@ -2456,17 +2983,21 @@ export MODEL_FORM_DEMO_TEMPLATE_DETAIL
 export MODEL_FORM_DEMO_TEMPLATE_FORM
 export MODEL_FORM_DEMO_TEMPLATE_LIST
 export PRIVACY_PAGE_MODEL
-export REST_FRAMEWORK
 export FRONTEND_CONTEXT_INDEX
 export FRONTEND_CONTEXT_USER_PROVIDER
 export PAYMENTS_ADMIN
 export PAYMENTS_FORM
-export PAYMENTS_MIGRATION
-export PAYMENTS_MODEL
+export PAYMENTS_MIGRATION_0002
+export PAYMENTS_MIGRATION_0003
+export PAYMENTS_MODELS
 export PAYMENTS_URLS
 export PAYMENTS_VIEW
-export PAYMENTS_VIEW_TEMPLATE
-export PAYMENTS_VIEW_TEMPLATE_SUCCESS
+export PAYMENTS_TEMPLATE_CANCEL
+export PAYMENTS_TEMPLATE_CHECKOUT
+export PAYMENTS_TEMPLATE_SUCCESS
+export PAYMENTS_TEMPLATE_PRODUCT_LIST
+export PAYMENTS_TEMPLATE_PRODUCT_DETAIL
+export PROGRAMMING_INTERVIEW
 export PRIVACY_PAGE_MODEL
 export PRIVACY_PAGE_TEMPLATE
 export PYTHON_CI_YAML
@@ -2474,7 +3005,6 @@ export PYTHON_LICENSE_TXT
 export PYTHON_PROJECT_TOML
 export REQUIREMENTS_TEST
 export SEPARATOR
-export SETTINGS_THEMES
 export SITEPAGE_MODEL
 export SITEPAGE_TEMPLATE
 export SITEUSER_ADMIN
@@ -2484,8 +3014,6 @@ export SITEUSER_URLS
 export SITEUSER_VIEW
 export SITEUSER_VIEW_TEMPLATE
 export SITEUSER_EDIT_TEMPLATE
-export WAGTAIL_SEARCH_TEMPLATE
-export WAGTAIL_SEARCH_URLS
 export THEME_BLUE
 export THEME_TOGGLER
 export TINYMCE_JS
@@ -2494,8 +3022,10 @@ export WAGTAIL_HOME_PAGE_MODEL
 export WAGTAIL_HOME_PAGE_TEMPLATE
 export WAGTAIL_HOME_PAGE_VIEWS
 export WAGTAIL_HOME_PAGE_URLS
-export WAGTAIL_HTML_HEADER
+export WAGTAIL_HTML_PREFIX
 export WAGTAIL_HTML_OFFCANVAS
+export WAGTAIL_SEARCH_TEMPLATE
+export WAGTAIL_SEARCH_URLS
 export WAGTAIL_URLS
 export WEBPACK_CONFIG_JS
 export WEBPACK_INDEX_HTML
@@ -2599,10 +3129,10 @@ eb-create-default: aws-check-env eb-check-env
 eb-custom-env-default:
 	$(ADD_DIR) .ebextensions
 	@echo "$$CUSTOM_ENV_EC2_USER" > .ebextensions/bash.config
-	$(GIT_ADD) .ebextensions/bash.config
+	-$(GIT_ADD) .ebextensions/bash.config
 	$(ADD_DIR) .platform/hooks/postdeploy
 	@echo "$$CUSTOM_ENV_VAR_FILE" > .platform/hooks/postdeploy/setenv.sh
-	$(GIT_ADD) .platform/hooks/postdeploy/setenv.sh
+	-$(GIT_ADD) .platform/hooks/postdeploy/setenv.sh
 
 eb-deploy-default:
 	eb deploy
@@ -2642,7 +3172,7 @@ eb-print-env-default:
 
 npm-init-default:
 	npm init -y
-	$(GIT_ADD) package.json
+	-$(GIT_ADD) package.json
 	-$(GIT_ADD) package-lock.json
 
 npm-build-default:
@@ -2650,7 +3180,7 @@ npm-build-default:
 
 npm-install-default:
 	npm install
-	$(GIT_ADD) package-lock.json
+	-$(GIT_ADD) package-lock.json
 
 npm-clean-default:
 	$(DEL_DIR) dist/
@@ -2675,65 +3205,177 @@ db-pg-init-test-default:
 db-pg-import-default:
 	@psql $(DATABASE_NAME) < $(DATABASE_NAME).sql
 
-django-backend-utils-default:
-	@echo "$$BACKEND_UTILS" > backend/utils.py
+django-allauth-template-default:
+	$(ADD_DIR) backend/templates/allauth/layouts
+	@echo "$$ALLAUTH_LAYOUT_BASE" > backend/templates/allauth/layouts/base.html
+	-$(GIT_ADD) backend/templates/allauth/layouts/base.html
+
+django-allauth-default:
+	@echo "urlpatterns += [path('accounts/', include('allauth.urls'))]" >> backend/urls.py
+
+django-project-default:
+	django-admin startproject backend .
+	-$(GIT_ADD) backend
+
+django-utils-default:
+	@echo "$$DJANGO_UTILS" > backend/utils.py
+	-$(GIT_ADD) backend/utils.py
 
 django-custom-admin-default:
 	@echo "$$CUSTOM_ADMIN" > backend/admin.py
 	@echo "$$BACKEND_APPS" > backend/apps.py
+	-$(GIT_ADD) backend/*.py
 
-django-templates-default:
+django-dockerfile-default:
+	@echo "$$DOCKERFILE" > Dockerfile
+	-$(GIT_ADD) Dockerfile
+	@echo "$$DOCKERCOMPOSE" > docker-compose.yml
+	-$(GIT_ADD) docker-compose.yml
+
+django-offcanvas-template-default:
+	-$(ADD_DIR) backend/templates
+	@echo "$$DJANGO_HTML_OFFCANVAS" > backend/templates/offcanvas.html
+	-$(GIT_ADD) backend/templates/offcanvas.html
+
+django-manage-py-default:
+	@echo "$$DJANGO_MANAGE_PY" > manage.py
+	-$(GIT_ADD) manage.py
+
+django-base-template-default:
 	@$(ADD_DIR) backend/templates
 	@echo "$$DJANGO_BASE_TEMPLATE" > backend/templates/base.html
+	-$(GIT_ADD) backend/templates/base.html
 
-django-init-default: db-init django-install
-	django-admin startproject backend .
-	@$(MAKE) django-templates
-	@echo "$$DJANGO_MANAGE_PY" > manage.py
-	@$(MAKE) django-settings-directory
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) django-home
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) django-search
-	@$(MAKE) django-urls
-	@$(MAKE) separator
-	@$(MAKE) django-common
-	@$(MAKE) separator
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) django-siteuser
-	@$(MAKE) separator
-	@$(MAKE) django-migrations
-	@$(MAKE) django-migrate
-	@$(MAKE) su
-	@$(MAKE) django-frontend
-	@$(MAKE) separator
-	@$(MAKE) npm-install
-	@$(MAKE) django-npm-install-save
-	@$(MAKE) django-npm-install-save-dev
-	@$(MAKE) wagtail-backend-templates
-	@@echo "$$DJANGO_HTML_OFFCANVAS" > backend/templates/offcanvas.html
-	@$(MAKE) pip-init-test
-	@$(MAKE) separator
-	@$(MAKE) readme
-	@$(MAKE) gitignore
-	@$(MAKE) freeze
-	@$(MAKE) serve
+django-favicon-default:
+	@echo "$$FAVICON_TEMPLATE" > backend/templates/favicon.html
+	-$(GIT_ADD) backend/templates/favicon.html
 
-django-common-default:
-	@echo "$$DOCKERFILE" > Dockerfile
-	@echo "$$DOCKERCOMPOSE" > docker-compose.yml
-	export SETTINGS=backend/settings/base.py DEV_SETTINGS=backend/settings/dev.py; \
-		$(MAKE) django-settings
-	$(MAKE) django-custom-admin
-	$(GIT_ADD) backend
-	$(GIT_ADD) requirements.txt
-	$(GIT_ADD) manage.py
-	$(GIT_ADD) Dockerfile
-	$(GIT_ADD) .dockerignore
+django-header-template-default:
+	@echo "$$DJANGO_HEADER" > backend/templates/header.html
+	-$(GIT_ADD) backend/templates/header.html
 
-django-install-default: separator
+django-footer-template-default:
+	@echo "$$DJANGO_FOOTER" > backend/templates/footer.html
+	-$(GIT_ADD) backend/templates/footer.html
+
+django-init-minimal-default: separator \
+	db-init \
+	django-install-minimal \
+	django-project \
+	django-utils \
+	pip-freeze \
+	pip-init-test \
+	django-settings-dir \
+	django-custom-admin \
+	django-dockerfile \
+	django-offcanvas-template \
+	django-header-template \
+	django-footer-template \
+	django-base-template \
+	django-manage-py \
+	django-urls-minimal \
+	django-urls-debug \
+	django-settings-minimal \
+	django-settings-dev-minimal \
+	django-settings-prod \
+	django-frontend \
+	django-migrate \
+	gitignore \
+	readme \
+	lint \
+	serve
+
+django-init-default: separator \
+	db-init \
+	django-install \
+	django-project \
+	django-utils \
+	pip-freeze \
+	pip-init-test \
+	django-settings-dir \
+	django-custom-admin \
+	django-dockerfile \
+	django-offcanvas-template \
+	django-header-template \
+	django-footer-template \
+	django-base-template \
+	django-manage-py \
+	django-urls \
+	django-urls-debug \
+	django-allauth \
+	django-allauth-template \
+	django-favicon \
+	gitignore \
+	django-settings-base \
+	django-settings-dev \
+	django-settings-prod \
+	django-siteuser \
+	django-home \
+	django-rest-serializers \
+	django-rest-views \
+	django-urls-api \
+	django-frontend \
+	django-migrate \
+	readme \
+	lint \
+	su \
+	serve
+
+django-wagtail-init-default: separator \
+	db-init \
+	django-install \
+	wagtail-install \
+	wagtail-project \
+	django-utils \
+	pip-freeze \
+	pip-init-test \
+        django-custom-admin \
+        django-dockerfile \
+	django-offcanvas-template \
+	wagtail-header-prefix-template \
+	django-header-template \
+	wagtail-base-template \
+	django-footer-template \
+	django-manage-py \
+	wagtail-home \
+	wagtail-urls \
+	django-urls-debug \
+	django-allauth \
+	django-allauth-template \
+	django-favicon \
+	gitignore \
+	wagtail-search \
+	django-settings-base \
+	django-settings-dev \
+	django-settings-prod \
+	wagtail-settings \
+	django-siteuser \
+	django-modelform-demo \
+	django-logging-demo \
+	django-payments-demo-default \
+	django-rest-serializers \
+	django-rest-views \
+	django-urls-api \
+	wagtail-urls-home \
+	django-frontend \
+	django-migrate \
+	readme \
+	lint \
+	su \
+	serve
+
+django-install-minimal-default:
 	$(ENSURE_PIP)
 	python -m pip install \
+	Django \
+	dj-database-url \
+	django-debug-toolbar \
+	python-webpack-boilerplate
+
+django-install-default:
+	$(ENSURE_PIP)
+	python -m pip install \
+	Django \
         Faker \
         boto3 \
         crispy-bootstrap5 \
@@ -2753,6 +3395,7 @@ django-install-default: separator
         django-import-export \
         django-ipware \
         django-multiselectfield \
+        django-ninja \
         django-phonenumber-field \
         django-recurrence \
         django-recaptcha \
@@ -2782,7 +3425,7 @@ django-install-default: separator
         python-webpack-boilerplate \
         python-docx \
         reportlab \
-        texttable \
+        texttable
 
 django-frontend-default: python-webpack-init
 	$(ADD_DIR) frontend/src/context
@@ -2802,18 +3445,11 @@ django-frontend-default: python-webpack-init
 	@echo "$$ESLINTRC" > frontend/.eslintrc
 	@echo "$$THEME_BLUE" > frontend/src/styles/theme-blue.scss
 	@echo "$$THEME_TOGGLER" > frontend/src/utils/themeToggler.js
-	@echo "$$TINYMCE_JS" > frontend/src/utils/tinymce.js
-	$(GIT_ADD) home
-	$(GIT_ADD) frontend
-	$(GIT_ADD) .babelrc
-	$(GIT_ADD) .browserslistrc
-	$(GIT_ADD) .eslintrc
-	$(GIT_ADD) .nvmrc
-	$(GIT_ADD) .stylelintrc.json
-	$(GIT_ADD) docker-compose.yml
-	$(GIT_ADD) package-lock.json
-	$(GIT_ADD) package.json
-	$(GIT_ADD) postcss.config.js
+	# @echo "$$TINYMCE_JS" > frontend/src/utils/tinymce.js
+	@$(MAKE) django-npm-save
+	@$(MAKE) django-npm-save-dev
+	@$(MAKE) npm-install
+	-$(GIT_ADD) $(FRONTEND_FILES)
 
 django-home-default:
 	python manage.py startapp home
@@ -2821,60 +3457,81 @@ django-home-default:
 	@echo "$$DJANGO_HOME_PAGE_TEMPLATE" > home/templates/home.html
 	@echo "$$DJANGO_HOME_PAGE_VIEWS" > home/views.py
 	@echo "$$DJANGO_HOME_PAGE_URLS" > home/urls.py
-	@echo "INSTALLED_APPS.append('home')" >> $(SETTINGS)
-	$(GIT_ADD) home
+	@echo "INSTALLED_APPS.append('home')  # noqa" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "urlpatterns += [path('', include('home.urls'))]" >> backend/urls.py
+	-$(GIT_ADD) home/templates
+	-$(GIT_ADD) home/*.py
 
-django-payments-default:
+django-payments-demo-default:
 	python manage.py startapp payments
 	@echo "$$PAYMENTS_FORM" > payments/forms.py
-	@echo "$$PAYMENTS_MODEL" > payments/models.py
+	@echo "$$PAYMENTS_MODELS" > payments/models.py
 	@echo "$$PAYMENTS_ADMIN" > payments/admin.py
 	@echo "$$PAYMENTS_VIEW" > payments/views.py
 	@echo "$$PAYMENTS_URLS" > payments/urls.py
-	$(ADD_DIR) payments/templates/
+	$(ADD_DIR) payments/templates/payments
 	$(ADD_DIR) payments/management/commands
-	@echo "$$PAYMENTS_VIEW_TEMPLATE" > payments/templates/payments.html
-	@echo "$$PAYMENTS_VIEW_TEMPLATE_SUCCESS" > payments/templates/payments_success.html
-	@echo "INSTALLED_APPS.append('payments')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('djstripe')" >> $(SETTINGS)
-	@echo "DJSTRIPE_FOREIGN_KEY_TO_FIELD = 'id'" >> $(SETTINGS)
-	@echo "DJSTRIPE_WEBHOOK_VALIDATION = 'retrieve_event'" >> $(SETTINGS)
-	@echo "STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')" >> $(SETTINGS)
-	@echo "STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')" >> $(SETTINGS)
-	@echo "STRIPE_TEST_SECRET_KEY = os.environ.get('STRIPE_TEST_SECRET_KEY')" >> $(SETTINGS)
+	@echo "$$PAYMENTS_TEMPLATE_CANCEL" > payments/templates/payments/cancel.html
+	@echo "$$PAYMENTS_TEMPLATE_CHECKOUT" > payments/templates/payments/checkout.html
+	@echo "$$PAYMENTS_TEMPLATE_SUCCESS" > payments/templates/payments/success.html
+	@echo "$$PAYMENTS_TEMPLATE_PRODUCT_LIST" > payments/templates/payments/product_list.html
+	@echo "$$PAYMENTS_TEMPLATE_PRODUCT_DETAIL" > payments/templates/payments/product_detail.html
+	@echo "DJSTRIPE_FOREIGN_KEY_TO_FIELD = 'id'" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "DJSTRIPE_WEBHOOK_VALIDATION = 'retrieve_event'" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "STRIPE_TEST_SECRET_KEY = os.environ.get('STRIPE_TEST_SECRET_KEY')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('payments')  # noqa" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('djstripe')  # noqa" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "urlpatterns += [path('payments/', include('payments.urls'))]" >> backend/urls.py
 	python manage.py makemigrations payments
-	@echo "$$PAYMENTS_MIGRATION" > payments/migrations/0002_set_stripe_api_keys.py
-	$(GIT_ADD) payments/
+	@echo "$$PAYMENTS_MIGRATION_0002" > payments/migrations/0002_set_stripe_api_keys.py
+	@echo "$$PAYMENTS_MIGRATION_0003" > payments/migrations/0003_create_initial_products.py
+	-$(GIT_ADD) payments/
+
+django-rest-serializers-default:
+	@echo "$$DJANGO_REST_SERIALIZERS" > backend/serializers.py
+	-$(GIT_ADD) backend/serializers.py
+
+django-rest-views-default:
+	@echo "$$DJANGO_REST_VIEWS" > backend/api.py
+	-$(GIT_ADD) backend/api.py
 
 django-search-default:
 	python manage.py startapp search
 	$(ADD_DIR) search/templates
-	@echo "$$DJANGO_SEARCH_FORMS" > search/forms.py
-	@echo "$$DJANGO_SEARCH_SETTINGS" >> $(SETTINGS)
 	@echo "$$DJANGO_SEARCH_TEMPLATE" > search/templates/search.html
+	@echo "$$DJANGO_SEARCH_FORMS" > search/forms.py
 	@echo "$$DJANGO_SEARCH_URLS" > search/urls.py
 	@echo "$$DJANGO_SEARCH_UTILS" > search/utils.py
 	@echo "$$DJANGO_SEARCH_VIEWS" > search/views.py
-	$(GIT_ADD) search
+	@echo "$$DJANGO_SEARCH_SETTINGS" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('search')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "urlpatterns += [path('search/', include('search.urls'))]" >> backend/urls.py
+	-$(GIT_ADD) search/templates
+	-$(GIT_ADD) search/*.py
 
-django-secret-default:
+django-secret-key-default:
 	@python -c "from secrets import token_urlsafe; print(token_urlsafe(50))"
 
 django-siteuser-default:
 	python manage.py startapp siteuser
+	$(ADD_DIR) siteuser/templates/
 	@echo "$$SITEUSER_FORM" > siteuser/forms.py
 	@echo "$$SITEUSER_MODEL" > siteuser/models.py
 	@echo "$$SITEUSER_ADMIN" > siteuser/admin.py
 	@echo "$$SITEUSER_VIEW" > siteuser/views.py
 	@echo "$$SITEUSER_URLS" > siteuser/urls.py
-	$(ADD_DIR) siteuser/templates/
-	$(ADD_DIR) siteuser/management/commands
 	@echo "$$SITEUSER_VIEW_TEMPLATE" > siteuser/templates/profile.html
+	@echo "$$SITEUSER_TEMPLATE" > siteuser/templates/user.html
 	@echo "$$SITEUSER_EDIT_TEMPLATE" > siteuser/templates/user_edit.html
-	@echo "INSTALLED_APPS.append('siteuser')" >> $(SETTINGS)
-	@echo "AUTH_USER_MODEL = 'siteuser.User'" >> $(SETTINGS)
+	@echo "INSTALLED_APPS.append('siteuser')  # noqa" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "AUTH_USER_MODEL = 'siteuser.User'" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "urlpatterns += [path('user/', include('siteuser.urls'))]" >> backend/urls.py
+	-$(GIT_ADD) siteuser/templates
+	-$(GIT_ADD) siteuser/*.py
 	python manage.py makemigrations siteuser
-	$(GIT_ADD) siteuser/
+	-$(GIT_ADD) siteuser/migrations/*.py
 
 django-graph-default:
 	python manage.py graph_models -a -o $(PROJECT_NAME).png
@@ -2894,7 +3551,7 @@ django-migrations-default:
 django-migrations-show-default:
 	python manage.py showmigrations
 
-django-model-form-demo-default:
+django-modelform-demo-default:
 	python manage.py startapp model_form_demo
 	@echo "$$MODEL_FORM_DEMO_ADMIN" > model_form_demo/admin.py
 	@echo "$$MODEL_FORM_DEMO_FORMS" > model_form_demo/forms.py
@@ -2905,76 +3562,112 @@ django-model-form-demo-default:
 	@echo "$$MODEL_FORM_DEMO_TEMPLATE_DETAIL" > model_form_demo/templates/model_form_demo_detail.html
 	@echo "$$MODEL_FORM_DEMO_TEMPLATE_FORM" > model_form_demo/templates/model_form_demo_form.html
 	@echo "$$MODEL_FORM_DEMO_TEMPLATE_LIST" > model_form_demo/templates/model_form_demo_list.html
-	@echo "INSTALLED_APPS.append('model_form_demo')" >> $(SETTINGS)
+	@echo "INSTALLED_APPS.append('model_form_demo')  # noqa" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "urlpatterns += [path('model-form-demo/', include('model_form_demo.urls'))]" >> backend/urls.py
 	python manage.py makemigrations
-	$(GIT_ADD) model_form_demo
+	-$(GIT_ADD) model_form_demo/*.py
+	-$(GIT_ADD) model_form_demo/templates
+	-$(GIT_ADD) model_form_demo/migrations
 
 django-logging-demo-default:
 	python manage.py startapp logging_demo
 	@echo "$$LOGGING_DEMO_VIEWS" > logging_demo/views.py
 	@echo "$$LOGGING_DEMO_URLS" > logging_demo/urls.py
-	@echo "$$LOGGING_DEMO_SETTINGS" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('logging_demo')" >> $(SETTINGS)
-	$(GIT_ADD) logging_demo
+	@echo "$$LOGGING_DEMO_SETTINGS" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('logging_demo')  # noqa" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "urlpatterns += [path('logging-demo/', include('logging_demo.urls'))]" >> backend/urls.py
+	-$(GIT_ADD) logging_demo/*.py
+	-$(GIT_ADD) logging_demo/migrations/*.py
 
 django-serve-default:
 	npm run watch &
 	python manage.py runserver 0.0.0.0:8000
 
-django-settings-directory-default:
-	@$(ADD_DIR) backend/settings
+django-settings-dir-default:
+	@$(ADD_DIR) $(DJANGO_SETTINGS_DIR)
 	@$(COPY_FILE) backend/settings.py backend/settings/base.py
 	@$(DEL_FILE) backend/settings.py
-	@echo "import os" >> backend/settings/base.py
-	@echo "STATICFILES_DIRS = []" >> backend/settings/base.py
-	@echo "$$DJANGO_SETTINGS_DEV" > backend/settings/dev.py
-	@echo "$$DJANGO_SETTINGS_PROD" >> backend/settings/production.py
+	-$(GIT_ADD) backend/settings/*.py
 
-django-settings-default:
-	@echo "# $(PROJECT_NAME)" >> $(SETTINGS)
-	@echo "ALLOWED_HOSTS = ['*']" >> $(SETTINGS)
-	@echo "import dj_database_url  # noqa" >> $(SETTINGS)
-	@echo "DATABASE_URL = os.environ.get('DATABASE_URL', 'postgres://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(PROJECT_NAME)')" >> $(SETTINGS)
-	@echo "DATABASES['default'] = dj_database_url.parse(DATABASE_URL)" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('webpack_boilerplate')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('rest_framework')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('rest_framework.authtoken')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('allauth')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('allauth.account')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('allauth.socialaccount')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('django_extensions')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('debug_toolbar')" >> $(DEV_SETTINGS)
-	@echo "INSTALLED_APPS.append('crispy_forms')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('crispy_bootstrap5')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('django_recaptcha')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('explorer')" >> $(DEV_SETTINGS)
-	@echo "INSTALLED_APPS.append('django.contrib.admindocs')" >> $(DEV_SETTINGS)
-	@echo "# INSTALLED_APPS = [app for app in INSTALLED_APPS if app != 'django.contrib.admin']" >> $(SETTINGS)
-	@echo "# INSTALLED_APPS.append('backend.apps.CustomAdminConfig')" >> $(SETTINGS)
-	@echo "MIDDLEWARE.append('allauth.account.middleware.AccountMiddleware')" >> $(SETTINGS)
-	@echo "MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')" >> $(DEV_SETTINGS)
-	@echo "MIDDLEWARE.append('hijack.middleware.HijackUserMiddleware')" >> $(DEV_SETTINGS)
-	@echo "PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))" >> $(SETTINGS)
-	@echo "BASE_DIR = os.path.dirname(PROJECT_DIR)" >> $(SETTINGS)
-	@echo "STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'frontend/build'))" >> $(SETTINGS)
-	@echo "WEBPACK_LOADER = { 'MANIFEST_FILE': os.path.join(BASE_DIR, 'frontend/build/manifest.json'), }" >> $(SETTINGS)
-	@echo "$$REST_FRAMEWORK" >> $(SETTINGS)
-	@echo "$$SETTINGS_THEMES" >> $(SETTINGS)
-	@echo "$$INTERNAL_IPS" >> $(DEV_SETTINGS)
-	@echo "LOGIN_REDIRECT_URL = '/'" >> $(SETTINGS)
-	@echo "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'" >> $(SETTINGS)
-	@echo "$$AUTHENTICATION_BACKENDS" >> $(SETTINGS)
-	@echo "SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']" >> $(SETTINGS)
-	@echo "EXPLORER_CONNECTIONS = { 'Default': 'default' }" >> $(SETTINGS)
-	@echo "EXPLORER_DEFAULT_CONNECTION = 'default'" >> $(SETTINGS)
-	@echo "TEMPLATES[0]['DIRS'].append(os.path.join(PROJECT_DIR, 'templates'))" >> $(SETTINGS)
+django-settings-minimal-default:
+	@echo "# $(PROJECT_NAME)" > $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "$$DJANGO_SETTINGS_BASE_MINIMAL" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "import os  # noqa" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "import dj_database_url  # noqa" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('webpack_boilerplate')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('debug_toolbar')" >> $(DJANGO_SETTINGS_FILE_BASE)
+
+django-settings-base-default:
+	@echo "# $(PROJECT_NAME)" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "# Uncomment the next two lines to enable the custom admin" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "# INSTALLED_APPS = [app for app in INSTALLED_APPS if app != 'django.contrib.admin']" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "# INSTALLED_APPS.append('backend.apps.CustomAdminConfig')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "import os  # noqa" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "import dj_database_url  # noqa" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "$$AUTHENTICATION_BACKENDS" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "$$DJANGO_SETTINGS_REST_FRAMEWORK" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "$$DJANGO_SETTINGS_THEMES" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "ALLOWED_HOSTS = ['*']" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "DATABASE_URL = os.environ.get('DATABASE_URL', 'postgres://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(PROJECT_NAME)')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "DATABASES['default'] = dj_database_url.parse(DATABASE_URL)" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "EXPLORER_CONNECTIONS = { 'Default': 'default' }" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "EXPLORER_DEFAULT_CONNECTION = 'default'" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('allauth')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('allauth.account')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('allauth.socialaccount')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('crispy_bootstrap5')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('crispy_forms')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('debug_toolbar')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('django_extensions')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('django_recaptcha')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('rest_framework')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('rest_framework.authtoken')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('webpack_boilerplate')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('explorer')  # noqa" >> $(DJANGO_SETTINGS_FILE_DEV)
+	@echo "LOGIN_REDIRECT_URL = '/'" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "MIDDLEWARE.append('allauth.account.middleware.AccountMiddleware')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "BASE_DIR = os.path.dirname(PROJECT_DIR)" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "STATICFILES_DIRS = []" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'frontend/build'))" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "TEMPLATES[0]['DIRS'].append(os.path.join(PROJECT_DIR, 'templates'))" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "WEBPACK_LOADER = { 'MANIFEST_FILE': os.path.join(BASE_DIR, 'frontend/build/manifest.json'), }" >> $(DJANGO_SETTINGS_FILE_BASE)
+
+
+django-settings-dev-minimal-default:
+	@echo "# $(PROJECT_NAME)" > $(DJANGO_SETTINGS_FILE_DEV)
+	@echo "$$DJANGO_SETTINGS_DEV" >> backend/settings/dev.py
+	@echo "$$INTERNAL_IPS" >> $(DJANGO_SETTINGS_FILE_DEV)
+	@echo "INSTALLED_APPS.append('django.contrib.admindocs')  # noqa" >> $(DJANGO_SETTINGS_FILE_DEV)
+	@echo "MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')  # noqa" >> $(DJANGO_SETTINGS_FILE_DEV)
+	@SECRET_KEY=$$(openssl rand -base64 48); echo "SECRET_KEY = '$$SECRET_KEY'" >> $(DJANGO_SETTINGS_FILE_DEV)
+	-$(GIT_ADD) $(DJANGO_SETTINGS_FILE_DEV)
+
+django-settings-dev-default:
+	@echo "# $(PROJECT_NAME)" > $(DJANGO_SETTINGS_FILE_DEV)
+	@echo "$$DJANGO_SETTINGS_DEV" >> backend/settings/dev.py
+	@echo "$$INTERNAL_IPS" >> $(DJANGO_SETTINGS_FILE_DEV)
+	@echo "INSTALLED_APPS.append('django.contrib.admindocs')  # noqa" >> $(DJANGO_SETTINGS_FILE_DEV)
+	@echo "MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')  # noqa" >> $(DJANGO_SETTINGS_FILE_DEV)
+	@echo "MIDDLEWARE.append('hijack.middleware.HijackUserMiddleware')  # noqa" >> $(DJANGO_SETTINGS_FILE_DEV)
+	@SECRET_KEY=$$(openssl rand -base64 48); echo "SECRET_KEY = '$$SECRET_KEY'" >> $(DJANGO_SETTINGS_FILE_DEV)
+	-$(GIT_ADD) $(DJANGO_SETTINGS_FILE_DEV)
+
+django-settings-prod-default:
+	@echo "$$DJANGO_SETTINGS_PROD" > $(DJANGO_SETTINGS_FILE_PROD)
+	-$(GIT_ADD) $(DJANGO_SETTINGS_FILE_PROD)
 
 django-crispy-default:
-	@echo "CRISPY_TEMPLATE_PACK = 'bootstrap5'" >> $(SETTINGS)
-	@echo "CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'" >> $(SETTINGS)
+	@echo "CRISPY_TEMPLATE_PACK = 'bootstrap5'" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'" >> $(DJANGO_SETTINGS_FILE_BASE)
 
 django-shell-default:
 	python manage.py shell
+
+django-db-shell-default:
+	python manage.py dbshell
 
 django-static-default:
 	python manage.py collectstatic --noinput
@@ -2990,17 +3683,29 @@ django-user-default:
 	python manage.py shell -c "from django.contrib.auth.models import User; \
         User.objects.create_user('user', '', 'user')"
 
+django-urls-api-default:
+	@echo "$$DJANGO_URLS_API" >> backend/urls.py
+	-$(GIT_ADD) backend/urls.py
+
 django-urls-default:
 	@echo "$$DJANGO_URLS" > backend/urls.py
+	-$(GIT_ADD) backend/urls.py
 
-django-npm-install-save-default:
+django-urls-minimal-default:
+	@echo "$$DJANGO_URLS_MINIMAL" > backend/urls.py
+	-$(GIT_ADD) backend/urls.py
+
+django-urls-debug-default:
+	@echo "if settings.DEBUG: urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]" >> backend/urls.py
+
+django-npm-save-default:
 	npm install \
         @fortawesome/fontawesome-free \
         @fortawesome/fontawesome-svg-core \
         @fortawesome/free-brands-svg-icons \
         @fortawesome/free-solid-svg-icons \
         @fortawesome/react-fontawesome \
-		bootstrap \
+        	bootstrap \
         camelize \
         date-fns \
         history \
@@ -3021,11 +3726,10 @@ django-npm-install-save-default:
         react-swipeable \
         snakeize \
         striptags \
-        tinymce \
         url-join \
         viewport-mercator-project
 
-django-npm-install-save-dev-default:
+django-npm-save-dev-default:
 	npm install \
         eslint-plugin-react \
         eslint-config-standard \
@@ -3055,7 +3759,7 @@ endif
 favicon-default:
 	dd if=/dev/urandom bs=64 count=1 status=none | base64 | convert -size 16x16 -depth 8 -background none -fill white label:@- favicon.png
 	convert favicon.png favicon.ico
-	$(GIT_ADD) favicon.ico
+	-$(GIT_ADD) favicon.ico
 	$(DEL_FILE) favicon.png
 
 gh-default:
@@ -3063,17 +3767,30 @@ gh-default:
 
 git-ignore-default:
 	@echo "$$GIT_IGNORE" > .gitignore
-	$(GIT_ADD) .gitignore
+	-$(GIT_ADD) .gitignore
 
 git-branches-default:
 	-for i in $(GIT_BRANCHES) ; do \
         git checkout -t $$i ; done
 
+git-commit-alpha-sort-default:
+	git commit -a -m "Alpha sort"
+
+git-commit-clean-up-default:
+	git commit -a -m "Clean up"
+
+git-commit-lint-default:
+	git commit -a -m "Lint"
+
+git-commit-upgrade-default:
+	git commit -a -m "Upgrade"
+
 git-commit-default:
 	-@$(GIT_COMMIT)
 
 git-commit-last-default:
-	git commit -a -m "$(shell git log -1 --pretty=%B)"
+	git log -1 --pretty=%B > $(TMPDIR)/commit.txt
+	git commit -a -F $(TMPDIR)/commit.txt
 	@$(GIT_PUSH)
 
 git-commit-empty-default:
@@ -3094,6 +3811,9 @@ git-prune-default:
 git-set-upstream-default:
 	git push --set-upstream origin main
 
+git-set-default-default:
+	gh repo set-default
+
 git-short-default:
 	@echo $(GIT_REV)
 
@@ -3103,7 +3823,7 @@ help-default:
             | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' \
             | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' \
             | xargs | tr ' ' '\n' \
-            | awk '{printf "%s\n", $$0}' ; done | less # http://stackoverflow.com/a/26339924
+            | awk '{printf "%s\n", $$0}' ; done | $(PAGER) # http://stackoverflow.com/a/26339924
 
 html-index-default:
 	@echo "$$HTML_INDEX" > index.html
@@ -3120,7 +3840,7 @@ lint-default:
 	-ruff check -v --fix
 
 make-default:
-	$(GIT_ADD) Makefile
+	-$(GIT_ADD) Makefile
 	-git commit Makefile -m "Add/update project-makefile files"
 	-git push
 
@@ -3128,15 +3848,15 @@ pip-freeze-default:
 	$(ENSURE_PIP)
 	python -m pip freeze | sort > $(TMPDIR)/requirements.txt
 	mv -f $(TMPDIR)/requirements.txt .
-	$(GIT_ADD) requirements.txt
+	-$(GIT_ADD) requirements.txt
 
 pip-init-default:
 	touch requirements.txt
-	$(GIT_ADD) requirements.txt
+	-$(GIT_ADD) requirements.txt
 
 pip-init-test-default:
 	@echo "$$REQUIREMENTS_TEST" > requirements-test.txt
-	$(GIT_ADD) requirements-test.txt
+	-$(GIT_ADD) requirements-test.txt
 
 pip-install-default:
 	$(ENSURE_PIP)
@@ -3190,17 +3910,22 @@ plone-serve-default:
 plone-build-default:
 	buildout
 
-project-mk-default:
-	touch project.mk
-	$(GIT_ADD) project.mk
+custom-makefile-default:
+	@echo "$$CUSTOM_MAKEFILE" > $(CUSTOM_MAKEFILE_NAME)
+	-$(GIT_ADD) $(CUSTOM_MAKEFILE_NAME)
+
+programming-interview-default:
+	@echo "$$PROGRAMMING_INTERVIEW" > interview.py
+	@echo "Created interview.py!"
+	-@$(GIT_ADD) interview.py > /dev/null 2>&1
 
 python-license-default:
 	@echo "$(PYTHON_LICENSE_TXT)" > LICENSE.txt
-	$(GIT_ADD) LICENSE.txt
+	-$(GIT_ADD) LICENSE.txt
 
 python-project-default:
 	@echo "$(PYTHON_PROJECT_TOML)" > pyproject.toml
-	$(GIT_ADD) pyproject.toml
+	-$(GIT_ADD) pyproject.toml
 
 python-serve-default:
 	@echo "\n\tServing HTTP on http://0.0.0.0:8000\n"
@@ -3215,7 +3940,7 @@ python-webpack-init-default:
 python-ci-default:
 	$(ADD_DIR) .github/workflows
 	@echo "$(PYTHON_CI_YAML)" > .github/workflows/build_wheels.yml
-	$(GIT_ADD) .github/workflows/build_wheels.yml
+	-$(GIT_ADD) .github/workflows/build_wheels.yml
 
 rand-default:
 	@openssl rand -base64 12 | sed 's/\///g'
@@ -3223,17 +3948,17 @@ rand-default:
 readme-init-rst-default:
 	@echo "$(PROJECT_NAME)" > README.rst
 	@echo "================================================================================" >> README.rst
-	$(GIT_ADD) README.rst
+	-$(GIT_ADD) README.rst
 
 readme-init-md-default:
 	@echo "# $(PROJECT_NAME)" > README.md
-	$(GIT_ADD) README.md
+	-$(GIT_ADD) README.md
 
 readme-edit-rst-default:
-	vi README.rst
+	$(EDITOR) README.rst
 
 readme-edit-md-default:
-	vi README.md
+	$(EDITOR) README.md
 
 readme-open-default:
 	open README.pdf
@@ -3246,16 +3971,16 @@ reveal-build-default:
 
 reveal-init-default: webpack-reveal-init
 	npm install \
-       css-loader \
-       mini-css-extract-plugin \
-       reveal.js \
-       style-loader
+	css-loader \
+	mini-css-extract-plugin \
+	reveal.js \
+	style-loader
 	jq '.scripts += {"build": "webpack"}' package.json > \
-        $(TMPDIR)/tmp.json && mv $(TMPDIR)/tmp.json package.json
+	$(TMPDIR)/tmp.json && mv $(TMPDIR)/tmp.json package.json
 	jq '.scripts += {"start": "webpack serve --mode development --port 8000 --static"}' package.json > \
-        $(TMPDIR)/tmp.json && mv $(TMPDIR)/tmp.json package.json
+	$(TMPDIR)/tmp.json && mv $(TMPDIR)/tmp.json package.json
 	jq '.scripts += {"watch": "webpack watch --mode development"}' package.json > \
-        $(TMPDIR)/tmp.json && mv $(TMPDIR)/tmp.json package.json
+	$(TMPDIR)/tmp.json && mv $(TMPDIR)/tmp.json package.json
 
 reveal-serve-default:
 	npm run watch &
@@ -3268,8 +3993,8 @@ sphinx-init-default: sphinx-install
 	sphinx-quickstart -q -p $(PROJECT_NAME) -a $(USER) -v 0.0.1 $(RANDIR)
 	$(COPY_DIR) $(RANDIR)/* .
 	$(DEL_DIR) $(RANDIR)
-	$(GIT_ADD) index.rst
-	$(GIT_ADD) conf.py
+	-$(GIT_ADD) index.rst
+	-$(GIT_ADD) conf.py
 	$(DEL_FILE) make.bat
 	git checkout Makefile
 	$(MAKE) gitignore
@@ -3278,16 +4003,16 @@ sphinx-theme-init-default:
 	export THEME_NAME=$(PROJECT_NAME)_theme; \
 	$(ADD_DIR) $$THEME_NAME ; \
 	$(ADD_FILE) $$THEME_NAME/__init__.py ; \
-	$(GIT_ADD) $$THEME_NAME/__init__.py ; \
+	-$(GIT_ADD) $$THEME_NAME/__init__.py ; \
 	$(ADD_FILE) $$THEME_NAME/theme.conf ; \
-	$(GIT_ADD) $$THEME_NAME/theme.conf ; \
+	-$(GIT_ADD) $$THEME_NAME/theme.conf ; \
 	$(ADD_FILE) $$THEME_NAME/layout.html ; \
-	$(GIT_ADD) $$THEME_NAME/layout.html ; \
+	-$(GIT_ADD) $$THEME_NAME/layout.html ; \
 	$(ADD_DIR) $$THEME_NAME/static/css ; \
 	$(ADD_FILE) $$THEME_NAME/static/css/style.css ; \
 	$(ADD_DIR) $$THEME_NAME/static/js ; \
 	$(ADD_FILE) $$THEME_NAME/static/js/script.js ; \
-	$(GIT_ADD) $$THEME_NAME/static
+	-$(GIT_ADD) $$THEME_NAME/static
 
 review-default:
 ifeq ($(UNAME), Darwin)
@@ -3321,17 +4046,18 @@ usage-default:
 wagtail-search-default:
 	@echo "$$WAGTAIL_SEARCH_TEMPLATE" > search/templates/search/search.html
 	@echo "$$WAGTAIL_SEARCH_URLS" > search/urls.py
-	$(GIT_ADD) search
+	-$(GIT_ADD) search/templates
+	-$(GIT_ADD) search/*.py
 
 wagtail-settings-default:
-	@echo "INSTALLED_APPS.append('wagtailmenus')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('wagtailmarkdown')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('wagtail_modeladmin')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('wagtailseo')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('wagtail_color_panel')" >> $(SETTINGS)
-	@echo "INSTALLED_APPS.append('wagtail.contrib.settings')" >> $(SETTINGS)
-	@echo "TEMPLATES[0]['OPTIONS']['context_processors'].append('wagtail.contrib.settings.context_processors.settings')" >> $(SETTINGS)
-	@echo "TEMPLATES[0]['OPTIONS']['context_processors'].append('wagtailmenus.context_processors.wagtailmenus')">> $(SETTINGS)
+	@echo "INSTALLED_APPS.append('wagtailmenus')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('wagtailmarkdown')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('wagtail_modeladmin')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('wagtailseo')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('wagtail_color_panel')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "INSTALLED_APPS.append('wagtail.contrib.settings')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "TEMPLATES[0]['OPTIONS']['context_processors'].append('wagtail.contrib.settings.context_processors.settings')" >> $(DJANGO_SETTINGS_FILE_BASE)
+	@echo "TEMPLATES[0]['OPTIONS']['context_processors'].append('wagtailmenus.context_processors.wagtailmenus')">> $(DJANGO_SETTINGS_FILE_BASE)
 
 
 wagtail-privacy-default:
@@ -3339,85 +4065,57 @@ wagtail-privacy-default:
 	@echo "$$PRIVACY_PAGE_MODEL" > privacy/models.py
 	$(ADD_DIR) privacy/templates
 	@echo "$$PRIVACY_PAGE_TEMPLATE" > privacy/templates/privacy_page.html
-	@echo "INSTALLED_APPS.append('privacy')" >> $(SETTINGS)
+	@echo "INSTALLED_APPS.append('privacy')" >> $(DJANGO_SETTINGS_FILE_BASE)
 	python manage.py makemigrations privacy
-	$(GIT_ADD) privacy/
+	-$(GIT_ADD) privacy/templates
+	-$(GIT_ADD) privacy/*.py
+	-$(GIT_ADD) privacy/migrations/*.py
 
-wagtail-base-default:
+wagtail-base-template-default:
 	@echo "$$WAGTAIL_BASE_TEMPLATE" > backend/templates/base.html
 
-wagtail-header-default:
-	@echo "$$WAGTAIL_HTML_HEADER" > backend/templates/header.html
-	@echo "$$HTML_HEADER" >> backend/templates/header.html
+wagtail-header-prefix-template-default:
+	@echo "$$WAGTAIL_HEADER_PREFIX" > backend/templates/header.html
 
 wagtail-clean-default:
-	-@for dir in "$(WAGTAIL_CLEAN_DIRS)"; do \
-		$(DEL_DIR) $$dir; \
+	-@for dir in $(shell echo "$(WAGTAIL_CLEAN_DIRS)"); do \
+		echo "Cleaning $$dir"; \
+		$(DEL_DIR) $$dir >/dev/null 2>&1; \
 	done
-	-@for file in "$(WAGTAIL_CLEAN_FILES)"; do \
-		$(DEL_FILE) $$file; \
+	-@for file in $(shell echo "$(WAGTAIL_CLEAN_FILES)"); do \
+		echo "Cleaning $$file"; \
+		$(DEL_FILE) $$file >/dev/null 2>&1; \
 	done
 
-wagtail-homepage-default:
+wagtail-home-default:
 	@echo "$$WAGTAIL_HOME_PAGE_MODEL" > home/models.py
 	@echo "$$WAGTAIL_HOME_PAGE_TEMPLATE" > home/templates/home/home_page.html
 	$(ADD_DIR) home/templates/blocks
 	@echo "$$BLOCK_MARKETING" > home/templates/blocks/marketing_block.html
 	@echo "$$BLOCK_CAROUSEL" > home/templates/blocks/carousel_block.html
-	-$(GIT_ADD) home
+	-$(GIT_ADD) home/templates
+	-$(GIT_ADD) home/*.py
+	python manage.py makemigrations home
+	-$(GIT_ADD) home/migrations/*.py
 
-wagtail-backend-templates-default:
-	$(ADD_DIR) backend/templates/allauth/layouts
-	@echo "$$ALLAUTH_LAYOUT_BASE" > backend/templates/allauth/layouts/base.html
-	# @echo "$$WAGTAIL_BASE_TEMPLATE" > backend/templates/base.html
-	@echo "$$FAVICON_TEMPLATE" > backend/templates/favicon.html
-	@echo "$$HTML_HEADER" >> backend/templates/header.html
-	@echo "$$HTML_FOOTER" >> backend/templates/footer.html
+wagtail-templates-default:
+	@echo "$$WAGTAIL_BASE_TEMPLATE" > backend/templates/base.html
 	@echo "$$WAGTAIL_HTML_OFFCANVAS" > backend/templates/offcanvas.html
-	$(GIT_ADD) backend/templates/
+	-$(GIT_ADD) backend/templates/
 
-wagtail-start-default:
+wagtail-project-default:
 	wagtail start backend .
+	-$(GIT_ADD) backend/
+	-$(GIT_ADD) .dockerignore
+	-$(GIT_ADD) Dockerfile
+	-$(GIT_ADD) manage.py
+	-$(GIT_ADD) requirements.txt
 
 wagtail-urls-default:
 	@echo "$$WAGTAIL_URLS" > backend/urls.py
 
-wagtail-init-default: db-init django-install wagtail-install wagtail-start django-common
-	export SETTINGS=backend/settings/base.py; \
-        $(MAKE) wagtail-settings
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) django-model-form-demo
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) django-logging-demo
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) django-payments
-	@$(MAKE) wagtail-urls
-	@$(MAKE) wagtail-homepage
-	@$(MAKE) wagtail-search
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) django-siteuser
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) wagtail-privacy
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) wagtail-contactpage
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) wagtail-sitepage
-	export SETTINGS=backend/settings/base.py; \
-		$(MAKE) django-crispy
-	@$(MAKE) wagtail-base
-	@$(MAKE) wagtail-backend-templates
-	@$(MAKE) django-migrations
-	@$(MAKE) django-migrate
-	@$(MAKE) su
-	@$(MAKE) django-frontend
-	@$(MAKE) npm-install
-	@$(MAKE) django-npm-install-save
-	@$(MAKE) django-npm-install-save-dev
-	@$(MAKE) pip-init-test
-	@$(MAKE) readme
-	@$(MAKE) gitignore
-	@$(MAKE) freeze
-	@$(MAKE) serve
+wagtail-urls-home-default:
+	@echo "urlpatterns += [path('', include('wagtail.urls'))]" >> backend/urls.py
 
 wagtail-install-default:
 	$(ENSURE_PIP)
@@ -3427,7 +4125,7 @@ wagtail-install-default:
         wagtail-color-panel \
         wagtail-django-recaptcha \
         wagtail-markdown \
-        wagtail_modeladmin \
+        wagtail-modeladmin \
         wagtail-seo \
         weasyprint \
         whitenoise \
@@ -3435,24 +4133,24 @@ wagtail-install-default:
 
 webpack-init-default: npm-init
 	@echo "$$WEBPACK_CONFIG_JS" > webpack.config.js
-	$(GIT_ADD) webpack.config.js
+	-$(GIT_ADD) webpack.config.js
 	npm install --save-dev webpack webpack-cli webpack-dev-server
 	$(ADD_DIR) src/
 	@echo "$$WEBPACK_INDEX_JS" > src/index.js
-	$(GIT_ADD) src/index.js
+	-$(GIT_ADD) src/index.js
 	@echo "$$WEBPACK_INDEX_HTML" > index.html
-	$(GIT_ADD) index.html
+	-$(GIT_ADD) index.html
 	$(MAKE) gitignore
 
 webpack-reveal-init-default: npm-init
 	@echo "$$WEBPACK_REVEAL_CONFIG_JS" > webpack.config.js
-	$(GIT_ADD) webpack.config.js
+	-$(GIT_ADD) webpack.config.js
 	npm install --save-dev webpack webpack-cli webpack-dev-server
 	$(ADD_DIR) src/
 	@echo "$$WEBPACK_REVEAL_INDEX_JS" > src/index.js
-	$(GIT_ADD) src/index.js
+	-$(GIT_ADD) src/index.js
 	@echo "$$WEBPACK_REVEAL_INDEX_HTML" > index.html
-	$(GIT_ADD) index.html
+	-$(GIT_ADD) index.html
 	$(MAKE) gitignore
 
 wagtail-contactpage-default:
@@ -3462,18 +4160,22 @@ wagtail-contactpage-default:
 	$(ADD_DIR) contactpage/templates/contactpage/
 	@echo "$$CONTACT_PAGE_TEMPLATE" > contactpage/templates/contactpage/contact_page.html
 	@echo "$$CONTACT_PAGE_LANDING" > contactpage/templates/contactpage/contact_page_landing.html
-	@echo "INSTALLED_APPS.append('contactpage')" >> $(SETTINGS)
+	@echo "INSTALLED_APPS.append('contactpage')" >> $(DJANGO_SETTINGS_FILE_BASE)
 	python manage.py makemigrations contactpage
-	$(GIT_ADD) contactpage/
+	-$(GIT_ADD) contactpage/templates
+	-$(GIT_ADD) contactpage/*.py
+	-$(GIT_ADD) contactpage/migrations/*.py
 
 wagtail-sitepage-default:
 	python manage.py startapp sitepage
 	@echo "$$SITEPAGE_MODEL" > sitepage/models.py
 	$(ADD_DIR) sitepage/templates/sitepage/
 	@echo "$$SITEPAGE_TEMPLATE" > sitepage/templates/sitepage/site_page.html
-	@echo "INSTALLED_APPS.append('sitepage')" >> $(SETTINGS)
+	@echo "INSTALLED_APPS.append('sitepage')" >> $(DJANGO_SETTINGS_FILE_BASE)
 	python manage.py makemigrations sitepage
-	$(GIT_ADD) sitepage/
+	-$(GIT_ADD) sitepage/templates
+	-$(GIT_ADD) sitepage/*.py
+	-$(GIT_ADD) sitepage/migrations/*.py
 
 # ------------------------------------------------------------------------------  
 # More rules
@@ -3485,12 +4187,19 @@ c-default: clean
 ce-default: git-commit-edit-push
 clean-default: wagtail-clean
 cp-default: git-commit-push
+cp-alpha-sort-default: git-commit-alpha-sort git-push
+cp-clean-up-default: git-commit-clean-up git-push
+cp-lint-default: git-commit-lint git-push
+cp-upgrade-default: git-commit-upgrade git-push
 create-default: eb-create
 d-default: deploy
 db-import-default: db-pg-import
+db-dump-default: eb-pg-export
 db-export-default: eb-pg-export
 db-init-default: db-pg-init
 db-init-test-default: db-pg-init-test
+db-shell-default: django-db-shell
+dbshell-default: django-db-shell
 deploy-default: eb-deploy
 django-clean-default: wagtail-clean
 djlint-default: lint-djlint
@@ -3512,7 +4221,8 @@ last-default: git-commit-last
 license-default: python-license
 error-default: html-error
 eb-up-default: eb-upgrade
-init-default: wagtail-init
+force: git-push-force
+init-default: django-wagtail-init
 install-default: pip-install
 install-dev-default: pip-install-dev
 install-test-default: pip-install-test
@@ -3521,7 +4231,8 @@ logs-default: eb-logs
 migrate-default: django-migrate
 migrations-default: django-migrations
 migrations-show-default: django-migrations-show
-mk-default: project-mk
+mk-default: custom-makefile
+m-default: django-migrate
 o-default: open
 open-default: django-open
 p-default: git-push
@@ -3533,7 +4244,7 @@ restart-default: eb-restart
 reveal-default: reveal-init
 s-default: serve
 sdist-default: python-setup-sdist
-secret-default: django-secret
+secret-default: django-secret-key
 serve-default: django-serve
 shell-default: django-shell
 show-urls-default: django-show-urls
@@ -3543,8 +4254,9 @@ static-default: django-static
 su-default: django-su
 test-default: django-test
 u-default: usage
-up-default: eb-upgrade
+upgrade-default: pip-install-upgrade
 urls-default: django-show-urls
+wagtail-init-default: django-wagtail-init
 webpack-default: webpack-init
 
 # --------------------------------------------------------------------------------

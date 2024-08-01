@@ -6,6 +6,8 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
+from .newsletter import Newsletter
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +45,7 @@ class Message(models.Model):
                 "title": self.title,
                 "newsletter": self.newsletter,
             }
-        # except Newsletter.DoesNotExist:
-        except:
+        except Newsletter.DoesNotExist:
             logger.warning("No newsletter has been set for this message yet.")
             return self.title
 

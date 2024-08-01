@@ -1,6 +1,5 @@
 import logging
 
-logger = logging.getLogger(__name__)
 
 import io
 
@@ -10,6 +9,9 @@ from django.core.validators import validate_email
 from django.utils.translation import gettext as _
 
 from newsletter.models import Subscription
+
+
+logger = logging.getLogger(__name__)
 
 
 class AddressList:

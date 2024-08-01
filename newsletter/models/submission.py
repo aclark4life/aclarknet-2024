@@ -13,6 +13,9 @@ from django.utils.timezone import now
 from django.urls import reverse
 
 
+from .attachment import Attachment
+
+
 logger = logging.getLogger(__name__)
 
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")

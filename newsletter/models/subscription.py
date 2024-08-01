@@ -12,6 +12,8 @@ from django.urls import reverse
 
 from ..utils import make_activation_code, ACTIONS
 
+from ..admin.admin_forms import get_address
+
 logger = logging.getLogger(__name__)
 
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
