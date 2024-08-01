@@ -84,7 +84,6 @@ class NoteDetailView(BaseNoteView, DetailView):
     url_email_text = "note_email_text"
 
     def get_context_data(self, **kwargs):
-        note = self.get_object()
         context = super().get_context_data(**kwargs)
         context["url_export_pdf"] = self.url_export_pdf
         context["url_email_pdf"] = self.url_email_pdf
@@ -172,14 +171,14 @@ class NoteEmailTextView(BaseNoteView, View):
                 email.to = [contact.email]
                 try:
                     email.send()
-                except:
+                except:  # noqa
                     failures.append(contact.email)
                 else:
                     successes.append(contact.email)
         else:
             try:
                 email.send()
-            except:
+            except:  # noqa
                 failures.append(settings.DEFAULT_FROM_EMAIL)
             else:
                 successes.append(settings.DEFAULT_FROM_EMAIL)

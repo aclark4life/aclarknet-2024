@@ -1,7 +1,6 @@
 import random
 from itertools import chain
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
@@ -67,10 +66,7 @@ class UserDetailView(BaseUserMixin, BaseUserView, DetailView):
     template_name = "view.html"
 
     def get_context_data(self, **kwargs):
-        per_page = self.request.GET.get("items_per_page", settings.PER_PAGE)
-
         user = self.get_object()
-
         notes = []
         if hasattr(user, "profile"):
             notes = user.profile.notes.all()

@@ -1,4 +1,4 @@
-from .aclarknet import *
+from .aclarknet import *  # noqa
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -13,12 +13,12 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 try:
-    from .local import *
+    from .local import *  # noqa
 except ImportError:
     pass
-INSTALLED_APPS.append("debug_toolbar")
-MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
-MIDDLEWARE.append("hijack.middleware.HijackUserMiddleware")
+INSTALLED_APPS.append("debug_toolbar")  # noqa
+MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")  # noqa
+MIDDLEWARE.append("hijack.middleware.HijackUserMiddleware")  # noqa
 INTERNAL_IPS = [
     "127.0.0.1",
 ]

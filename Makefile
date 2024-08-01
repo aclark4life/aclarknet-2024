@@ -72,9 +72,9 @@ ADD_DIR := mkdir -pv
 ADD_FILE := touch
 COPY_DIR := cp -rv
 COPY_FILE := cp -v
-DEL_DIR := -rm -rv
+DEL_DIR := rm -rv
 DEL_FILE := rm -v
-GIT_ADD := -git add
+GIT_ADD := git add
 
 ENSURE_PIP := python -m ensurepip
 
@@ -2934,8 +2934,7 @@ django-settings-default:
 	@echo "# $(PROJECT_NAME)" >> $(SETTINGS)
 	@echo "ALLOWED_HOSTS = ['*']" >> $(SETTINGS)
 	@echo "import dj_database_url  # noqa" >> $(SETTINGS)
-	@echo "DATABASE_URL = os.environ.get('DATABASE_URL', \
-         'postgres://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(PROJECT_NAME)')" >> $(SETTINGS)
+	@echo "DATABASE_URL = os.environ.get('DATABASE_URL', 'postgres://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(PROJECT_NAME)')" >> $(SETTINGS)
 	@echo "DATABASES['default'] = dj_database_url.parse(DATABASE_URL)" >> $(SETTINGS)
 	@echo "INSTALLED_APPS.append('webpack_boilerplate')" >> $(SETTINGS)
 	@echo "INSTALLED_APPS.append('rest_framework')" >> $(SETTINGS)
@@ -3116,9 +3115,9 @@ jenkins-init-default:
 	@echo "$$JENKINS_FILE" > Jenkinsfile
 
 lint-default:
-	-ruff check -v --fix
 	-ruff format -v
 	-djlint --reformat --format-css --format-js .
+	-ruff check -v --fix
 
 make-default:
 	$(GIT_ADD) Makefile
@@ -3224,11 +3223,11 @@ rand-default:
 readme-init-rst-default:
 	@echo "$(PROJECT_NAME)" > README.rst
 	@echo "================================================================================" >> README.rst
-	-@git add README.rst
+	$(GIT_ADD) README.rst
 
 readme-init-md-default:
 	@echo "# $(PROJECT_NAME)" > README.md
-	-@git add README.md
+	$(GIT_ADD) README.md
 
 readme-edit-rst-default:
 	vi README.rst

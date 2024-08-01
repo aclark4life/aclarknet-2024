@@ -32,7 +32,6 @@ def send_email_on_time_creation(sender, instance, created, **kwargs):
                     },
                 )
                 plain_message = strip_tags(html_content)
-                recipient_list = [admin_email[1] for admin_email in settings.ADMINS]
                 email = EmailMultiAlternatives(
                     subject,
                     plain_message,

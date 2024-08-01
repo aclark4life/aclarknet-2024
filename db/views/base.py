@@ -38,7 +38,7 @@ class BaseView:
     def get_archived(self, obj):
         try:
             return obj.archived
-        except:
+        except:  # noqa
             return not obj.is_active
 
     def get_context_data(self, **kwargs):
