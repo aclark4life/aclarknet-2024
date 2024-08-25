@@ -1,6 +1,6 @@
 # Project Makefile
 #
-# A makefile to automate setup of a Wagtail CMS project and related tasks.
+# A Makefile to automate the setup of Django projects and related tasks
 #
 # https://github.com/aclark4life/project-makefile
 #
@@ -70,7 +70,7 @@ PROJECT_NAME = project-makefile
 RANDIR := $(shell openssl rand -base64 12 | sed 's/\///g')
 TMPDIR := $(shell mktemp -d)
 UNAME := $(shell uname)
-WAGTAIL_CLEAN_DIRS = backend contactpage dist frontend home logging_demo model_form_demo node_modules payments privacy search sitepage siteuser
+WAGTAIL_CLEAN_DIRS = backend contactpage dist frontend home logging_demo model_form_demo node_modules payments privacy search sitepage siteuser unit_test_demo
 WAGTAIL_CLEAN_FILES = .babelrc .browserslistrc .dockerignore .eslintrc .gitignore .nvmrc .stylelintrc.json Dockerfile db.sqlite3 docker-compose.yml manage.py package-lock.json package.json postcss.config.js requirements-test.txt requirements.txt
 
 # --------------------------------------------------------------------------------
@@ -117,67 +117,6 @@ def hello(request):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-endef
-
-define DJANGO_APP_TESTS
-from django.test import TestCase  # noqa
-from django.urls import reverse  # noqa
-# from .models import YourModel
-# from .forms import YourForm
-
-
-# class YourModelTest(TestCase):
-#     def setUp(self):
-#         self.instance = YourModel.objects.create(field1="value1", field2="value2")
-# 
-#     def test_instance_creation(self):
-#         self.assertIsInstance(self.instance, YourModel)
-#         self.assertEqual(self.instance.field1, "value1")
-#         self.assertEqual(self.instance.field2, "value2")
-# 
-#     def test_str_method(self):
-#         self.assertEqual(str(self.instance), "Expected String Representation")
-# 
-# 
-# class YourViewTest(TestCase):
-#     def setUp(self):
-#         self.instance = YourModel.objects.create(field1="value1", field2="value2")
-# 
-#     def test_view_url_exists_at_desired_location(self):
-#         response = self.client.get("/your-url/")
-#         self.assertEqual(response.status_code, 200)
-# 
-#     def test_view_url_accessible_by_name(self):
-#         response = self.client.get(reverse("your-view-name"))
-#         self.assertEqual(response.status_code, 200)
-# 
-#     def test_view_uses_correct_template(self):
-#         response = self.client.get(reverse("your-view-name"))
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTemplateUsed(response, "your_template.html")
-# 
-#     def test_view_context(self):
-#         response = self.client.get(reverse("your-view-name"))
-#         self.assertEqual(response.status_code, 200)
-#         self.assertIn("context_variable", response.context)
-# 
-# 
-# class YourFormTest(TestCase):
-#     def test_form_valid_data(self):
-#         form = YourForm(data={"field1": "value1", "field2": "value2"})
-#         self.assertTrue(form.is_valid())
-# 
-#     def test_form_invalid_data(self):
-#         form = YourForm(data={"field1": "", "field2": "value2"})
-#         self.assertFalse(form.is_valid())
-#         self.assertIn("field1", form.errors)
-# 
-#     def test_form_save(self):
-#         form = YourForm(data={"field1": "value1", "field2": "value2"})
-#         if form.is_valid():
-#             instance = form.save()
-#             self.assertEqual(instance.field1, "value1")
-#             self.assertEqual(instance.field2, "value2")
 endef
 
 define DJANGO_BACKEND_APPS
@@ -845,6 +784,29 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 endef
 
+define DJANGO_FRONTEND_TINYMCE_JS
+import tinymce from 'tinymce';
+import 'tinymce/icons/default';
+import 'tinymce/themes/silver';
+import 'tinymce/skins/ui/oxide/skin.css';
+import 'tinymce/plugins/advlist';
+import 'tinymce/plugins/code';
+import 'tinymce/plugins/emoticons';
+import 'tinymce/plugins/emoticons/js/emojis';
+import 'tinymce/plugins/link';
+import 'tinymce/plugins/lists';
+import 'tinymce/plugins/table';
+import 'tinymce/models/dom';
+
+tinymce.init({
+  selector: 'textarea#editor',
+  plugins: 'advlist code emoticons link lists table',
+  toolbar: 'bold italic | bullist numlist | link emoticons',
+  skin: false,
+  content_css: false,
+});
+endef
+
 define DJANGO_HEADER_TEMPLATE
 <div class="app-header">
     <div class="container py-4 app-navbar">
@@ -1024,7 +986,7 @@ class ModelFormDemoForm(forms.ModelForm):
         fields = ["name", "email", "age", "is_active"]
 endef
 
-define DJANGO_MODEL_FORM_DEMO_MODEL
+define DJANGO_MODEL_FORM_DEMO_MODELS
 from django.db import models
 from django.shortcuts import reverse
 
@@ -1684,6 +1646,10 @@ INSTALLED_APPS.append("siteuser")  # noqa
 AUTH_USER_MODEL = "siteuser.User"
 endef
 
+define DJANGO_SETTINGS_UNIT_TEST_DEMO
+INSTALLED_APPS.append("unit_test_demo")  # noqa
+endef
+
 define DJANGO_SETTINGS_PROD
 from .base import *  # noqa
 from backend.utils import get_ec2_metadata
@@ -1855,6 +1821,88 @@ define DJANGO_SITEUSER_VIEW_TEMPLATE
     <p>Bio: {{ user.bio|default:""|safe }}</p>
     <p>Rate: {{ user.rate|default:"" }}</p>
 {% endblock %}
+endef
+
+define DJANGO_UNIT_TEST_DEMO_FORMS
+from django import forms
+from .models import UnitTestDemoModel
+
+class UnitTestDemoForm(forms.ModelForm):
+    class Meta:
+        model = UnitTestDemoModel
+        fields = ["field1", "field2"]
+endef
+
+define DJANGO_UNIT_TEST_DEMO_MODELS
+from django.db import models
+
+class UnitTestDemoModel(models.Model):
+    field1 = models.CharField(max_length=100)
+    field2 = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "Expected String Representation"
+endef
+
+define DJANGO_UNIT_TEST_DEMO_TESTS
+from django.test import TestCase  # noqa
+from django.urls import reverse  # noqa
+from .models import UnitTestDemoModel
+from .forms import UnitTestDemoForm
+
+
+class UnitTestDemoModelTest(TestCase):
+     def setUp(self):
+         self.instance = UnitTestDemoModel.objects.create(field1="value1", field2="value2")
+ 
+     def test_instance_creation(self):
+         self.assertIsInstance(self.instance, UnitTestDemoModel)
+         self.assertEqual(self.instance.field1, "value1")
+         self.assertEqual(self.instance.field2, "value2")
+ 
+     def test_str_method(self):
+         self.assertEqual(str(self.instance), "Expected String Representation")
+ 
+ 
+class UnitTestDemoViewTest(TestCase):
+     def setUp(self):
+         self.instance = UnitTestDemoModel.objects.create(field1="value1", field2="value2")
+ 
+     def test_view_url_exists_at_desired_location(self):
+         response = self.client.get("/unit-test-demo-url/")
+         self.assertEqual(response.status_code, 200)
+ 
+     def test_view_url_accessible_by_name(self):
+         response = self.client.get(reverse("unit-test-demo-view-name"))
+         self.assertEqual(response.status_code, 200)
+ 
+     def test_view_uses_correct_template(self):
+         response = self.client.get(reverse("unit-test-demo-view-name"))
+         self.assertEqual(response.status_code, 200)
+         self.assertTemplateUsed(response, "unit-test-demo.html")
+ 
+     def test_view_context(self):
+         response = self.client.get(reverse("unit-test-demo-view-name"))
+         self.assertEqual(response.status_code, 200)
+         self.assertIn("context_variable", response.context)
+ 
+ 
+class UnitTestDemoFormTest(TestCase):
+     def test_form_valid_data(self):
+         form = UnitTestDemoForm(data={"field1": "value1", "field2": "value2"})
+         self.assertTrue(form.is_valid())
+ 
+     def test_form_invalid_data(self):
+         form = UnitTestDemoForm(data={"field1": "", "field2": "value2"})
+         self.assertFalse(form.is_valid())
+         self.assertIn("field1", form.errors)
+ 
+     def test_form_save(self):
+         form = UnitTestDemoForm(data={"field1": "value1", "field2": "value2"})
+         if form.is_valid():
+             instance = form.save()
+             self.assertEqual(instance.field1, "value1")
+             self.assertEqual(instance.field2, "value2")
 endef
 
 define DJANGO_URLS
@@ -2539,29 +2587,6 @@ define SEPARATOR
 `=========================================================================================================================================='
 endef
 
-define TINYMCE_JS
-import tinymce from 'tinymce';
-import 'tinymce/icons/default';
-import 'tinymce/themes/silver';
-import 'tinymce/skins/ui/oxide/skin.css';
-import 'tinymce/plugins/advlist';
-import 'tinymce/plugins/code';
-import 'tinymce/plugins/emoticons';
-import 'tinymce/plugins/emoticons/js/emojis';
-import 'tinymce/plugins/link';
-import 'tinymce/plugins/lists';
-import 'tinymce/plugins/table';
-import 'tinymce/models/dom';
-
-tinymce.init({
-  selector: 'textarea#editor',
-  plugins: 'advlist code emoticons link lists table',
-  toolbar: 'bold italic | bullist numlist | link emoticons',
-  skin: false,
-  content_css: false,
-});
-endef
-
 define WAGTAIL_BASE_TEMPLATE
 {% load static wagtailcore_tags wagtailuserbar webpack_loader %}
 <!DOCTYPE html>
@@ -3143,7 +3168,6 @@ endef
 export DJANGO_ALLAUTH_BASE_TEMPLATE
 export DJANGO_API_SERIALIZERS
 export DJANGO_API_VIEWS
-export DJANGO_APP_TESTS
 export DJANGO_BACKEND_APPS
 export DJANGO_BASE_TEMPLATE
 export DJANGO_CUSTOM_ADMIN
@@ -3166,6 +3190,7 @@ export DJANGO_FRONTEND_PORTAL
 export DJANGO_FRONTEND_STYLES
 export DJANGO_FRONTEND_THEME_BLUE
 export DJANGO_FRONTEND_THEME_TOGGLER
+export DJANGO_FRONTEND_TINYMCE_JS
 export DJANGO_HEADER_TEMPLATE
 export DJANGO_HOME_PAGE_ADMIN
 export DJANGO_HOME_PAGE_MODELS
@@ -3180,7 +3205,7 @@ export DJANGO_LOGGING_DEMO_VIEWS
 export DJANGO_MANAGE_PY
 export DJANGO_MODEL_FORM_DEMO_ADMIN
 export DJANGO_MODEL_FORM_DEMO_FORMS
-export DJANGO_MODEL_FORM_DEMO_MODEL
+export DJANGO_MODEL_FORM_DEMO_MODELS
 export DJANGO_MODEL_FORM_DEMO_TEMPLATE_DETAIL
 export DJANGO_MODEL_FORM_DEMO_TEMPLATE_FORM
 export DJANGO_MODEL_FORM_DEMO_TEMPLATE_LIST
@@ -3219,6 +3244,7 @@ export DJANGO_SETTINGS_PROD
 export DJANGO_SETTINGS_REST_FRAMEWORK
 export DJANGO_SETTINGS_SITEUSER
 export DJANGO_SETTINGS_THEMES
+export DJANGO_SETTINGS_UNIT_TEST_DEMO
 export DJANGO_SITEUSER_ADMIN
 export DJANGO_SITEUSER_EDIT_TEMPLATE
 export DJANGO_SITEUSER_FORM
@@ -3226,6 +3252,9 @@ export DJANGO_SITEUSER_MODEL
 export DJANGO_SITEUSER_URLS
 export DJANGO_SITEUSER_VIEW
 export DJANGO_SITEUSER_VIEW_TEMPLATE
+export DJANGO_UNIT_TEST_DEMO_FORMS
+export DJANGO_UNIT_TEST_DEMO_MODELS
+export DJANGO_UNIT_TEST_DEMO_TESTS
 export DJANGO_URLS
 export DJANGO_URLS_ALLAUTH
 export DJANGO_URLS_API
@@ -3246,7 +3275,6 @@ export PYTHON_CI_YAML
 export PYTHON_LICENSE_TXT
 export PYTHON_PROJECT_TOML
 export SEPARATOR
-export TINYMCE_JS
 export WAGTAIL_BASE_TEMPLATE
 export WAGTAIL_BLOCK_CAROUSEL
 export WAGTAIL_BLOCK_MARKETING
@@ -3346,10 +3374,6 @@ django-allauth-default:
 	@echo "$$DJANGO_URLS_ALLAUTH" >> $(DJANGO_URLS_FILE)
 	-$(GIT_ADD) backend/templates/allauth/layouts/base.html
 
-.PHONY: django-app-tests-default
-django-app-tests-default:
-	@echo "$$DJANGO_APP_TESTS" > $(APP_DIR)/tests.py
-
 .PHONY: django-base-template-default
 django-base-template-default:
 	@$(ADD_DIR) backend/templates
@@ -3402,9 +3426,6 @@ django-frontend-default: python-webpack-init
 	@echo "$$DJANGO_FRONTEND_STYLES" > frontend/src/styles/index.scss
 	@echo "$$DJANGO_FRONTEND_THEME_BLUE" > frontend/src/styles/theme-blue.scss
 	@echo "$$DJANGO_FRONTEND_THEME_TOGGLER" > frontend/src/utils/themeToggler.js
-	# @echo "$$TINYMCE_JS" > frontend/src/utils/tinymce.js
-	@$(MAKE) npm-install-django
-	@$(MAKE) npm-install-django-dev
 	-$(GIT_ADD) $(DJANGO_FRONTEND_FILES)
 
 .PHONY: django-graph-default
@@ -3427,7 +3448,6 @@ django-home-default:
 	@echo "$$DJANGO_HOME_PAGE_URLS" > home/urls.py
 	@echo "$$DJANGO_URLS_HOME_PAGE" >> $(DJANGO_URLS_FILE)
 	@echo "$$DJANGO_SETTINGS_HOME_PAGE" >> $(DJANGO_SETTINGS_BASE_FILE)
-	export APP_DIR="home"; $(MAKE) django-app-tests
 	-$(GIT_ADD) home/templates
 	-$(GIT_ADD) home/*.py
 	-$(GIT_ADD) home/migrations/*.py
@@ -3452,7 +3472,6 @@ django-init-default: separator \
 	django-urls-debug-toolbar \
 	django-allauth \
 	django-favicon \
-	git-ignore \
 	django-settings-base \
 	django-settings-dev \
 	django-settings-prod \
@@ -3462,7 +3481,10 @@ django-init-default: separator \
 	django-rest-views \
 	django-urls-api \
 	django-frontend \
+	npm-install-react \
+	npm-install-react-dev \
 	django-migrate \
+	git-ignore \
 	django-su
 
 .PHONY: django-init-minimal-default
@@ -3489,6 +3511,8 @@ django-init-minimal-default: separator \
 	django-home \
 	django-utils \
 	django-frontend \
+	npm-install-react \
+	npm-install-react-dev \
 	django-migrate \
 	git-ignore \
 	django-su
@@ -3515,7 +3539,6 @@ django-init-wagtail-default: separator \
 	django-urls-debug-toolbar \
 	django-allauth \
 	django-favicon \
-	git-ignore \
 	wagtail-search \
 	django-settings-base \
 	django-settings-dev \
@@ -3523,6 +3546,7 @@ django-init-wagtail-default: separator \
 	wagtail-settings \
 	django-siteuser \
 	django-model-form-demo \
+	django-unit-test-demo \
 	django-logging-demo \
 	django-payments-demo-default \
 	django-rest-serializers \
@@ -3530,7 +3554,10 @@ django-init-wagtail-default: separator \
 	django-urls-api \
 	wagtail-urls-home \
 	django-frontend \
+	npm-install-react \
+	npm-install-react-dev \
 	django-migrate \
+	git-ignore \
 	django-su
 
 .PHONY: django-install-default
@@ -3617,7 +3644,6 @@ django-logging-demo-default:
 	@echo "$$DJANGO_LOGGING_DEMO_URLS" > logging_demo/urls.py
 	@echo "$$DJANGO_LOGGING_DEMO_VIEWS" > logging_demo/views.py
 	@echo "$$DJANGO_URLS_LOGGING_DEMO" >> $(DJANGO_URLS_FILE)
-	export APP_DIR="logging_demo"; $(MAKE) django-app-tests
 	-$(GIT_ADD) logging_demo/*.py
 	-$(GIT_ADD) logging_demo/migrations/*.py
 
@@ -3643,20 +3669,19 @@ django-model-form-demo-default:
 	python manage.py startapp model_form_demo
 	@echo "$$DJANGO_MODEL_FORM_DEMO_ADMIN" > model_form_demo/admin.py
 	@echo "$$DJANGO_MODEL_FORM_DEMO_FORMS" > model_form_demo/forms.py
-	@echo "$$DJANGO_MODEL_FORM_DEMO_MODEL" > model_form_demo/models.py
+	@echo "$$DJANGO_MODEL_FORM_DEMO_MODELS" > model_form_demo/models.py
 	@echo "$$DJANGO_MODEL_FORM_DEMO_URLS" > model_form_demo/urls.py
 	@echo "$$DJANGO_MODEL_FORM_DEMO_VIEWS" > model_form_demo/views.py
 	$(ADD_DIR) model_form_demo/templates
 	@echo "$$DJANGO_MODEL_FORM_DEMO_TEMPLATE_DETAIL" > model_form_demo/templates/model_form_demo_detail.html
 	@echo "$$DJANGO_MODEL_FORM_DEMO_TEMPLATE_FORM" > model_form_demo/templates/model_form_demo_form.html
 	@echo "$$DJANGO_MODEL_FORM_DEMO_TEMPLATE_LIST" > model_form_demo/templates/model_form_demo_list.html
+	-$(GIT_ADD) model_form_demo/templates
 	@echo "$$DJANGO_SETTINGS_MODEL_FORM_DEMO" >> $(DJANGO_SETTINGS_BASE_FILE)
 	@echo "$$DJANGO_URLS_MODEL_FORM_DEMO" >> $(DJANGO_URLS_FILE)
-	export APP_DIR="model_form_demo"; $(MAKE) django-app-tests
 	python manage.py makemigrations
 	-$(GIT_ADD) model_form_demo/*.py
-	-$(GIT_ADD) model_form_demo/templates
-	-$(GIT_ADD) model_form_demo/migrations
+	-$(GIT_ADD) model_form_demo/migrations/*.py
 
 .PHONY: django-offcanvas-template-default
 django-offcanvas-template-default:
@@ -3693,7 +3718,6 @@ django-payments-demo-default:
 	@echo "$$DJANGO_PAYMENTS_TEMPLATE_PRODUCT_DETAIL" > payments/templates/payments/product_detail.html
 	@echo "$$DJANGO_SETTINGS_PAYMENTS" >> $(DJANGO_SETTINGS_BASE_FILE)
 	@echo "$$DJANGO_URLS_PAYMENTS" >> $(DJANGO_URLS_FILE)
-	export APP_DIR="payments"; $(MAKE) django-app-tests
 	python manage.py makemigrations payments
 	@echo "$$DJANGO_PAYMENTS_MIGRATION_0002" > payments/migrations/0002_set_stripe_api_keys.py
 	@echo "$$DJANGO_PAYMENTS_MIGRATION_0003" > payments/migrations/0003_create_initial_products.py
@@ -3789,7 +3813,6 @@ django-siteuser-default:
 	@echo "$$DJANGO_SITEUSER_EDIT_TEMPLATE" > siteuser/templates/user_edit.html
 	@echo "$$DJANGO_URLS_SITEUSER" >> $(DJANGO_URLS_FILE)
 	@echo "$$DJANGO_SETTINGS_SITEUSER" >> $(DJANGO_SETTINGS_BASE_FILE)
-	export APP_DIR="siteuser"; $(MAKE) django-app-tests
 	-$(GIT_ADD) siteuser/templates
 	-$(GIT_ADD) siteuser/*.py
 	python manage.py makemigrations siteuser
@@ -3807,6 +3830,17 @@ django-su-default:
 django-test-default: npm-install django-static
 	-$(MAKE) pip-install-test
 	python manage.py test
+
+.PHONY: django-unit-test-demo-default
+django-unit-test-demo-default:
+	python manage.py startapp unit_test_demo
+	@echo "$$DJANGO_UNIT_TEST_DEMO_FORMS" > unit_test_demo/forms.py
+	@echo "$$DJANGO_UNIT_TEST_DEMO_MODELS" > unit_test_demo/models.py
+	@echo "$$DJANGO_UNIT_TEST_DEMO_TESTS" > unit_test_demo/tests.py
+	@echo "$$DJANGO_SETTINGS_UNIT_TEST_DEMO" >> $(DJANGO_SETTINGS_BASE_FILE)
+	python manage.py makemigrations
+	-$(GIT_ADD) unit_test_demo/*.py
+	-$(GIT_ADD) unit_test_demo/migrations/*.py
 
 .PHONY: django-urls-api-default
 django-urls-api-default:
@@ -4014,6 +4048,10 @@ git-commit-message-rename-default:
 git-commit-message-sort-default:
 	-@$(GIT_COMMIT) -a -m "Sort"
 
+.PHONY: git-commit-message-reword-default
+git-commit-message-reword-default:
+	-@$(GIT_COMMIT) -a -m "Reword"
+
 .PHONY: git-push-default
 git-push-default:
 	-@$(GIT_PUSH)
@@ -4102,8 +4140,8 @@ npm-install-default:
 	npm install
 	-$(GIT_ADD) package-lock.json
 
-.PHONY: npm-install-django-default
-npm-install-django-default:
+.PHONY: npm-install-react-default
+npm-install-react-default:
 	npm install \
         @fortawesome/fontawesome-free \
         @fortawesome/fontawesome-svg-core \
@@ -4134,8 +4172,8 @@ npm-install-django-default:
         url-join \
         viewport-mercator-project
 
-.PHONY: npm-install-django-dev-default
-npm-install-django-dev-default:
+.PHONY: npm-install-react-dev-default
+npm-install-react-dev-default:
 	npm install \
         eslint-plugin-react \
         eslint-config-standard \
@@ -4595,6 +4633,9 @@ init-wagtail-default: django-init-wagtail
 .PHONY: install-default
 install-default: pip-install
 
+.PHONY: i-default
+i-default: install
+
 .PHONY: l-default
 l-default: makefile-list-commands
 
@@ -4639,6 +4680,9 @@ readme-default: readme-init
 
 .PHONY: rename-default
 rename-default: git-commit-message-rename git-push
+
+.PHONY: reword-default
+reword-default: git-commit-message-reword git-push
 
 .PHONY: s-default
 s-default: serve
