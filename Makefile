@@ -8,7 +8,7 @@
 # Set the default goal to be `git commit -a -m $(GIT_MESSAGE)` and `git push`
 # --------------------------------------------------------------------------------
 
-.DEFAULT_GOAL := git-commit
+.DEFAULT_GOAL := git-commit-push
 
 # --------------------------------------------------------------------------------
 # Single line variables to be used by phony target rules
@@ -54,7 +54,6 @@ GIT_ADD := git add
 GIT_BRANCH = $(shell git branch --show-current)
 GIT_BRANCHES = $(shell git branch -a) 
 GIT_CHECKOUT = git checkout
-GIT_COMMIT_MSG = "Update $(PROJECT_NAME)"
 GIT_COMMIT = git commit
 GIT_PUSH = git push
 GIT_PUSH_FORCE = git push --force-with-lease
@@ -2035,6 +2034,10 @@ EOF
 rm -f /opt/elasticbeanstalk/deployment/*.bak
 endef
 
+define GIT_COMMIT_MESSAGE
+$(1)
+endef
+
 define GIT_IGNORE
 __pycache__
 *.pyc
@@ -2896,6 +2899,7 @@ class MarketingBlock(blocks.StructBlock):
 
 
 class HomePage(Page):
+
     template = "home/home_page.html"  # Create a template for rendering the home page
 
     marketing_blocks = StreamField(
@@ -3266,6 +3270,7 @@ export DJANGO_URLS_SITEUSER
 export DJANGO_UTILS
 export EB_CUSTOM_ENV_EC2_USER
 export EB_CUSTOM_ENV_VAR_FILE
+export GIT_COMMIT_MESSAGE
 export GIT_IGNORE
 export JENKINS_FILE
 export MAKEFILE_CUSTOM
@@ -3949,7 +3954,7 @@ eb-export-default:
 	@if [ ! -d $(EB_DIR_NAME) ]; then \
         echo "Directory $(EB_DIR_NAME) does not exist"; \
         else \
-        echo "Directory $(EB_DIR_NAME) does exist!"; \
+        echo "Found $(EB_DIR_NAME) directory"; \
         eb ssh --quiet -c "export PGPASSWORD=$(DJANGO_DB_PASS); pg_dump -U $(DJANGO_DB_USER) -h $(DJANGO_DB_HOST) $(DJANGO_DB_NAME)" > $(DJANGO_DB_NAME).sql; \
         echo "Wrote $(DJANGO_DB_NAME).sql"; \
         fi
@@ -4003,13 +4008,13 @@ git-branches-default:
 	-for i in $(GIT_BRANCHES) ; do \
         -@$(GIT_CHECKOUT) -t $$i ; done
 
+.PHONY: git-commit-default
+git-commit-default:
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Update")
+
 .PHONY: git-commit-message-clean-default
 git-commit-message-clean-default:
 	-@$(GIT_COMMIT) -a -m "Clean"
-
-.PHONY: git-commit-message-default
-git-commit-message-default:
-	-@$(GIT_COMMIT) -a -m $(GIT_COMMIT_MSG)
 
 .PHONY: git-commit-message-empty-default
 git-commit-message-empty-default:
@@ -4588,41 +4593,20 @@ edit-default: readme-edit
 .PHONY: e-default
 e-default: edit
 
-.PHONY: empty-default
-empty-default: git-commit-message-empty git-push
-
 .PHONY: fp-default
 fp-default: git-push-force
 
 .PHONY: freeze-default
 freeze-default: pip-freeze git-push
 
-.PHONY: git-commit-default
-git-commit-default: git-commit-message git-push
-
-.PHONY: git-commit-clean-default
-git-commit-clean-default: git-commit-message-clean git-push
-
-.PHONY: git-commit-freeze-default
-git-commit-freeze-default: git-commit-message-freeze git-push
-
-.PHONY: git-commit-ignore-default
-git-commit-ignore-default: git-commit-message-ignore git-push
-
-.PHONY: git-commit-init-default
-git-commit-init-default: git-commit-message-init git-push
-
-.PHONY: git-commit-lint-default
-git-commit-lint-default: git-commit-message-lint git-push
+.PHONY: git-commit-push-default
+git-commit-push-default: git-commit git-push
 
 .PHONY: gitignore-default
 gitignore-default: git-ignore
 
 .PHONY: h-default
 h-default: help
-
-.PHONY: ignore-default
-ignore-default: git-commit-message-ignore git-push
 
 .PHONY: init-default
 init-default: django-init-wagtail django-serve
@@ -4638,9 +4622,6 @@ i-default: install
 
 .PHONY: l-default
 l-default: makefile-list-commands
-
-.PHONY: last-default
-last-default: git-commit-message-last git-push
 
 .PHONY: lint-default
 lint-default: django-lint
@@ -4666,9 +4647,6 @@ migrations-default: django-migrations-make
 .PHONY: migrations-show-default
 migrations-show-default: django-migrations-show
 
-.PHONY: mk-default
-mk-default: project.mk git-commit-message-mk git-push
-
 .PHONY: o-default
 o-default: django-open
 
@@ -4677,12 +4655,6 @@ open-default: open
 
 .PHONY: readme-default
 readme-default: readme-init
-
-.PHONY: rename-default
-rename-default: git-commit-message-rename git-push
-
-.PHONY: reword-default
-reword-default: git-commit-message-reword git-push
 
 .PHONY: s-default
 s-default: serve
@@ -4695,9 +4667,6 @@ shell-default: django-shell
 
 .PHONY: static-default
 static-default: django-static
-
-.PHONY: sort-default
-sort-default: git-commit-message-sort git-push
 
 .PHONY: su-default
 su-default: django-su
