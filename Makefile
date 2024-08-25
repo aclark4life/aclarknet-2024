@@ -23,8 +23,6 @@ DEL_DIR := rm -rv
 DEL_FILE := rm -v
 DJANGO_DB_COL = awk -F\= '{print $$2}'
 DJANGO_DB_URL = eb ssh -c "source /opt/elasticbeanstalk/deployment/custom_env_var; env | grep DATABASE_URL"
-DJANGO_DB_HOST = $(shell $(DJANGO_DB_URL) | $(DJANGO_DB_COL) |\
-	python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["HOST"])')
 DJANGO_DB_NAME = $(shell $(DJANGO_DB_URL) | $(DJANGO_DB_COL) |\
 	python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["NAME"])')
 DJANGO_DB_PASS = $(shell $(DJANGO_DB_URL) | $(DJANGO_DB_COL) |\
@@ -71,6 +69,10 @@ TMPDIR := $(shell mktemp -d)
 UNAME := $(shell uname)
 WAGTAIL_CLEAN_DIRS = backend contactpage dist frontend home logging_demo model_form_demo node_modules payments privacy search sitepage siteuser unit_test_demo
 WAGTAIL_CLEAN_FILES = .babelrc .browserslistrc .dockerignore .eslintrc .gitignore .nvmrc .stylelintrc.json Dockerfile db.sqlite3 docker-compose.yml manage.py package-lock.json package.json postcss.config.js requirements-test.txt requirements.txt
+
+define DJANGO_DB_HOST
+$(DJANGO_DB_URL) | $(DJANGO_DB_COL) | python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["HOST"])'
+endef
 
 # --------------------------------------------------------------------------------
 # Include $(MAKEFILE_CUSTOM_FILE) if it exists
@@ -3955,7 +3957,7 @@ eb-export-default:
         echo "Directory $(EB_DIR_NAME) does not exist"; \
         else \
         echo "Found $(EB_DIR_NAME) directory"; \
-        eb ssh --quiet -c "export PGPASSWORD=$(DJANGO_DB_PASS); pg_dump -U $(DJANGO_DB_USER) -h $(DJANGO_DB_HOST) $(DJANGO_DB_NAME)" > $(DJANGO_DB_NAME).sql; \
+        eb ssh --quiet -c "export PGPASSWORD=$(DJANGO_DB_PASS); pg_dump -U $(DJANGO_DB_USER) -h $(eval $(DJANGO_DB_HOST)) $(DJANGO_DB_NAME)" > $(DJANGO_DB_NAME).sql; \
         echo "Wrote $(DJANGO_DB_NAME).sql"; \
         fi
 
@@ -3992,19 +3994,15 @@ eb-print-env-default:
 	eb printenv
 
 .PHONY: favicon-default
-favicon-init-default:
-	dd if=/dev/urandom bs=64 count=1 status=none | base64 | convert -size 16x16 -depth 8 -background none -fill white label:@- favicon.png
-	convert favicon.png favicon.ico
+favicon-default:
+	@dd if=/dev/urandom bs=64 count=1 status=none | base64 |\
+		convert -size 16x16 -depth 8 -background none -fill white label:@- favicon.png
+	@convert favicon.png favicon.ico
+	@$(DEL_FILE) favicon.png
 	-$(GIT_ADD) favicon.ico
-	$(DEL_FILE) favicon.png
 
-.PHONY: git-ignore-default
-git-ignore-default:
-	@echo "$$GIT_IGNORE" > .gitignore
-	-$(GIT_ADD) .gitignore
-
-.PHONY: git-branches-default
-git-branches-default:
+.PHONY: git-checkout-branches-default
+git-checkout-branches-default:
 	-for i in $(GIT_BRANCHES) ; do \
         -@$(GIT_CHECKOUT) -t $$i ; done
 
@@ -4012,50 +4010,55 @@ git-branches-default:
 git-commit-default:
 	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Update $(PROJECT_NAME) files")
 
+.PHONY: git-commit-empty-default
+git-commit-empty-default:
+	-@$(GIT_COMMIT) --allow-empty -m $(call GIT_COMMIT_MESSAGE,"Empty commit")
+
+.PHONY: git-commit-last-default
+git-commit-last-default:
+	@git log -1 --pretty=%B > $(TMPDIR)/commit.txt
+	-@$(GIT_COMMIT) -a -F $(TMPDIR)/commit.txt
+
 .PHONY: git-commit-message-clean-default
 git-commit-message-clean-default:
-	-@$(GIT_COMMIT) -a -m "Clean"
-
-.PHONY: git-commit-message-empty-default
-git-commit-message-empty-default:
-	-@$(GIT_COMMIT) --allow-empty -m "Empty-Commit"
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Clean")
 
 .PHONY: git-commit-message-freeze-default
 git-commit-message-freeze-default:
-	-@$(GIT_COMMIT) -a -m "Freeze"
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Freeze")
 
 .PHONY: git-commit-message-ignore-default
 git-commit-message-ignore-default:
-	-@$(GIT_COMMIT) -a -m "Ignore"
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Ignore")
 
 .PHONY: git-commit-message-init-default
 git-commit-message-init-default:
-	-@$(GIT_COMMIT) -a -m "Init"
-
-.PHONY: git-commit-message-last-default
-git-commit-message-last-default:
-	git log -1 --pretty=%B > $(TMPDIR)/commit.txt
-	-$(GIT_COMMIT) -a -F $(TMPDIR)/commit.txt
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Init")
 
 .PHONY: git-commit-message-lint-default
 git-commit-message-lint-default:
-	-@$(GIT_COMMIT) -a -m "Lint"
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Lint")
 
 .PHONY: git-commit-message-mk-default
 git-commit-message-mk-default:
-	-@$(GIT_COMMIT) project.mk -m "Add/update $(MAKEFILE_CUSTOM_FILE)"
+	-@$(GIT_COMMIT) project.mk -m $(call GIT_COMMIT_MESSAGE,"Add/update $(MAKEFILE_CUSTOM_FILE)")
 
 .PHONY: git-commit-message-rename-default
 git-commit-message-rename-default:
-	-@$(GIT_COMMIT) -a -m "Rename"
-
-.PHONY: git-commit-message-sort-default
-git-commit-message-sort-default:
-	-@$(GIT_COMMIT) -a -m "Sort"
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Rename")
 
 .PHONY: git-commit-message-reword-default
 git-commit-message-reword-default:
-	-@$(GIT_COMMIT) -a -m "Reword"
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Reword")
+
+.PHONY: git-commit-message-sort-default
+git-commit-message-sort-default:
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Sort")
+
+.PHONY: git-ignore-default
+git-ignore-default:
+	@echo "$$GIT_IGNORE" > .gitignore
+	-$(GIT_ADD) .gitignore
 
 .PHONY: git-push-default
 git-push-default:
