@@ -4010,7 +4010,7 @@ git-branches-default:
 
 .PHONY: git-commit-default
 git-commit-default:
-	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Update")
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Update $(PROJECT_NAME) files")
 
 .PHONY: git-commit-message-clean-default
 git-commit-message-clean-default:
