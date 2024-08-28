@@ -117,7 +117,11 @@ class TimeCreateView(BaseTimeView, CreateView):
         }
 
         invoice_id = self.request.GET.get("invoice_id")
-        invoice = Invoice.objects.filter(pk=invoice_id).first()
+
+        try:
+            invoice = Invoice.objects.get(pk=invoice_id)
+        except (ValueError, Invoice.DoesNotExist):
+            invoice = None
 
         if invoice:
             if invoice.client:
