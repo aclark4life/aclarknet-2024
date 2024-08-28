@@ -26,8 +26,9 @@ class InvoiceForm(forms.ModelForm):
             Div(Field("contacts", css_class="form-control"), css_class="col-sm-12"),
             Div(
                 Field("subject", css_class="form-control bg-transparent border"),
-                css_class="col-sm-12",
+                css_class="col-sm-6",
             ),
+            Div(Field("user", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("doc_type", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("company", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("start_date", css_class="form-control"), css_class="col-sm-6"),
@@ -37,7 +38,6 @@ class InvoiceForm(forms.ModelForm):
             Div(Field("client", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("project", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("task", css_class="form-control"), css_class="col-sm-6"),
-            Div(Field("user", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("po_number", css_class="form-control"), css_class="col-sm-6"),
             css_class="row mx-1",
         )
@@ -57,18 +57,18 @@ class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
         fields = (
-            "client",
+            "contacts",
             "user",
             "project",
             "task",
             "subject",
             "doc_type",
+            "client",
             "company",
             "issue_date",
             "start_date",
             "end_date",
             "due_date",
-            "contacts",
             "archived",
             "po_number",
         )
