@@ -23,6 +23,7 @@ class InvoiceForm(forms.ModelForm):
         self.helper.form_tag = False
         self.helper.layout = Div(
             Div(Field("archived"), css_class="col-sm-3"),
+            Div(Field("contacts", css_class="form-control"), css_class="col-sm-12"),
             Div(
                 Field("subject", css_class="form-control bg-transparent border"),
                 css_class="col-sm-12",
@@ -34,10 +35,9 @@ class InvoiceForm(forms.ModelForm):
             Div(Field("issue_date", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("due_date", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("client", css_class="form-control"), css_class="col-sm-6"),
-            Div(Field("project", css_class="form-control"), css_class="col-sm-12"),
+            Div(Field("project", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("task", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("user", css_class="form-control"), css_class="col-sm-6"),
-            Div(Field("contacts", css_class="form-control"), css_class="col-sm-12"),
             Div(Field("po_number", css_class="form-control"), css_class="col-sm-6"),
             css_class="row mx-1",
         )
