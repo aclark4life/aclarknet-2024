@@ -106,9 +106,9 @@ class BaseTimeEditView(BaseTimeView):
             if invoice.client:
                 client_id = invoice.client.id
             project_id = None
+            task_id = None
             if invoice.project:
                 project_id = invoice.project.id
-                task_id = None
                 if invoice.project.task:
                     task_id = invoice.project.task.id
             context["form"].initial.update(
@@ -116,7 +116,7 @@ class BaseTimeEditView(BaseTimeView):
                     "invoice": invoice_id,
                     "client": client_id,
                     "project": project_id,
-                    "task": task_id,
+                    "task": task_id, 
                 }
             )
         except Invoice.DoesNotExist:

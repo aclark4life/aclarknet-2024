@@ -39,7 +39,7 @@
                         <div>
                             {{ object.company }}
                             <br>
-                            {{ object.company.address }}
+                            {{ object.company.address|default:""|linebreaksbr }}
                         </div>
                     </td>
                 </tr>
@@ -55,10 +55,12 @@
                                font-weight: bold;
                                border-right: 1px solid #ddd;
                                padding: 3px 3px 0 0">
-                        {% if object.client %}For{% endif %}
+                        {% if object.client or object.user %}For{% endif %}
                     </td>
                     <td style="text-align: left; padding: 0 0 8px 3px;">
-                        {% if object.client %}
+			{% if object.user %}
+			    {{ object.user }}
+                        {% elif object.client %}
                             {{ object.client }}
                             <br>
                             {{ object.client.address|linebreaksbr }}
