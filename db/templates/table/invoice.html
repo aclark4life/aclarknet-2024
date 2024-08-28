@@ -136,7 +136,7 @@
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.hours|floatformat:2|intcomma }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
                         {% if object.doc_type == "task-order" %}
-                            {{ time_entry.user.profile.rate|default:0|currencyfmt:"USD" }}
+                            {{ object.user.profile.rate|default:0|currencyfmt:"USD" }}
                         {% else %}
                             {{ time_entry.project.task.rate|default:0|currencyfmt:"USD" }}
                         {% endif %}
