@@ -67,14 +67,11 @@ class UserDetailView(BaseUserMixin, BaseUserView, DetailView):
 
     def get_context_data(self, **kwargs):
         user = self.get_object()
-        notes = []
-        if hasattr(user, "profile"):
-            notes = user.profile.notes.all()
         projects = Project.objects.filter(team__in=[user])
         times = Time.objects.filter(user=user)
         invoices = Invoice.objects.filter(times__in=times)
 
-        queryset_related = list(chain(notes, projects, times, invoices))
+        queryset_related = list(chain(projects, times, invoices))
         queryset_related = sorted(queryset_related, key=self.get_archived)
         self.queryset_related = queryset_related
         self.has_related = True
