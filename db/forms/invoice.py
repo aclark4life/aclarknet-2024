@@ -34,11 +34,11 @@ class InvoiceForm(forms.ModelForm):
             Div(Field("issue_date", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("due_date", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("client", css_class="form-control"), css_class="col-sm-6"),
-            Div(Field("po_number", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("project", css_class="form-control"), css_class="col-sm-12"),
             Div(Field("task", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("user", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("contacts", css_class="form-control"), css_class="col-sm-12"),
+            Div(Field("po_number", css_class="form-control"), css_class="col-sm-6"),
             css_class="row mx-1",
         )
 
@@ -61,7 +61,6 @@ class InvoiceForm(forms.ModelForm):
             "user",
             "project",
             "task",
-            "po_number",
             "subject",
             "doc_type",
             "company",
@@ -71,6 +70,7 @@ class InvoiceForm(forms.ModelForm):
             "due_date",
             "contacts",
             "archived",
+            "po_number",
         )
         widgets = {
             "ein": forms.widgets.NumberInput(),
