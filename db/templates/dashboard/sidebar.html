@@ -84,6 +84,10 @@
                         <a class="nav-link{% if user_nav %} active{% endif %}"
                            href="{% url 'user_index' %}">Users</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link{% if company_nav %} active{% endif %}"
+                           href="{% url 'company_index' %}">Companies</a>
+                    </li>
                 </ul>
             {% endif %}
             {% if request.user.is_superuser %}

@@ -29,9 +29,8 @@ from xhtml2pdf import pisa
 
 from ..forms.invoice import InvoiceForm, TimeFormSet
 from ..forms.time import TimeForm
-from ..models.invoice import Invoice
-from ..models.project import Project
-from ..models.time import Time
+from ..models.company import Company
+from ..models import Company, Invoice, Project, Time
 from .base import BaseView
 
 fake = Faker()
@@ -132,14 +131,12 @@ class InvoiceCreateView(BaseInvoiceView, CreateView):
             "due_date": due_date,
         }
 
-        # Update context to include project and client
+        # Update context to include project and client and company
         if project_id:
             project = Project.objects.get(pk=project_id)
             client = project.client
-            company = None
-            if client:
-                company = client.company
             task = project.task
+            company = Company.objects.first()
             subject = f"{project} {now.strftime('%B %Y')}"
             context["form"].initial.update(
                 {

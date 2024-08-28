@@ -10,4 +10,5 @@ from db.models.note import Note  # noqa
 from db.models.project import Project  # noqa
 from db.models.report import Report  # noqa
 from db.models.services import ServicesPage  # noqa
+from db.models.time import Time  # noqa
 from db.models.testimonial import Testimonial  # noqa

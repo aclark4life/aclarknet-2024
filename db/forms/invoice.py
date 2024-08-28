@@ -76,6 +76,8 @@ class InvoiceForm(forms.ModelForm):
         sorted_choices = sorted(choices, key=lambda choice: choice[1])
         self.fields["contacts"].choices = sorted_choices
 
+        self.fields["company"].empty_label = None
+
     class Meta:
         model = Invoice
         fields = (
