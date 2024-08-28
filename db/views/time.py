@@ -63,7 +63,7 @@ class BaseTimeView(BaseView, UserPassesTestMixin):
         if invoices:
             form.fields["invoice"].empty_label = None
 
-        form.fields["invoice"].queryset = invoices
+        # form.fields["invoice"].queryset = invoices
 
         if self.request.user.is_superuser:
             project = projects.first()
@@ -86,11 +86,28 @@ class BaseTimeView(BaseView, UserPassesTestMixin):
         return form
 
 
-class BaseTimeEditView(BaseTimeView):
+class TimeCreateView(BaseTimeView, CreateView):
+    success_url = reverse_lazy("time_view")
+
+    def test_func(self):
+        if self.request.user.is_superuser:
+            return True
+        elif self.request.user.is_authenticated:
+            return True
+        else:
+            return False
+
+    def get_success_url(self):
+        return reverse_lazy("time_view", args=[self.object.pk])
+
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        client_id = None
         description = None
+        project_id = None
+        task_id = None
+
         if settings.USE_FAKE:
             description = fake.text()
 
@@ -100,31 +117,25 @@ class BaseTimeEditView(BaseTimeView):
         }
 
         invoice_id = self.request.GET.get("invoice_id")
-        try:
-            invoice = Invoice.objects.get(pk=invoice_id)
-            client_id = None
+        invoice = Invoice.objects.filter(pk=invoice_id).first()
+
+        if invoice:
             if invoice.client:
                 client_id = invoice.client.id
-            project_id = None
-            task_id = None
             if invoice.project:
                 project_id = invoice.project.id
+
                 if invoice.project.task:
                     task_id = invoice.project.task.id
-            context["form"].initial.update(
-                {
-                    "invoice": invoice_id,
-                    "client": client_id,
-                    "project": project_id,
-                    "task": task_id, 
-                }
-            )
-        except Invoice.DoesNotExist:
-            context["form"].initial.update(
-                {
-                    "invoice": invoice_id,
-                }
-            )
+
+        context["form"].initial.update(
+            {
+                "client": client_id,
+                "invoice": invoice_id,
+                "project": project_id,
+                "task": task_id, 
+            }
+        )
         return context
 
 
@@ -144,21 +155,6 @@ class TimeListView(BaseTimeView, ListView):
             return True
         else:
             return False
-
-
-class TimeCreateView(BaseTimeEditView, CreateView):
-    success_url = reverse_lazy("time_view")
-
-    def test_func(self):
-        if self.request.user.is_superuser:
-            return True
-        elif self.request.user.is_authenticated:
-            return True
-        else:
-            return False
-
-    def get_success_url(self):
-        return reverse_lazy("time_view", args=[self.object.pk])
 
 
 class TimeDetailView(BaseTimeView, DetailView):
