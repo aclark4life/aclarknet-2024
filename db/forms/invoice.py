@@ -9,16 +9,6 @@ from ..models.contact import Contact
 from ..models.invoice import Invoice
 from ..models.time import Time
 
-TimeFormSet = forms.inlineformset_factory(
-    Invoice,
-    Time,
-    form=FormSetTimeForm,
-    can_order=True,
-    can_delete=True,
-    extra=1,
-    widgets={"date": forms.DateInput(attrs={"type": "date"})},
-)
-
 
 class InvoiceForm(forms.ModelForm):
     """
@@ -51,18 +41,6 @@ class InvoiceForm(forms.ModelForm):
             Div(Field("task", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("user", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("contacts", css_class="form-control"), css_class="col-sm-12"),
-            # Div(Field("times", css_class="form-control"), css_class="col-sm-12"),
-            # HTML(
-            #     "<div id='show-checkbox'><input class='select-all form-check-input me-2' type='checkbox' id='select-all'><label for='select-all'>Delete time entries</label></div>"
-            # ),
-            # HTML(
-            #     "<input type='hidden' name='time-TOTAL_FORMS' value={{ time_formset.total_form_count }}>"
-            # ),
-            # HTML(
-            #     "<input type='hidden' name='time-INITIAL_FORMS' value={{ time_formset.initial_form_count }}>"
-            # ),
-            # HTML("<input type='hidden' name='time-MIN_NUM_FORMS' value=0>"),
-            # HTML("<input type='hidden' name='time-MAX_NUM_FORMS' value=1000>"),
             css_class="row mx-1",
         )
 

@@ -166,39 +166,6 @@ class InvoiceCreateView(BaseInvoiceView, CreateView):
                 }
             )
 
-        # extra = self.request.GET.get("extra")
-        # if extra:
-        #     extra = int(extra)
-        # else:
-        #     extra = 1
-        # time = self.request.GET.get("time")
-        # if time and time == "1":
-        #     extra += 1
-        # elif time and time == "0":
-        #     extra -= 1
-        # context["extra"] = extra
-        # start_date = timezone.now()
-        # if self.request.POST:
-        #     time_formset = TimeFormSet(
-        #         self.request.POST, instance=self.object, prefix="time"
-        #     )
-        # else:
-        #     initial_data = [
-        #         {
-        #             "user": self.request.user,
-        #             "date": start_date + timezone.timedelta(days=_),
-        #             "description": fake.text(),
-        #         }
-        #         for _ in range(20)
-        #     ]
-        #     time_formset = TimeFormSet(
-        #         instance=self.object, prefix="time", initial=initial_data
-        #     )
-        #     time_formset.extra = extra
-        # context["time_formset"] = time_formset
-        # context["time_formset_helper"] = TimeForm().helper
-        # context["url_create_formset"] = "%s_create" % self.model_name
-
         return context
 
     def form_valid(self, form):
@@ -285,16 +252,6 @@ class InvoiceUpdateView(BaseInvoiceView, UpdateView):
         elif time and time == "0":
             extra -= 1
         context["extra"] = extra
-        if self.request.POST:
-            time_formset = TimeFormSet(self.request.POST, instance=self.object)
-        else:
-            time_formset = TimeFormSet(
-                instance=self.object, queryset=Time.objects.order_by("date")
-            )
-            time_formset.extra = extra
-        context["time_formset"] = time_formset
-        context["time_formset_helper"] = TimeForm().helper
-        context["url_create_formset"] = "%s_create" % self.model_name
         return context
 
     def get_initial(self):
