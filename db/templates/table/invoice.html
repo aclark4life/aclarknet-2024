@@ -142,7 +142,11 @@
                         {% endif %}
                     </td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
-                        {{ time_entry.amount|default:0|currencyfmt:"USD" }}
+                        {% if object.doc_type == "task-order" %}
+                            {{ time_entry.amount|default:0|currencyfmt:"USD" }}
+                        {% else %}
+                            {{ time_entry.cost|default:0|currencyfmt:"USD" }}
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

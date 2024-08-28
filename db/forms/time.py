@@ -74,28 +74,6 @@ class AdminTimeForm(TimeForm):
         )
 
         # Sort choices for user field
-        choices = self.fields["user"].choices
-        sorted_choices = sorted(choices, key=lambda choice: choice[1])
-        self.fields["user"].choices = sorted_choices
-
-
-class FormSetTimeForm(TimeForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Retrieve the existing layout object
-        layout = self.helper.layout
-
-        # Make modifications to the layout object
-        layout.append(
-            Div(Field("user", css_class="form-control"), css_class="col-sm-6"),
-        )
-        layout.append(
-            Div(
-                HTML(
-                    "<div id='show-checkbox'><input name='{{ form.DELETE }}' class='delete-checkbox form-check-input me-2' type='checkbox' id='select-all'><label for='select-all'>Delete</label></div>"
-                )
-            )
-        )
-
-        # Assign the updated layout object back to the form
-        self.helper.layout = layout
+        # choices = self.fields["user"].choices
+        # sorted_choices = sorted(choices, key=lambda choice: choice[1])
+        # self.fields["user"].choices = sorted_choices
