@@ -239,17 +239,6 @@ class InvoiceUpdateView(BaseInvoiceView, UpdateView):
         context = super().get_context_data(**kwargs)
         context["url_cancel"] = f"{self.model_name}_view"
         context["pk"] = self.kwargs["pk"]
-        extra = self.request.GET.get("extra")
-        if extra:
-            extra = int(extra)
-        else:
-            extra = 1
-        time = self.request.GET.get("time")
-        if time and time == "1":
-            extra += 1
-        elif time and time == "0":
-            extra -= 1
-        context["extra"] = extra
         return context
 
     def get_initial(self):
