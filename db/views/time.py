@@ -81,7 +81,8 @@ class BaseTimeView(BaseView, UserPassesTestMixin):
                 )
 
         form.fields["user"].empty_label = None
-        form.fields["user"].queryset = User.objects.filter(pk=self.request.user.id)
+
+        # form.fields["user"].queryset = User.objects.filter(pk=self.request.user.id)
 
         return form
 

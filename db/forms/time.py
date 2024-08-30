@@ -74,6 +74,6 @@ class AdminTimeForm(TimeForm):
         )
 
         # Sort choices for user field
-        # choices = self.fields["user"].choices
-        # sorted_choices = sorted(choices, key=lambda choice: choice[1])
-        # self.fields["user"].choices = sorted_choices
+        choices = self.fields["user"].choices
+        sorted_choices = sorted(choices, key=lambda choice: choice[1])
+        self.fields["user"].choices = sorted_choices

@@ -24,12 +24,12 @@ class InvoiceForm(forms.ModelForm):
         self.helper.layout = Div(
             Div(Field("archived"), css_class="col-sm-3"),
             Div(Field("contacts", css_class="form-control"), css_class="col-sm-12"),
+            Div(Field("doc_type", css_class="form-control"), css_class="col-sm-6"),
             Div(
                 Field("subject", css_class="form-control bg-transparent border"),
                 css_class="col-sm-6",
             ),
             Div(Field("user", css_class="form-control"), css_class="col-sm-6"),
-            Div(Field("doc_type", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("company", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("start_date", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("end_date", css_class="form-control"), css_class="col-sm-6"),
