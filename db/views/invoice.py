@@ -528,7 +528,14 @@ class InvoiceEmailTextView(BaseInvoiceView, View):
             total["amount"] += amount
             total["hours"] += hours
             table.add_row(
-                [entry.date, entry.task, entry.description, entry.quantity, rate, amount]
+                [
+                    entry.date,
+                    entry.task,
+                    entry.description,
+                    entry.quantity,
+                    rate,
+                    amount,
+                ]
             )
         table.add_row(
             ["Total", "", "", "", "", locale.currency(total["amount"], grouping=True)]

@@ -101,7 +101,6 @@ class TimeCreateView(BaseTimeView, CreateView):
     def get_success_url(self):
         return reverse_lazy("time_view", args=[self.object.pk])
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         client_id = None
@@ -138,7 +137,7 @@ class TimeCreateView(BaseTimeView, CreateView):
                 "client": client_id,
                 "invoice": invoice_id,
                 "project": project_id,
-                "task": task_id, 
+                "task": task_id,
             }
         )
         return context
