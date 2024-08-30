@@ -59,7 +59,7 @@
                     </td>
                     <td style="text-align: left; padding: 0 0 8px 3px;">
 			{% if object.user %}
-			    {{ object.user }}
+			    {{ object.user.first_name }} {{ object.user.last_name }}
                         {% elif object.client %}
                             {{ object.client }}
                             <br>
