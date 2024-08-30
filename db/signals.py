@@ -72,14 +72,14 @@ def update_invoice(sender, instance, **kwargs):
             time.save()
         time.amount = 0
         if (
-            instance.doc_type != "Task Order"
+            instance.doc_type != "task-order"
             and time.task
             and time.task.rate
             and time.hours
         ):
             time.amount = time.task.rate * time.hours
         elif (
-            instance.doc_type == "Task Order"
+            instance.doc_type == "task-order"
             and instance.user
             and instance.user.profile.rate
             and time.hours
