@@ -54,7 +54,6 @@ class BaseInvoiceView(BaseView, UserPassesTestMixin):
         "start_date",
         "end_date",
         "due_date",
-        "user",
         "client",
         "project",
         "task",
