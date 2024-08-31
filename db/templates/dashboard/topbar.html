@@ -15,5 +15,10 @@
                aria-current="page"
                href="{% url 'invoice_index' %}">Invoices</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link {% if report_nav %}active{% endif %}"
+               aria-current="page"
+               href="{% url 'report_index' %}">Reports</a>
+        </li>
     </ul>
 </nav>

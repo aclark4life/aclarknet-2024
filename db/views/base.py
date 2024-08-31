@@ -127,21 +127,21 @@ class BaseView:
                         field_values.append(("id", item.id))
                         field_values.append(("archived", self.get_archived(item)))
                         field_values.append(("item", item))
-                        if hasattr(item, "doc_type"):
-                            field_values.append(("doc_type", item.doc_type))
-                        if hasattr(item, "amount"):
-                            field_values.append(("amount", item.amount))
-                        if hasattr(item, "cost"):
-                            field_values.append(("cost", item.cost))
-                        if hasattr(item, "net"):
-                            field_values.append(("net", item.net))
-                        if hasattr(item, "hours"):
-                            field_values.append(("hours", item.hours))
                 else:
                     field_values.append(("type", item._meta.model_name))
                     field_values.append(("id", item.id))
                     field_values.append(("archived", self.get_archived(item)))
                     field_values.append(("item", item))
+                if hasattr(item, "doc_type"):
+                    field_values.append(("doc_type", item.doc_type))
+                if hasattr(item, "amount"):
+                    field_values.append(("amount", item.amount))
+                if hasattr(item, "cost"):
+                    field_values.append(("cost", item.cost))
+                if hasattr(item, "net"):
+                    field_values.append(("net", item.net))
+                if hasattr(item, "hours"):
+                    field_values.append(("hours", item.hours))
                 _.append(field_values)
             return _
         else:
