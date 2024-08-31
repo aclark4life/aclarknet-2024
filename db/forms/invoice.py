@@ -78,12 +78,6 @@ class InvoiceForm(forms.ModelForm):
             "sa_number": forms.widgets.NumberInput(),
         }
 
-    # times = forms.ModelMultipleChoiceField(
-    #     queryset=Time.objects.filter(archived=False),
-    #     widget=forms.SelectMultiple(attrs={"class": "form-control"}),
-    #     required=False,
-    # )
-
     issue_date = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}),
         required=False,
