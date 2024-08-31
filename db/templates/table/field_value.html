@@ -16,6 +16,11 @@
 {% elif field_name == "cost" %}
     {# Format amount #}
     {{ field_value|default:0|currencyfmt:"USD" }}
+{% elif field_name == "net" %}
+    {# Format amount #}
+    {{ field_value|default:0|currencyfmt:"USD" }}
+{% elif field_name == "hours" %}
+    {{ field_value|default:0 }}
 {% else %}
     {{ field_value|default:"" }}
 {% endif %}

@@ -135,6 +135,8 @@ class BaseView:
                             field_values.append(("cost", item.cost))
                         if hasattr(item, "net"):
                             field_values.append(("net", item.net))
+                        if hasattr(item, "hours"):
+                            field_values.append(("hours", item.hours))
                 else:
                     field_values.append(("type", item._meta.model_name))
                     field_values.append(("id", item.id))
