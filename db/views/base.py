@@ -122,7 +122,7 @@ class BaseView:
 
     def get_field_values(self, page_obj=None, search=False, related=False):
         if page_obj:
-            page_obj_field_values = []
+            _ = []
             for item in page_obj:
                 field_values = []
                 if hasattr(page_obj, "object_list"):
@@ -137,8 +137,8 @@ class BaseView:
                     field_values.append(("id", item.id))
                     field_values.append(("archived", self.get_archived(item)))
                     field_values.append(("item", item))
-                page_obj_field_values.append(field_values)
-            return page_obj_field_values
+                _.append(field_values)
+            return _
         else:
             object_fields = self.form_class().fields.keys()
             try:
