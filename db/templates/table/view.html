@@ -10,7 +10,7 @@
                 <th valign="top">Updated</th>
                 <td>{{ object.updated }}</td>
             </tr>
-            {% for field_name, field_value in object_field_values %}
+            {% for field_name, field_value in field_values %}
                 <tr>
                     <th>{{ field_name|title }}</th>
                     <td>

@@ -97,7 +97,7 @@ class BaseView:
             context["page_obj_field_values"] = page_obj_field_values
 
         if hasattr(self, "object") and hasattr(self, "form_class"):
-            context["object_field_values"] = self.get_obj_field_values()
+            context["field_values"] = self.get_field_values()
 
         if hasattr(self, "object") and self.model:
             context["page_obj_detail_view"] = self.get_page_obj_detail_view()
@@ -120,35 +120,35 @@ class BaseView:
 
         return context
 
-    def get_obj_field_values(self):
+    def get_field_values(self):
         object_fields = self.form_class().fields.keys()
         try:
-            object_field_values = [
+            field_values = [
                 (field_name, getattr(self.object, field_name))
                 for field_name in object_fields
                 if field_name not in self.exclude
             ]
         except AttributeError:
-            object_field_values = []
-        return object_field_values
+            field_values = []
+        return field_values
 
     def get_page_obj_field_values(self, page_obj, search=False, related=False):
         page_obj_field_values = []
         for item in page_obj:
-            object_field_values = []
+            field_values = []
             if hasattr(page_obj, "object_list"):
                 if page_obj.object_list[0] is not None:
-                    object_field_values.append(("type", item._meta.model_name))
-                    object_field_values.append(("id", item.id))
-                    object_field_values.append(("archived", self.get_archived(item)))
-                    object_field_values.append(("item", item))
+                    field_values.append(("type", item._meta.model_name))
+                    field_values.append(("id", item.id))
+                    field_values.append(("archived", self.get_archived(item)))
+                    field_values.append(("item", item))
 
             else:
-                object_field_values.append(("type", item._meta.model_name))
-                object_field_values.append(("id", item.id))
-                object_field_values.append(("archived", self.get_archived(item)))
-                object_field_values.append(("item", item))
-            page_obj_field_values.append(object_field_values)
+                field_values.append(("type", item._meta.model_name))
+                field_values.append(("id", item.id))
+                field_values.append(("archived", self.get_archived(item)))
+                field_values.append(("item", item))
+            page_obj_field_values.append(field_values)
         return page_obj_field_values
 
     def get_page_obj_detail_view(self):

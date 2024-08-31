@@ -20,9 +20,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for object_field_values in page_obj_field_values %}
-                        {% if object_field_values %}
-                            {% with model_name=object_field_values.0.1 object_id=object_field_values.1.1 %}
+                    {% for field_values in page_obj_field_values %}
+                        {% if field_values %}
+                            {% with model_name=field_values.0.1 object_id=field_values.1.1 %}
                                 <tr onclick="window.location='{% url model_name|add:"_view" object_id %}'"
                                     style="cursor: pointer">
                                     {% if request.user.is_superuser %}
@@ -32,7 +32,7 @@
                                     {% endif %}
                                     {% if request.user.is_superuser %}
                                         {% if model_name == "user" %}
-                                            {% with object_user_first_name=object_field_values.4.1 object_user_last_name=object_field_values.5.1 object_user_username=object_field_values.3.1 %}
+                                            {% with object_user_first_name=field_values.4.1 object_user_last_name=field_values.5.1 object_user_username=field_values.3.1 %}
                                                 <td class="text-center" onclick="event.stopPropagation();">
                                                     <div data-bs-toggle="modal"
                                                          data-bs-target="#hijackModal"
@@ -46,7 +46,7 @@
                                             {% endwith %}
                                         {% endif %}
                                     {% endif %}
-                                    {% for field_name, field_value in object_field_values %}
+                                    {% for field_name, field_value in field_values %}
                                         <td>{% include 'table/field_value.html' %}</td>
                                     {% endfor %}
                                 </tr>

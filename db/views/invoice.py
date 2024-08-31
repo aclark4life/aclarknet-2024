@@ -213,21 +213,21 @@ class InvoiceDetailView(BaseInvoiceView, DetailView):
         context["url_email_text"] = self.url_email_text
         if self.object.doc_type in settings.DOC_TYPES:
             context["doc_type"] = settings.DOC_TYPES[self.object.doc_type]
-        context["object_field_values"].append(
+        context["field_values"].append(
             ("Total", locale.currency(self.object.amount, grouping=True))
         )
-        context["object_field_values"].append(
+        context["field_values"].append(
             ("Cost", locale.currency(self.object.cost, grouping=True))
         )
-        context["object_field_values"].append(
+        context["field_values"].append(
             ("Net", locale.currency(self.object.net, grouping=True))
         )
-        context["object_field_values"].append(("Company", self.object.company))
+        context["field_values"].append(("Company", self.object.company))
         contacts = self.object.contacts.all()
-        context["object_field_values"].append(("Contacts", ""))
+        context["field_values"].append(("Contacts", ""))
         if contacts:
             for contact in contacts:
-                context["object_field_values"].append(("↳", contact))
+                context["field_values"].append(("↳", contact))
         return context
 
 

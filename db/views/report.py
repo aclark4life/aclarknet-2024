@@ -137,11 +137,11 @@ class ReportDetailView(BaseReportView, DetailView):
             if contact.email:
                 contact_emails.append(contact.email)
         context["contact_emails"] = ", ".join(contact_emails)
-        context["object_field_values"].append(("Contacts", ""))
+        context["field_values"].append(("Contacts", ""))
 
         if contacts:
             for contact in contacts:
-                context["object_field_values"].append(("↳", contact))
+                context["field_values"].append(("↳", contact))
 
         return context
 
