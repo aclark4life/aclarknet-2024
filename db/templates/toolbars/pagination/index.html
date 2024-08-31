@@ -8,7 +8,7 @@
                 {% endif %}
                 {% if page_obj.paginator %}
                     {# https://stackoverflow.com/a/7405779/185820 #}
-                    {% if page_obj_field_values|length|add:0 >= items_per_page %}
+                    {% if field_values_page_obj|length|add:0 >= items_per_page %}
                         {% include 'toolbars/pagination/perpage.html' %}
                     {% endif %}
                 {% endif %}

@@ -20,7 +20,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for field_values in page_obj_field_values %}
+                    {% for field_values in field_values_page_obj %}
                         {% if field_values %}
                             {% with model_name=field_values.0.1 object_id=field_values.1.1 %}
                                 <tr onclick="window.location='{% url model_name|add:"_view" object_id %}'"
