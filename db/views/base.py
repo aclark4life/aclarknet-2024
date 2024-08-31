@@ -91,9 +91,7 @@ class BaseView:
         field_values_page = []
 
         if hasattr(self, "form_class"):
-            field_values_page = self.get_field_values(
-                page_obj, related=related
-            )
+            field_values_page = self.get_field_values(page_obj, related=related)
             context["field_values_page"] = field_values_page
 
         if hasattr(self, "object") and hasattr(self, "form_class"):
@@ -104,9 +102,7 @@ class BaseView:
 
         if self.search:
             context["search"] = self.search
-            field_values_page = self.get_field_values(
-                page_obj, search=True
-            )
+            field_values_page = self.get_field_values(page_obj, search=True)
             if len(field_values_page) > 0:
                 context["search_results"] = True
             else:

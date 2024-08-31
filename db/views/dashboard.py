@@ -85,9 +85,7 @@ class DashboardView(BaseView, UserPassesTestMixin, ListView):
         if not self.request.user.is_superuser:
             filter_by = {"archived": False, "user": self.request.user}
 
-        times = get_queryset(
-            Time, filter_by=filter_by, order_by=["-archived", "-date"]
-        )
+        times = get_queryset(Time, filter_by=filter_by, order_by=["-archived", "-date"])
 
         context["times"] = times
 
