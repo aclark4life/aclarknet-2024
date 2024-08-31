@@ -1,4 +1,3 @@
-{% load babel %}
 {% if items or page_obj %}
     <form method="post" action="{% url 'update-selected' %}">
         {% csrf_token %}

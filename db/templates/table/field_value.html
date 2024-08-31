@@ -10,6 +10,12 @@
 {% elif object.html and field_name == "text" %}
     {# Render html if html #}
     {{ field_value|default:""|safe }}
+{% elif field_name == "amount" %}
+    {# Format amount #}
+    {{ field_value|default:0|currencyfmt:"USD" }}
+{% elif field_name == "cost" %}
+    {# Format amount #}
+    {{ field_value|default:0|currencyfmt:"USD" }}
 {% else %}
     {{ field_value|default:"" }}
 {% endif %}
