@@ -131,7 +131,8 @@ class BaseView:
                         field_values.append(("id", item.id))
                         field_values.append(("archived", self.get_archived(item)))
                         field_values.append(("item", item))
-
+                        if hasattr(item, "doc_type"):
+                            field_values.append(("doc_type", item.doc_type))
                 else:
                     field_values.append(("type", item._meta.model_name))
                     field_values.append(("id", item.id))
