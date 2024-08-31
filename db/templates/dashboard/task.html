@@ -2,8 +2,8 @@
 <div class="col-md-6 mb-5">
     <div class="list-group mb-3">
         <a class="list-group-item list-group-item-action justify-content-between d-flex fw-semibold p-3"
-           href="{% url 'task_index' %}">Tasks <span class="badge bg-primary">{{ tasks.items|length }}</span></a>
-        {% for item in tasks.items %}
+           href="{% url 'task_index' %}">Tasks <span class="badge bg-primary">{{ tasks.queryset|length }}</span></a>
+        {% for item in tasks.queryset %}
             <a class="list-group-item list-group-item-action justify-content-between d-flex"
                href="{% url 'task_view' item.id %}">
                 <span>{{ item }}</span>

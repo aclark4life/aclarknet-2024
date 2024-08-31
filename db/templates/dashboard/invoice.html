@@ -8,7 +8,7 @@
                     data-bs-target="#collapseInvoice"
                     aria-expanded="true"
                     aria-controls="collapseInvoice">
-                Invoice <span class="badge bg-primary mx-2">{{ invoices.items|length }}</span>
+                Invoice <span class="badge bg-primary mx-2">{{ invoices.queryset|length }}</span>
             </button>
         </h2>
         <div id="collapseInvoice"
@@ -18,7 +18,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="list-group list-group-flush mb-3">
-                            {% for item in invoices.items %}
+                            {% for item in invoices.queryset %}
                                 <a class="list-group-item list-group-item-action justify-content-between d-flex"
                                    href="{% url 'invoice_view' item.id %}">
                                     <span class="">{{ item.description|default:item }}</span>

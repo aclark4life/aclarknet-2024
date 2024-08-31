@@ -16,20 +16,20 @@ from ..models.time import Time
 from .base import BaseView
 
 
-def get_model_data(model_class, filter_by=None, order_by=None):
-    data = {}
+def get_queryset(model_class, filter_by=None, order_by=None):
+    _ = {}
 
-    items = model_class.objects.all()
+    queryset = model_class.objects.all()
 
     if filter_by:
-        items = items.filter(**filter_by)
+        queryset = queryset.filter(**filter_by)
 
     if order_by:
-        items = items.order_by(*order_by)
+        queryset = queryset.order_by(*order_by)
 
-    data["items"] = items
+    _["queryset"] = queryset
 
-    return data
+    return _
 
 
 class DashboardView(BaseView, UserPassesTestMixin, ListView):
@@ -55,45 +55,45 @@ class DashboardView(BaseView, UserPassesTestMixin, ListView):
 
         filter_by = {"archived": False}
 
-        invoices = get_model_data(
+        invoices = get_queryset(
             Invoice,
             filter_by={"archived": False, "doc_type": "invoice"},
             order_by=["-created"],
         )
 
         context["invoices"] = invoices
-        context["companies"] = get_model_data(
+        context["companies"] = get_queryset(
             Company, filter_by=filter_by, order_by=["name"]
         )
-        context["projects"] = get_model_data(
+        context["projects"] = get_queryset(
             Project, filter_by=filter_by, order_by=["name"]
         )
-        context["notes"] = get_model_data(
+        context["notes"] = get_queryset(
             Note, filter_by=filter_by, order_by=["-created"]
         )
-        context["tasks"] = get_model_data(Task, filter_by=filter_by, order_by=["name"])
-        context["contacts"] = get_model_data(
+        context["tasks"] = get_queryset(Task, filter_by=filter_by, order_by=["name"])
+        context["contacts"] = get_queryset(
             Contact, filter_by=filter_by, order_by=["last_name"]
         )
-        context["clients"] = get_model_data(
+        context["clients"] = get_queryset(
             Client, filter_by=filter_by, order_by=["name"]
         )
-        context["reports"] = get_model_data(
+        context["reports"] = get_queryset(
             Report, filter_by=filter_by, order_by=["-created"]
         )
 
         if not self.request.user.is_superuser:
             filter_by = {"archived": False, "user": self.request.user}
 
-        times = get_model_data(
+        times = get_queryset(
             Time, filter_by=filter_by, order_by=["-archived", "-date"]
         )
 
         context["times"] = times
 
-        entered = times["items"].aggregate(total=Sum(F("hours")))
+        entered = times["queryset"].aggregate(total=Sum(F("hours")))
         approved = (
-            times["items"]
+            times["queryset"]
             .filter(invoice__isnull=False)
             .aggregate(total=Sum(F("hours")))
         )
@@ -104,9 +104,9 @@ class DashboardView(BaseView, UserPassesTestMixin, ListView):
         entered = entered["total"] or 0
         approved = approved["total"] or 0
 
-        gross = invoices["items"].aggregate(amount=Sum(F("amount")))["amount"]
-        cost = invoices["items"].aggregate(cost=Sum(F("cost")))["cost"]
-        net = invoices["items"].aggregate(net=Sum(F("net")))["net"]
+        gross = invoices["queryset"].aggregate(amount=Sum(F("amount")))["amount"]
+        cost = invoices["queryset"].aggregate(cost=Sum(F("cost")))["cost"]
+        net = invoices["queryset"].aggregate(net=Sum(F("net")))["net"]
 
         gross = gross or 0
         cost = cost or 0

@@ -2,8 +2,8 @@
 <div class="col-md-6 mb-5">
     <div class="list-group mb-3">
         <a class="list-group-item list-group-item-action justify-content-between d-flex fw-semibold p-3"
-           href="{% url 'client_index' %}">Clients <span class="badge bg-primary">{{ clients.items|length }}</span></a>
-        {% for item in clients.items %}
+           href="{% url 'client_index' %}">Clients <span class="badge bg-primary">{{ clients.queryset|length }}</span></a>
+        {% for item in clients.queryset %}
             <a class="list-group-item list-group-item-action justify-content-between d-flex"
                href="{% url 'client_view' item.id %}">
                 <span>{{ item }}</span>
