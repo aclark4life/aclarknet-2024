@@ -1,0 +1,24 @@
+nav.topbar-nav li.nav-item a.nav-link.active {
+    color: white !important;
+    background: #1997C6 !important;
+}
+
+[data-bs-theme="dark"] {
+    nav.topbar-nav li.nav-item a.nav-link {
+      color: lightgray !important;
+    }
+}
+
+[data-bs-theme="light"] {
+    nav.topbar-nav li.nav-item a.nav-link {
+      color: #1997C6 !important;
+    }
+
+    nav.topbar-nav li.nav-item a.nav-link:hover {
+      color: #106382 !important;
+    }
+
+    nav.topbar-nav li.nav-item a.nav-link.active {
+      color: white !important;
+    }
+}
