@@ -4,15 +4,15 @@
 #
 # https://github.com/aclark4life/project-makefile
 #
-# --------------------------------------------------------------------------------
+# ================================================================================
 # Set the default goal to be `git commit -a -m $(GIT_COMMIT_MESSAGE)` and `git push`
-# --------------------------------------------------------------------------------
+# ================================================================================
 
 .DEFAULT_GOAL := git-commit-push
 
-# --------------------------------------------------------------------------------
+# ================================================================================
 # Single line variables to be used by phony target rules
-# --------------------------------------------------------------------------------
+# ================================================================================
 
 ADD_DIR := mkdir -pv
 ADD_FILE := touch
@@ -78,17 +78,23 @@ RANDIR := $(shell openssl rand -base64 12 | sed 's/\///g')
 TMPDIR := $(shell mktemp -d)
 UNAME := $(shell uname)
 
-# --------------------------------------------------------------------------------
+# ================================================================================
 # Include $(PROJECT_CUSTOM_FILE) if it exists
-# --------------------------------------------------------------------------------
+# ================================================================================
 
 ifneq ($(wildcard $(PROJECT_CUSTOM_FILE)),)
     include $(PROJECT_CUSTOM_FILE)
 endif
 
-# --------------------------------------------------------------------------------
+# ================================================================================
 # Multi-line variables to be used by phony target rules
-# --------------------------------------------------------------------------------
+# ================================================================================
+
+# ----------------------------------------------------------------
+#  Django Custom Admin Demo
+#
+#  https://docs.djangoproject.com/en/5.1/ref/contrib/admin/#overriding-the-default-admin-site
+# ----------------------------------------------------------------
 
 define DJANGO_ADMIN_CUSTOM_ADMIN
 from django.contrib.admin import AdminSite
@@ -193,6 +199,12 @@ RUN npm-20 install; npm-20 run build
 RUN python3.11 manage.py collectstatic --noinput --clear
 CMD set -xe; pg_ctl -D /var/lib/pgsql/data -l /tmp/logfile start; python3.11 manage.py migrate --noinput; gunicorn backend.wsgi:application
 endef
+
+# ----------------------------------------------------------------
+#  Django Frontend
+#
+#  For use with python-webpack-boilerplate
+# ----------------------------------------------------------------
 
 define DJANGO_FRONTEND
 import React from 'react';
@@ -636,9 +648,7 @@ const UserMenu = ({ isAuthenticated, isSuperuser, textColor }) => {
     <div> 
       {isAuthenticated ? (
         <li className="nav-item dropdown">
-          <a className="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i className="fa-solid fa-circle-user"></i>
-          </a>
+          <a className="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"></a>
           <ul className="dropdown-menu">
             <li><a className="dropdown-item" href="/user/profile/">Profile</a></li>
             <li><a className="dropdown-item" href="/model-form-demo/">Model Form Demo</a></li>
@@ -659,7 +669,7 @@ const UserMenu = ({ isAuthenticated, isSuperuser, textColor }) => {
         </li>
       ) : (
         <li className="nav-item">
-          <a className={`nav-link text-$${textColor}`} href="/accounts/login"><i className="fa-solid fa-circle-user"></i></a>
+          <a className="nav-link dropdown-toggle" type="button" aria-expanded="false" href="/accounts/login/"></a>
         </li>
       )}
     </div>
@@ -674,6 +684,12 @@ UserMenu.propTypes = {
 
 export default UserMenu;
 endef
+
+# ----------------------------------------------------------------
+#  Django Home Page for Django Minimal
+#
+#  Wagtail projects includes a home page model, Django does not.
+# ----------------------------------------------------------------
 
 define DJANGO_HOME_PAGE_ADMIN
 from django.contrib import admin  # noqa
@@ -701,6 +717,10 @@ from django.views.generic import TemplateView
 class HomeView(TemplateView):
     template_name = "home.html"
 endef
+
+# ----------------------------------------------------------------
+#  Django Logging Demo
+# ----------------------------------------------------------------
 
 define DJANGO_LOGGING_DEMO_ADMIN
 # Register your models here.
@@ -762,6 +782,10 @@ def main():
 if __name__ == "__main__":
     main()
 endef
+
+# ----------------------------------------------------------------
+#  Django Model Form Demo
+# ----------------------------------------------------------------
 
 define DJANGO_MODEL_FORM_DEMO_ADMIN
 from django.contrib import admin
@@ -903,6 +927,10 @@ class ModelFormDemoDetailView(DetailView):
     template_name = "model_form_demo_detail.html"
     context_object_name = "model_form_demo"
 endef
+
+# ----------------------------------------------------------------
+#  Django Payments Demo
+# ----------------------------------------------------------------
 
 define DJANGO_PAYMENTS_ADMIN
 from django.contrib import admin
@@ -1163,6 +1191,12 @@ class CancelView(TemplateView):
     template_name = "payments/cancel.html"
 endef
 
+# ----------------------------------------------------------------
+#  Django Search for Django Minimal
+#
+#  Wagtail projects includes a search view, Django does not.
+# ----------------------------------------------------------------
+
 define DJANGO_SEARCH_FORMS
 from django import forms
 
@@ -1235,6 +1269,10 @@ class SearchView(ListView):
         return context
 endef
 
+# ----------------------------------------------------------------
+#  Django Settings
+# ----------------------------------------------------------------
+
 define DJANGO_SETTINGS_AUTHENTICATION_BACKENDS
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
@@ -1264,23 +1302,10 @@ WEBPACK_LOADER = {
 }
 STATICFILES_DIRS.append(os.path.join(BASE_DIR, "frontend/build"))
 TEMPLATES[0]["DIRS"].append(os.path.join(PROJECT_DIR, "templates"))
-endef
-
-define DJANGO_SETTINGS_BASE_MINIMAL
-# $(PROJECT_NAME)
-import os  # noqa
-import dj_database_url  # noqa
-
-INSTALLED_APPS.append("debug_toolbar")
-INSTALLED_APPS.append("webpack_boilerplate")
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(PROJECT_DIR)
-STATICFILES_DIRS = []
-STATICFILES_DIRS.append(os.path.join(BASE_DIR, "frontend/build"))
-TEMPLATES[0]["DIRS"].append(os.path.join(PROJECT_DIR, "templates"))
-WEBPACK_LOADER = {
-    "MANIFEST_FILE": os.path.join(BASE_DIR, "frontend/build/manifest.json"),
-}
+THEMES = [
+    ("light", "Light Theme"),
+    ("dark", "Dark Theme"),
+]
 endef
 
 define DJANGO_SETTINGS_CRISPY_FORMS
@@ -1420,16 +1445,17 @@ INSTALLED_APPS.append("siteuser")  # noqa
 AUTH_USER_MODEL = "siteuser.User"
 endef
 
-define DJANGO_SETTINGS_THEMES
-THEMES = [
-    ("light", "Light Theme"),
-    ("dark", "Dark Theme"),
-]
-endef
-
 define DJANGO_SETTINGS_UNIT_TEST_DEMO
 INSTALLED_APPS.append("unit_test_demo")  # noqa
 endef
+
+# ----------------------------------------------------------------
+#  Django SiteUser
+#
+#  A custom user model for Django
+#
+#  https://docs.djangoproject.com/en/5.1/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
+# ----------------------------------------------------------------
 
 define DJANGO_SITEUSER_ADMIN
 from django.contrib.auth.admin import UserAdmin
@@ -1557,6 +1583,10 @@ class UserEditView(LoginRequiredMixin, UpdateView):
         # return reverse_lazy("user-profile", kwargs={"pk": self.object.pk})
         return reverse_lazy("user-profile")
 endef
+
+# ----------------------------------------------------------------
+#  Django Templates
+# ----------------------------------------------------------------
 
 define DJANGO_TEMPLATE_ALLAUTH
 {% extends 'base.html' %}
@@ -1809,6 +1839,10 @@ define DJANGO_TEMPLATE_SITEUSER_VIEW
 {% endblock %}
 endef
 
+# ----------------------------------------------------------------
+#  Django Unit Test Demo
+# ----------------------------------------------------------------
+
 define DJANGO_UNIT_TEST_DEMO_FORMS
 from django import forms
 from .models import UnitTestDemoModel
@@ -1891,6 +1925,10 @@ class UnitTestDemoFormTest(TestCase):
              self.assertEqual(instance.field1, "value1")
              self.assertEqual(instance.field2, "value2")
 endef
+
+# ----------------------------------------------------------------
+#  Django URLs
+# ----------------------------------------------------------------
 
 define DJANGO_URLS
 from django.contrib import admin
@@ -2875,6 +2913,10 @@ class SitePage(Page):
         verbose_name = "Site Page"
 endef
 
+# ------------------------------------------------------------------------------
+#  Wagtail Templates
+# ------------------------------------------------------------------------------
+
 define WAGTAIL_TEMPLATE_BASE
 {% load static wagtailcore_tags wagtailuserbar webpack_loader %}
 <!DOCTYPE html>
@@ -3043,6 +3085,10 @@ define WAGTAIL_TEMPLATE_SITE_PAGE
 {% endblock %}
 endef
 
+# ------------------------------------------------------------------------------
+#  Wagtail URLs
+# ------------------------------------------------------------------------------
+
 define WAGTAIL_URLS
 from django.conf import settings
 from django.urls import include, path
@@ -3080,6 +3126,12 @@ urlpatterns += [
     #    path("pages/", include("wagtail.urls"),
 ]
 endef
+
+# ------------------------------------------------------------------------------
+#  Webpack Configuration
+#
+#  For use with python-webpack-boilerplate
+# ------------------------------------------------------------------------------
 
 define WEBPACK_CONFIG_JS
 const path = require('path');
@@ -3171,9 +3223,9 @@ import RevealNotes from 'reveal.js/plugin/notes/notes.js';
 Reveal.initialize({ slideNumber: true, plugins: [ RevealNotes ]});
 endef
 
-# ------------------------------------------------------------------------------  
+# ==============================================================================
 # Export variables used by phony target rules
-# ------------------------------------------------------------------------------  
+# ==============================================================================
 
 export DJANGO_API_SERIALIZERS \
         DJANGO_API_VIEWS \
@@ -3232,7 +3284,6 @@ export DJANGO_API_SERIALIZERS \
         DJANGO_SEARCH_VIEWS \
         DJANGO_SETTINGS_AUTHENTICATION_BACKENDS \
         DJANGO_SETTINGS_BASE \
-        DJANGO_SETTINGS_BASE_MINIMAL \
         DJANGO_SETTINGS_CRISPY_FORMS \
         DJANGO_SETTINGS_DATABASE \
         DJANGO_SETTINGS_DEV \
@@ -3245,7 +3296,6 @@ export DJANGO_API_SERIALIZERS \
         DJANGO_SETTINGS_REST_FRAMEWORK \
         DJANGO_SETTINGS_SEARCH \
         DJANGO_SETTINGS_SITEUSER \
-        DJANGO_SETTINGS_THEMES \
         DJANGO_SETTINGS_UNIT_TEST_DEMO \
         DJANGO_SITEUSER_ADMIN \
         DJANGO_SITEUSER_FORM \
@@ -3316,9 +3366,9 @@ export DJANGO_API_SERIALIZERS \
         WAGTAIL_TEMPLATE_SEARCH \
         WAGTAIL_TEMPLATE_SITE_PAGE
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # Multi-line phony target rules
-# ------------------------------------------------------------------------------
+# ==============================================================================
 
 .PHONY: aws-check-env-profile-default
 aws-check-env-profile-default:
@@ -3465,6 +3515,9 @@ django-home-page-default:
 	-$(GIT_ADD) home/migrations/*.py
 	-$(GIT_ADD) home/templates/
 
+# --------------------------------------------------------------------------------
+#  Install Django
+# --------------------------------------------------------------------------------
 .PHONY: django-init-default
 django-init-default: separator \
 	db-init \
@@ -3503,17 +3556,18 @@ django-init-default: separator \
 	git-ignore \
 	django-su
 
+# --------------------------------------------------------------------------------
+#  Install Django with minimal dependencies
+# --------------------------------------------------------------------------------
 .PHONY: django-init-minimal-default
 django-init-minimal-default: separator \
 	db-init \
 	django-clean \
 	django-install-minimal \
 	django-project \
-	django-settings-directory \
-	django-settings-base-minimal \
-	django-settings-dev \
 	pip-freeze \
 	pip-init-test \
+	django-settings-directory \
 	django-admin-custom \
 	django-dockerfile \
 	django-template-base \
@@ -3524,7 +3578,11 @@ django-init-minimal-default: separator \
 	django-manage-py \
 	django-urls \
 	django-urls-debug-toolbar \
+	django-allauth \
+	django-settings-base \
+	django-settings-dev \
 	django-settings-prod \
+	django-siteuser \
 	django-home-page \
 	django-utils \
 	django-frontend \
@@ -3535,6 +3593,9 @@ django-init-minimal-default: separator \
 	git-ignore \
 	django-su
 
+# --------------------------------------------------------------------------------
+#  Install Wagtail
+# --------------------------------------------------------------------------------
 .PHONY: django-init-wagtail-default
 django-init-wagtail-default: separator \
 	db-init \
@@ -3545,8 +3606,8 @@ django-init-wagtail-default: separator \
 	django-utils \
 	pip-freeze \
 	pip-init-test \
-        django-admin-custom \
-        django-dockerfile \
+	django-admin-custom \
+	django-dockerfile \
 	wagtail-header-prefix-template \
 	wagtail-base-template \
 	django-template-favicon \
@@ -3587,56 +3648,56 @@ django-init-wagtail-default: separator \
 django-install-default: pip-ensure
 	$(PIP_INSTALL) \
 	Django \
-        Faker \
-        boto3 \
+	Faker \
+	boto3 \
 	build \
-        crispy-bootstrap5 \
-        djangorestframework \
-        django-allauth \
-        django-after-response \
-        django-ckeditor \
-        django-colorful \
-        django-cors-headers \
-        django-countries \
-        django-crispy-forms \
-        django-debug-toolbar \
-        django-extensions \
-        django-hijack \
-        django-honeypot \
-        django-imagekit \
-        django-import-export \
-        django-ipware \
-        django-multiselectfield \
-        django-ninja \
-        django-phonenumber-field \
-        django-recurrence \
-        django-recaptcha \
-        django-registration \
-        django-richtextfield \
-        django-sendgrid-v5 \
-        django-social-share \
-        django-sql-explorer \
-        django-storages \
-        django-tables2 \
-        django-timezone-field \
+	crispy-bootstrap5 \
+	djangorestframework \
+	django-allauth \
+	django-after-response \
+	django-ckeditor \
+	django-colorful \
+	django-cors-headers \
+	django-countries \
+	django-crispy-forms \
+	django-debug-toolbar \
+	django-extensions \
+	django-hijack \
+	django-honeypot \
+	django-imagekit \
+	django-import-export \
+	django-ipware \
+	django-multiselectfield \
+	django-ninja \
+	django-phonenumber-field \
+	django-recurrence \
+	django-recaptcha \
+	django-registration \
+	django-richtextfield \
+	django-sendgrid-v5 \
+	django-social-share \
+	django-sql-explorer \
+	django-storages \
+	django-tables2 \
+	django-timezone-field \
 	django-widget-tweaks \
-        dj-database-url \
-        dj-rest-auth \
-        dj-stripe \
-        docutils \
-        enmerkar \
-        gunicorn \
-        html2docx \
-        icalendar \
-        mailchimp-marketing \
-        mailchimp-transactional \
-        phonenumbers \
-        psycopg2-binary \
-        pydotplus \
-        python-webpack-boilerplate \
-        python-docx \
-        reportlab \
-        texttable \
+	dj-database-url \
+	dj-rest-auth \
+	dj-stripe \
+	docutils \
+	enmerkar \
+	gunicorn \
+	html2docx \
+	icalendar \
+	mailchimp-marketing \
+	mailchimp-transactional \
+	phonenumbers \
+	psycopg2-binary \
+	pydotplus \
+	python-webpack-boilerplate \
+	python-docx \
+	reportlab \
+	texttable \
 	wheel
 
 .PHONY: django-install-minimal-default
@@ -3645,7 +3706,15 @@ django-install-minimal-default: pip-ensure
 	Django \
 	dj-database-url \
 	django-debug-toolbar \
-	python-webpack-boilerplate
+	python-webpack-boilerplate \
+	django-allauth \
+	django-crispy-forms \
+	crispy-bootstrap5 \
+	django-extensions \
+	django-recaptcha \
+	djangorestframework \
+	django-sql-explorer \
+	psycopg2-binary
 
 .PHONY: django-lint-default
 django-lint-default:
@@ -3774,15 +3843,10 @@ django-settings-base-default:
 	@echo "$$DJANGO_SETTINGS_BASE" >> $(DJANGO_SETTINGS_BASE_FILE)
 	@echo "$$DJANGO_SETTINGS_AUTHENTICATION_BACKENDS" >> $(DJANGO_SETTINGS_BASE_FILE)
 	@echo "$$DJANGO_SETTINGS_REST_FRAMEWORK" >> $(DJANGO_SETTINGS_BASE_FILE)
-	@echo "$$DJANGO_SETTINGS_THEMES" >> $(DJANGO_SETTINGS_BASE_FILE)
 	@echo "$$DJANGO_SETTINGS_DATABASE" >> $(DJANGO_SETTINGS_BASE_FILE)
 	@echo "$$DJANGO_SETTINGS_INSTALLED_APPS" >> $(DJANGO_SETTINGS_BASE_FILE)
 	@echo "$$DJANGO_SETTINGS_MIDDLEWARE" >> $(DJANGO_SETTINGS_BASE_FILE)
 	@echo "$$DJANGO_SETTINGS_CRISPY_FORMS" >> $(DJANGO_SETTINGS_BASE_FILE)
-
-.PHONY: django-settings-base-minimal-default
-django-settings-base-minimal-default:
-	@echo "$$DJANGO_SETTINGS_BASE_MINIMAL" >> $(DJANGO_SETTINGS_BASE_FILE)
 
 .PHONY: django-settings-dev-default
 django-settings-dev-default:
@@ -4093,6 +4157,10 @@ git-commit-message-lint-default:
 git-commit-message-mk-default:
 	-@$(GIT_COMMIT) project.mk -m $(call GIT_COMMIT_MESSAGE,"Add/update $(PROJECT_CUSTOM_FILE)")
 
+.PHONY: git-commit-message-readme-default
+git-commit-message-readme-default:
+	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Update readme")
+
 .PHONY: git-commit-message-rename-default
 git-commit-message-rename-default:
 	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Rename")
@@ -4144,12 +4212,17 @@ git-status-default:
 
 .PHONY: help-default
 help-default:
-	@echo "Project Makefile 🤷"
-	@echo "Usage: make [options] [target] ..."
+	@echo "Project Makefile"
+	@echo ""
+	@echo "\"I like to type make <target> to perform tasks 🤷.\" —Alex"
+	@echo ""
+	@echo "Usage: make <target1> [target2 ...]"
 	@echo "Examples:"
 	@echo "   make help                   Print this message"
-	@echo "   make list-defines  list all defines in the Makefile"
-	@echo "   make list-commands  list all targets in the Makefile"
+	@echo "   make list-targets           List all targets"
+	@echo "   make django-init            Install Django"
+	@echo "   make django-init-minimal    Install Django with minimal dependencies"
+	@echo "   make django-init-wagtail    Install Wagtail"
 
 .PHONY: jenkins-init-default
 jenkins-init-default:
@@ -4161,10 +4234,10 @@ make-default:
 	-@$(GIT_COMMIT) Makefile -m $(call GIT_COMMIT_MESSAGE,"Add/update $(PROJECT_NAME) Makefile")
 	-$(GIT_PUSH)
 
-.PHONY: makefile-list-commands-default
-makefile-list-commands-default:
+.PHONY: makefile-list-targets-default
+makefile-list-targets-default:
 	@for makefile in $(MAKEFILE_LIST); do \
-        echo "Commands from $$makefile:"; \
+        echo "-- $$makefile --"; \
         $(MAKE) -pRrq -f $$makefile : 2>/dev/null | \
         awk -v RS= -F: '/^# File/,/^# Finished Make data base/ { \
             if ($$1 !~ "^[#.]") { sub(/-default$$/, "", $$1); print $$1 } }' | \
@@ -4179,8 +4252,8 @@ makefile-list-commands-default:
 makefile-list-defines-default:
 	@grep '^define [A-Za-z_][A-Za-z0-9_]*' Makefile
 
-.PHONY: makefile-list-targets-default
-makefile-list-targets-default:
+.PHONY: makefile-list-targets-with-dependencies-default
+makefile-list-targets-with-dependencies-default:
 	@perl -ne 'print if /^\s*\.PHONY:/ .. /^[a-zA-Z0-9_-]+:/;' Makefile | grep -v .PHONY
 
 .PHONY: npm-audit-fix-default
@@ -4377,8 +4450,8 @@ python-webpack-init-default:
 rand-default:
 	@openssl rand -base64 12 | sed 's/\///g'
 
-.PHONY: readme-default
-readme-default:
+.PHONY: readme-init-default
+readme-init-default:
 	@echo "# $(PROJECT_NAME)" > README.md
 	-$(GIT_ADD) README.md
 
@@ -4585,11 +4658,10 @@ webpack-init-reveal-default: npm-init
 
 # --------------------------------------------------------------------------------
 # Title-case single-line phony target rules
+#
+# Use Title case for some phony targets E.g. `make lint` performs linting and
+# can't be used to commit & push the results. Use Lint instead for such cases.
 # --------------------------------------------------------------------------------
-# Use Title case for some phony targets
-#    
-# E.g. `make lint` performs linting and can't be used to commit & push the
-# results. Use Lint instead for such cases.
 
 .PHONY: Clean-default
 Clean-default: git-commit-message-clean git-push
@@ -4618,6 +4690,9 @@ ce-default: git-commit-edit git-push
 
 .PHONY: clean-default
 clean-default: django-clean
+
+.PHONY: comment-default
+comment-default: git-commit-message-comment git-push
 
 .PHONY: cp-default
 cp-default: git-commit-message git-push
@@ -4677,7 +4752,7 @@ install-default: pip-install
 i-default: install
 
 .PHONY: l-default
-l-default: makefile-list-commands
+l-default: makefile-list-targets
 
 .PHONY: last-default
 last-default: git-commit-last git-push
@@ -4685,14 +4760,14 @@ last-default: git-commit-last git-push
 .PHONY: lint-default
 lint-default: django-lint
 
-.PHONY: list-commands-default
-list-commands-default: makefile-list-commands
+.PHONY: list-targets-default
+list-targets-default: makefile-list-targets
 
 .PHONY: list-defines-default
 list-defines-default: makefile-list-defines
 
-.PHONY: list-targets-default
-list-targets-default: makefile-list-targets
+.PHONY: list-targets-with-dependencies-default
+list-targets-with-dependencies-default: makefile-list-targets-with-dependencies
 
 .PHONY: migrate-default
 migrate-default: django-migrate
@@ -4714,6 +4789,9 @@ open-default: open
 
 .PHONY: r-default
 r-default: review
+
+.PHONY: readme-default
+readme-default: git-commit-message-readme git-push
 
 .PHONY: rename-default
 rename-default: git-commit-message-rename git-push
