@@ -145,8 +145,8 @@ class BaseView:
                 _.append(field_values)
             return _
         else:
-            object_fields = self.form_class().fields.keys()
             try:
+                object_fields = self.form_class().fields.keys()
                 field_values = [
                     (field_name, getattr(self.object, field_name))
                     for field_name in object_fields

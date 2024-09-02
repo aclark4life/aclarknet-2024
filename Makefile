@@ -29,10 +29,6 @@ DJANGO_CLEAN_FILES = .babelrc .browserslistrc .dockerignore .eslintrc .gitignore
 		      .stylelintrc.json Dockerfile db.sqlite3 docker-compose.yml manage.py \
 		      package-lock.json package.json postcss.config.js requirements-test.txt \
 		      requirements.txt
-DJANGO_DATABASE_HOST = $(call DJANGO_DATABASE,HOST)
-DJANGO_DATABASE_NAME = $(call DJANGO_DATABASE,NAME)
-DJANGO_DATABASE_PASS = $(call DJANGO_DATABASE,PASSWORD)
-DJANGO_DATABASE_USER = $(call DJANGO_DATABASE,USER)
 DJANGO_FRONTEND_FILES = .babelrc .browserslistrc .eslintrc .nvmrc .stylelintrc.json \
 			frontend package-lock.json \
 			package.json postcss.config.js
@@ -42,8 +38,12 @@ DJANGO_SETTINGS_DEV_FILE = $(DJANGO_SETTINGS_DIR)/dev.py
 DJANGO_SETTINGS_PROD_FILE = $(DJANGO_SETTINGS_DIR)/production.py
 DJANGO_SETTINGS_SECRET_KEY = $(shell openssl rand -base64 48)
 DJANGO_URLS_FILE = backend/urls.py
-EB_DATABASE_URL = $(shell eb ssh -c "source /opt/elasticbeanstalk/deployment/custom_env_var; \
+EB_DJANGO_DATABASE_HOST = $(call EB_DJANGO_DATABASE,HOST)
+EB_DJANGO_DATABASE_NAME = $(call EB_DJANGO_DATABASE,NAME)
+EB_DJANGO_DATABASE_PASS = $(call EB_DJANGO_DATABASE,PASSWORD)
+EB_DJANGO_DATABASE_URL = $(shell eb ssh -c "source /opt/elasticbeanstalk/deployment/custom_env_var; \
 	    env | grep DATABASE_URL" | awk -F= '{print $$2}')
+EB_DJANGO_DATABASE_USER = $(call EB_DJANGO_DATABASE,USER)
 EB_DIR_NAME := .elasticbeanstalk
 EB_ENV_NAME ?= $(PROJECT_NAME)-$(GIT_BRANCH)-$(GIT_REV)
 EB_PLATFORM ?= "Python 3.11 running on 64bit Amazon Linux 2023"
@@ -58,6 +58,7 @@ GIT_BRANCH = $(shell git branch --show-current)
 GIT_BRANCHES = $(shell git branch -a) 
 GIT_CHECKOUT = git checkout
 GIT_COMMIT = git commit
+GIT_IGNORE_FILE = .gitignore
 GIT_PUSH = git push
 GIT_PUSH_FORCE = $(GIT_PUSH) --force-with-lease
 GIT_REV = $(shell git rev-parse --short HEAD)
@@ -147,8 +148,8 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 endef
 
-define DJANGO_DATABASE
-$(shell echo $(EB_DATABASE_URL) | python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["$1"])')
+define EB_DJANGO_DATABASE
+$(shell echo $(EB_DJANGO_DATABASE_URL) | python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["$1"])')
 endef
 
 define DJANGO_DOCKER_COMPOSE
@@ -763,6 +764,11 @@ define DJANGO_MANAGE_PY
 
 import os
 import sys
+
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 
 def main():
@@ -3322,6 +3328,7 @@ export DJANGO_API_SERIALIZERS \
         DJANGO_URLS_HOME_PAGE \
         DJANGO_URLS_LOGGING_DEMO \
         DJANGO_URLS_MODEL_FORM_DEMO \
+        DJANGO_URLS_PAYMENTS \
         DJANGO_URLS_SITEUSER \
         DJANGO_UTILS \
         EB_CUSTOM_ENV_EC2_USER \
@@ -3413,7 +3420,7 @@ aws-vpc-default: aws-check-env
 
 .PHONY: db-import-default
 db-import-default:
-	@psql $(PACKAGE_NAME) < $(DJANGO_DATABASE_NAME).sql
+	@psql $(PACKAGE_NAME) < $(EB_DJANGO_DATABASE_NAME).sql
 
 .PHONY: db-init-default
 db-init-default:
@@ -3553,7 +3560,7 @@ django-init-default: separator \
 	npm-install-react-dev \
 	npm-audit-fix \
 	django-migrate \
-	git-ignore \
+	.gitignore \
 	django-su
 
 # --------------------------------------------------------------------------------
@@ -3590,12 +3597,13 @@ django-init-minimal-default: separator \
 	npm-install-react-dev \
 	npm-audit-fix \
 	django-migrate \
-	git-ignore \
+	.gitignore \
 	django-su
 
 # --------------------------------------------------------------------------------
 #  Install Wagtail
 # --------------------------------------------------------------------------------
+
 .PHONY: django-init-wagtail-default
 django-init-wagtail-default: separator \
 	db-init \
@@ -3641,7 +3649,7 @@ django-init-wagtail-default: separator \
 	npm-install-react-dev \
 	npm-audit-fix \
 	django-migrate \
-	git-ignore \
+	.gitignore \
 	django-su
 
 .PHONY: django-install-default
@@ -3698,6 +3706,7 @@ django-install-default: pip-ensure
 	python-docx \
 	reportlab \
 	texttable \
+	python-dotenv \
 	wheel
 
 .PHONY: django-install-minimal-default
@@ -3714,7 +3723,8 @@ django-install-minimal-default: pip-ensure
 	django-recaptcha \
 	djangorestframework \
 	django-sql-explorer \
-	psycopg2-binary
+	psycopg2-binary \
+	python-dotenv
 
 .PHONY: django-lint-default
 django-lint-default:
@@ -4047,8 +4057,8 @@ eb-export-default:
         echo "Directory $(EB_DIR_NAME) does not exist"; \
         else \
         echo "Found $(EB_DIR_NAME) directory"; \
-        eb ssh --quiet -c "export PGPASSWORD=$(DJANGO_DATABASE_PASS); pg_dump -U $(DJANGO_DATABASE_USER) -h $(DJANGO_DATABASE_HOST) $(DJANGO_DATABASE_NAME)" > $(DJANGO_DATABASE_NAME).sql; \
-        echo "Wrote $(DJANGO_DATABASE_NAME).sql"; \
+        eb ssh --quiet -c "export PGPASSWORD=$(EB_DJANGO_DATABASE_PASS); pg_dump -U $(EB_DJANGO_DATABASE_USER) -h $(EB_DJANGO_DATABASE_HOST) $(EB_DJANGO_DATABASE_NAME)" > $(EB_DJANGO_DATABASE_NAME).sql; \
+        echo "Wrote $(EB_DJANGO_DATABASE_NAME).sql"; \
         fi
 
 .PHONY: eb-init-default
@@ -4057,7 +4067,7 @@ eb-init-default: aws-check-env-profile
 
 .PHONY: eb-list-databases-default
 eb-list-databases-default:
-	@eb ssh --quiet -c "export PGPASSWORD=$(DJANGO_DATABASE_PASS); psql -l -U $(DJANGO_DATABASE_USER) -h $(DJANGO_DATABASE_HOST) $(DJANGO_DATABASE_NAME)"
+	@eb ssh --quiet -c "export PGPASSWORD=$(EB_DJANGO_DATABASE_PASS); psql -l -U $(EB_DJANGO_DATABASE_USER) -h $(EB_DJANGO_DATABASE_HOST) $(EB_DJANGO_DATABASE_NAME)"
 
 .PHONY: eb-list-platforms-default
 eb-list-platforms-default:
@@ -4153,8 +4163,8 @@ git-commit-message-init-default:
 git-commit-message-lint-default:
 	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Lint")
 
-.PHONY: git-commit-message-mk-default
-git-commit-message-mk-default:
+.PHONY: git-commit-message-project-custom-default
+git-commit-message-project-custom-default:
 	-@$(GIT_COMMIT) project.mk -m $(call GIT_COMMIT_MESSAGE,"Add/update $(PROJECT_CUSTOM_FILE)")
 
 .PHONY: git-commit-message-readme-default
@@ -4176,11 +4186,6 @@ git-commit-message-sort-default:
 .PHONY: git-commit-message-typo-default
 git-commit-message-typo-default:
 	-@$(GIT_COMMIT) -a -m $(call GIT_COMMIT_MESSAGE,"Fix typo")
-
-.PHONY: git-ignore-default
-git-ignore-default:
-	@echo "$$GIT_IGNORE" > .gitignore
-	-$(GIT_ADD) .gitignore
 
 .PHONY: git-prune-default
 git-prune-default:
@@ -4228,14 +4233,18 @@ help-default:
 jenkins-init-default:
 	@echo "$$JENKINS_FILE" > Jenkinsfile
 
+# --------------------------------------------------------------------------------
+# Makefile-specific targets
+# --------------------------------------------------------------------------------
+
 .PHONY: make-default
 make-default:
 	-$(GIT_ADD) Makefile
 	-@$(GIT_COMMIT) Makefile -m $(call GIT_COMMIT_MESSAGE,"Add/update $(PROJECT_NAME) Makefile")
 	-$(GIT_PUSH)
 
-.PHONY: makefile-list-targets-default
-makefile-list-targets-default:
+.PHONY: make-list-targets-default
+make-list-targets-default:
 	@for makefile in $(MAKEFILE_LIST); do \
         echo "-- $$makefile --"; \
         $(MAKE) -pRrq -f $$makefile : 2>/dev/null | \
@@ -4248,13 +4257,17 @@ makefile-list-targets-default:
         echo; \
     	done | $(PAGER)
 
-.PHONY: makefile-list-defines-default
-makefile-list-defines-default:
+.PHONY: make-list-defines-default
+make-list-defines-default:
 	@grep '^define [A-Za-z_][A-Za-z0-9_]*' Makefile
 
-.PHONY: makefile-list-targets-with-dependencies-default
-makefile-list-targets-with-dependencies-default:
+.PHONY: make-list-targets-deps-default
+make-list-targets-deps-default:
 	@perl -ne 'print if /^\s*\.PHONY:/ .. /^[a-zA-Z0-9_-]+:/;' Makefile | grep -v .PHONY
+
+# --------------------------------------------------------------------------------
+#  npm targets
+# --------------------------------------------------------------------------------
 
 .PHONY: npm-audit-fix-default
 npm-audit-fix-default:
@@ -4327,6 +4340,10 @@ npm-serve-default:
 npm-test-default:
 	npm run test
 
+# --------------------------------------------------------------------------------
+#  pip targets
+# --------------------------------------------------------------------------------
+
 .PHONY: pip-deps-default
 pip-deps-default: pip-ensure
 	$(PIP_DEPS)
@@ -4378,6 +4395,10 @@ pip-uninstall-default: pip-ensure
 pip-upgrade-default: pip-ensure
 	$(PIP_INSTALL) -U pip
 
+# --------------------------------------------------------------------------------
+#  Plone targets
+# --------------------------------------------------------------------------------
+
 .PHONY: plone-clean-default
 plone-clean-default:
 	$(DEL_DIR) $(PROJECT_NAME)
@@ -4411,10 +4432,9 @@ programming-interview-default:
 	@echo "Created interview.py!"
 	-$(GIT_ADD) interview.py > /dev/null 2>&1
 
-# .NOT_PHONY!
-$(PROJECT_CUSTOM_FILE):
-	@echo "$$PROJECT_CUSTOM" > $(PROJECT_CUSTOM_FILE)
-	-$(GIT_ADD) $(PROJECT_CUSTOM_FILE)
+# --------------------------------------------------------------------------------
+#  python targets
+# --------------------------------------------------------------------------------
 
 .PHONY: python-license-default
 python-license-default:
@@ -4490,6 +4510,10 @@ endif
 separator-default:
 	@echo "$$SEPARATOR"
 
+# --------------------------------------------------------------------------------
+#  Sphinx targets
+# --------------------------------------------------------------------------------
+
 .PHONY: sphinx-build-default
 sphinx-build-default:
 	@sphinx-build -b html -d _build/doctrees . _build/html
@@ -4530,6 +4554,10 @@ sphinx-theme-default:
 	    $(ADD_DIR) $$SPHINX_THEME/static/js; \
 	    $(ADD_FILE) $$SPHINX_THEME/static/js/script.js; \
 	    $(GIT_ADD) $$SPHINX_THEME/static
+
+# --------------------------------------------------------------------------------
+#  Wagtail targets
+# --------------------------------------------------------------------------------
 
 .PHONY: wagtail-base-template-default
 wagtail-base-template-default:
@@ -4634,6 +4662,10 @@ wagtail-urls-default:
 wagtail-urls-home-default:
 	@echo "$$WAGTAIL_URLS_HOME" >> $(DJANGO_URLS_FILE)
 
+# --------------------------------------------------------------------------------
+#  Webpack targets
+# --------------------------------------------------------------------------------
+
 .PHONY: webpack-init-default
 webpack-init-default: npm-init
 	@echo "$$WEBPACK_CONFIG_JS" > webpack.config.js
@@ -4656,12 +4688,12 @@ webpack-init-reveal-default: npm-init
 	@echo "$$WEBPACK_REVEAL_INDEX_HTML" > index.html
 	-$(GIT_ADD) index.html
 
-# --------------------------------------------------------------------------------
+# =================================================================================
 # Title-case single-line phony target rules
 #
 # Use Title case for some phony targets E.g. `make lint` performs linting and
 # can't be used to commit & push the results. Use Lint instead for such cases.
-# --------------------------------------------------------------------------------
+# =================================================================================
 
 .PHONY: Clean-default
 Clean-default: git-commit-message-clean git-push
@@ -4672,10 +4704,10 @@ Init-default: git-commit-message-init git-push
 .PHONY: Lint-default
 Lint-default: git-commit-message-lint git-push
 
-# --------------------------------------------------------------------------------
+# =================================================================================
 # Single-line phony target rules
-# --------------------------------------------------------------------------------
-#
+# =================================================================================
+
 .PHONY: actions-default
 actions-default: git-commit-message-actions git-push
 
@@ -4733,8 +4765,8 @@ freeze-default: pip-freeze git-push
 .PHONY: git-commit-push-default
 git-commit-push-default: git-commit git-push
 
-.PHONY: gitignore-default
-gitignore-default: git-ignore
+.PHONY: git-up-default
+git-up-default: git-set-upstream
 
 .PHONY: h-default
 h-default: help
@@ -4752,7 +4784,7 @@ install-default: pip-install
 i-default: install
 
 .PHONY: l-default
-l-default: makefile-list-targets
+l-default: make-list-targets
 
 .PHONY: last-default
 last-default: git-commit-last git-push
@@ -4761,10 +4793,13 @@ last-default: git-commit-last git-push
 lint-default: django-lint
 
 .PHONY: list-targets-default
-list-targets-default: makefile-list-targets
+list-targets-default: make-list-targets
+
+.PHONY: list-targets-deps-default
+list-targets-deps-default: make-list-targets-deps
 
 .PHONY: list-defines-default
-list-defines-default: makefile-list-defines
+list-defines-default: make-list-defines
 
 .PHONY: list-targets-with-dependencies-default
 list-targets-with-dependencies-default: makefile-list-targets-with-dependencies
@@ -4779,16 +4814,13 @@ migrations-default: django-migrations-make
 migrations-show-default: django-migrations-show
 
 .PHONY: mk-default
-mk-default: git-commit-message-mk git-push
-
-.PHONY: o-default
-o-default: django-open
+mk-default: git-commit-message-project-custom git-push
 
 .PHONY: open-default
 open-default: open
 
-.PHONY: r-default
-r-default: review
+.PHONY: o-default
+o-default: django-open
 
 .PHONY: readme-default
 readme-default: git-commit-message-readme git-push
@@ -4818,7 +4850,7 @@ static-default: django-static
 su-default: django-su
 
 .PHONY: test-default
-test-default: npm-install django-static pip-install-test
+test-default: npm-install django-static pip-install-test django-test
 
 .PHONY: t-default
 t-default: test
@@ -4826,22 +4858,25 @@ t-default: test
 .PHONY: typo-default
 typo-default: git-commit-message-typo git-push
 
-.PHONY: u-default
-u-default: help
-
-.PHONY: upstream-default
-upstream-default: git-set-upstream
-
 .PHONY: urls-default
 urls-default: django-urls-show
 
-.PHONY: wagtail-init-default
-wagtail-init-default: django-init-wagtail
+# =================================================================================
+# .NOT_PHONY!
+# =================================================================================
 
-# --------------------------------------------------------------------------------
+$(PROJECT_CUSTOM_FILE):
+	@echo "$$PROJECT_CUSTOM" > $@
+	-$(GIT_ADD) $@
+
+$(GIT_IGNORE_FILE):
+	@echo "$$GIT_IGNORE" > $@
+	-$(GIT_ADD) $@
+
+# =================================================================================
 # Allow customizing rules defined in this Makefile with rules defined in
 # $(PROJECT_CUSTOM_FILE)
-# --------------------------------------------------------------------------------
+# =================================================================================
 
 %: %-default  # https://stackoverflow.com/a/49804748
 	@ true
