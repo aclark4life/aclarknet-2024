@@ -58,7 +58,7 @@ GIT_BRANCH = $(shell git branch --show-current)
 GIT_BRANCHES = $(shell git branch -a) 
 GIT_CHECKOUT = git checkout
 GIT_COMMIT = git commit
-GIT_IGNORE_FILE = .gitignore
+GIT_COMMIT_IGNORE_FILE = .gitignore
 GIT_PUSH = git push
 GIT_PUSH_FORCE = $(GIT_PUSH) --force-with-lease
 GIT_REV = $(shell git rev-parse --short HEAD)
@@ -146,10 +146,6 @@ def hello(request):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-endef
-
-define EB_DJANGO_DATABASE
-$(shell echo $(EB_DJANGO_DATABASE_URL) | python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["$1"])')
 endef
 
 define DJANGO_DOCKER_COMPOSE
@@ -2066,11 +2062,11 @@ EOF
 rm -f /opt/elasticbeanstalk/deployment/*.bak
 endef
 
-define GIT_COMMIT_MESSAGE
-$(1)
+define EB_DJANGO_DATABASE
+$(shell echo $(EB_DJANGO_DATABASE_URL) | python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["$1"])')
 endef
 
-define GIT_IGNORE
+define GIT_COMMIT_IGNORE
 __pycache__
 *.pyc
 dist/
@@ -2081,6 +2077,11 @@ db.sqlite3
 static/
 backend/inituser
 backend/var
+.venv/
+endef
+
+define GIT_COMMIT_MESSAGE
+$(1)
 endef
 
 define JENKINS_FILE
@@ -2577,7 +2578,7 @@ define PROJECT_CUSTOM
 # PROJECT_NAME := my-new-project
 endef
 
-define PYTHON_LICENSE_TXT
+define LICENSE_TXT
 MIT License
 
 Copyright (c) [YEAR] [OWNER NAME]
@@ -3333,13 +3334,13 @@ export DJANGO_API_SERIALIZERS \
         DJANGO_UTILS \
         EB_CUSTOM_ENV_EC2_USER \
         EB_CUSTOM_ENV_VAR_FILE \
+        GIT_COMMIT_IGNORE \
         GIT_COMMIT_MESSAGE \
-        GIT_IGNORE \
         JENKINS_FILE \
+        LICENSE_TXT \
         PROJECT_CUSTOM \
         PIP_INSTALL_REQUIREMENTS_TEST \
         PROGRAMMING_INTERVIEW \
-        PYTHON_LICENSE_TXT \
         PYTHON_PROJECT_TOML \
         SEPARATOR \
         WAGTAIL_BLOCK_CAROUSEL \
@@ -4233,6 +4234,11 @@ help-default:
 jenkins-init-default:
 	@echo "$$JENKINS_FILE" > Jenkinsfile
 
+.PHONY: license-default
+license-default:
+	@echo "$$LICENSE_TXT" > LICENSE.txt
+	-$(GIT_ADD) LICENSE.txt
+
 # --------------------------------------------------------------------------------
 # Makefile-specific targets
 # --------------------------------------------------------------------------------
@@ -4435,11 +4441,6 @@ programming-interview-default:
 # --------------------------------------------------------------------------------
 #  python targets
 # --------------------------------------------------------------------------------
-
-.PHONY: python-license-default
-python-license-default:
-	@echo "$(PYTHON_LICENSE_TXT)" > LICENSE.txt
-	-$(GIT_ADD) LICENSE.txt
 
 .PHONY: python-project-default
 python-project-default:
@@ -4801,9 +4802,6 @@ list-targets-deps-default: make-list-targets-deps
 .PHONY: list-defines-default
 list-defines-default: make-list-defines
 
-.PHONY: list-targets-with-dependencies-default
-list-targets-with-dependencies-default: makefile-list-targets-with-dependencies
-
 .PHONY: migrate-default
 migrate-default: django-migrate
 
@@ -4869,8 +4867,8 @@ $(PROJECT_CUSTOM_FILE):
 	@echo "$$PROJECT_CUSTOM" > $@
 	-$(GIT_ADD) $@
 
-$(GIT_IGNORE_FILE):
-	@echo "$$GIT_IGNORE" > $@
+$(GIT_COMMIT_IGNORE_FILE):
+	@echo "$$GIT_COMMIT_IGNORE" > $@
 	-$(GIT_ADD) $@
 
 # =================================================================================
