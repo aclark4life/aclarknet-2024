@@ -18,6 +18,7 @@ from .models.report import Report
 from .models.task import Task
 from .models.testimonial import Testimonial
 from .models.time import Time
+from .models.time import TimeEntry
 
 
 @admin.register(Testimonial)
@@ -300,6 +301,9 @@ class CustomUserAdmin(UserAdmin):
         "is_superuser",
     )
 
-
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
+
+@admin.register(TimeEntry)
+class TimeAdmin(admin.ModelAdmin):
+    """ """

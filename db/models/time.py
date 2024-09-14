@@ -7,6 +7,7 @@ from db.models.invoice import Invoice
 from django.conf import settings
 from django.utils import timezone
 from django.shortcuts import reverse
+from django.contrib.auth.models import User
 
 
 class Time(BaseModel):
@@ -80,3 +81,18 @@ class Time(BaseModel):
 
     def get_absolute_url(self):
         return reverse("time_view", args=[str(self.id)])
+
+
+class TimeEntry(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='time_entries')
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='time_entries')
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='time_entries', null=True, blank=True)
+    hours = models.DecimalField(max_digits=5, decimal_places=2)
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def total_cost(self):
+        return self.hours * self.rate
+
+    def __str__(self):
+        return f"{self.user.username} - {self.task.name} - {self.hours} hours"
