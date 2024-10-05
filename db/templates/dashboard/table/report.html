@@ -10,7 +10,7 @@
     </head>
     <body>
         <div style="text-align: center;">
-            <h1 style="text-align: left; margin: 0; border-bottom: 1px solid #ddd;">{{ doc_type|upper }}</h1>
+            <h1 style="text-align: left; margin: 0; border-bottom: 1px solid #ddd;">{{ model_name|upper }}</h1>
             <table style="margin: auto;">
                 <tr style="padding: 8px 0;">
                     <td valign="top"
@@ -104,13 +104,7 @@
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.task }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.description }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.hours|floatformat:2|intcomma }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
-                        {% if object.doc_type == "task-order" %}
-                            {{ invoice.user.profile.rate|default:0|currencyfmt:"USD" }}
-                        {% else %}
-                            {{ invoice.project.task.rate|default:0|currencyfmt:"USD" }}
-                        {% endif %}
-                    </td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.project.task.rate|default:0|currencyfmt:"USD" }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
                         {{ invoice.amount|default:0|currencyfmt:"USD" }}
                     </td>

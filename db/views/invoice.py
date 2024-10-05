@@ -90,7 +90,6 @@ class InvoiceCreateView(BaseInvoiceView, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project_id = self.request.GET.get("project_id")
-        doc_type = self.request.GET.get("doc-type")
         now = timezone.now()
 
         # Get month and year
@@ -145,14 +144,6 @@ class InvoiceCreateView(BaseInvoiceView, CreateView):
                 }
             )
 
-        # Update context to include doc_type
-        if doc_type:
-            context["form"].initial.update(
-                {
-                    "doc_type": doc_type,
-                }
-            )
-
         # Update context to include fake text
         subject = None
         if settings.USE_FAKE:
@@ -187,7 +178,7 @@ class InvoiceDetailView(BaseInvoiceView, DetailView):
         invoice = self.get_object()
         contacts = invoice.contacts.all()
         notes = invoice.notes.all()
-        times = invoice.times.all().order_by("-id")
+        times = invoice.times.filter(hours__gte=0).order_by("-id")
         project = invoice.project
         client = invoice.client
         task = invoice.task
@@ -211,8 +202,6 @@ class InvoiceDetailView(BaseInvoiceView, DetailView):
         context["url_email_doc"] = self.url_email_doc
         context["url_email_pdf"] = self.url_email_pdf
         context["url_email_text"] = self.url_email_text
-        if self.object.doc_type in settings.DOC_TYPES:
-            context["doc_type"] = settings.DOC_TYPES[self.object.doc_type]
         context["field_values"].append(
             ("Total", locale.currency(self.object.amount, grouping=True))
         )
@@ -298,8 +287,6 @@ class InvoiceExportDOCView(BaseInvoiceView, View):
         self.template_name = "table/invoice.html"
         context = {}
         context["pdf"] = True
-        doc_type = settings.DOC_TYPES[obj.doc_type]
-        context["doc_type"] = doc_type
         context["object"] = obj
         context["times"] = obj.times.all().order_by("date")
         template = get_template(self.template_name)
@@ -323,7 +310,6 @@ class InvoiceExportPDFView(BaseInvoiceView, View):
         self.template_name = "table/invoice.html"
         context = {}
         context["pdf"] = True
-        context["doc_type"] = settings.DOC_TYPES[obj.doc_type]
         context["object"] = obj
         context["times"] = obj.times.all().order_by("date")
         template = get_template(self.template_name)
@@ -351,8 +337,6 @@ class InvoiceEmailDOCView(BaseInvoiceView, View):
         context["pdf"] = True
         context["object"] = obj
         context["times"] = obj.times.all().order_by("date")
-        doc_type = settings.DOC_TYPES[obj.doc_type]
-        context["doc_type"] = doc_type
         template = get_template(self.template_name)
         html_content = template.render(context)
         subject = obj.subject
@@ -408,7 +392,6 @@ class InvoiceEmailPDFView(BaseInvoiceView, View):
         context["pdf"] = True
         context["object"] = obj
         context["times"] = obj.times.all().order_by("date")
-        context["doc_type"] = settings.DOC_TYPES[obj.doc_type]
         template = get_template(self.template_name)
         html_content = template.render(context)
         pdf_file = io.BytesIO()
@@ -459,8 +442,6 @@ class InvoiceEmailTextView(BaseInvoiceView, View):
         object_id = self.kwargs["object_id"]
         obj = get_object_or_404(self.model, id=object_id)
         subject = obj.subject
-        doc_type = settings.DOC_TYPES[obj.doc_type]
-        text_content = f"{doc_type.upper()}\n\n"
         header = Texttable()
         header.set_deco(Texttable.VLINES)
         header.set_cols_align(["r", "l", "r", "l"])
@@ -522,10 +503,6 @@ class InvoiceEmailTextView(BaseInvoiceView, View):
             if entry.project:
                 if entry.project.task:
                     rate = entry.project.task.rate
-            if obj.doc_type == "task-order":
-                rate = entry.user.profile.rate
-                total["rate"] = rate
-                amount = rate * hours
             total["amount"] += amount
             total["hours"] += hours
             table.add_row(

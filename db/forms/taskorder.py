@@ -24,7 +24,6 @@ class TaskOrderForm(forms.ModelForm):
         self.helper.layout = Div(
             Div(Field("archived"), css_class="col-sm-3"),
             Div(Field("contacts", css_class="form-control"), css_class="col-sm-12"),
-            Div(Field("doc_type", css_class="form-control"), css_class="col-sm-6"),
             Div(
                 Field("subject", css_class="form-control bg-transparent border"),
                 css_class="col-sm-6",
@@ -62,7 +61,6 @@ class TaskOrderForm(forms.ModelForm):
             "project",
             "task",
             "subject",
-            "doc_type",
             "client",
             "company",
             "issue_date",
@@ -100,10 +98,6 @@ class TaskOrderForm(forms.ModelForm):
         widget=forms.DateInput(attrs={"type": "date"}),
         required=False,
         initial=timezone.now,
-    )
-
-    doc_type = forms.CharField(
-        widget=forms.Select(choices=list(settings.DOC_TYPES.items())), required=False
     )
 
     contacts = forms.ModelMultipleChoiceField(

@@ -24,7 +24,6 @@ class InvoiceForm(forms.ModelForm):
         self.helper.layout = Div(
             Div(Field("archived"), css_class="col-sm-3"),
             Div(Field("contacts", css_class="form-control"), css_class="col-sm-12"),
-            Div(Field("doc_type", css_class="form-control"), css_class="col-sm-6"),
             Div(
                 Field("subject", css_class="form-control bg-transparent border"),
                 css_class="col-sm-6",
@@ -39,6 +38,7 @@ class InvoiceForm(forms.ModelForm):
             Div(Field("project", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("task", css_class="form-control"), css_class="col-sm-6"),
             Div(Field("po_number", css_class="form-control"), css_class="col-sm-6"),
+            Div(Field("paid_amount", css_class="form-control"), css_class="col-sm-6"),
             css_class="row mx-1",
         )
 
@@ -62,7 +62,6 @@ class InvoiceForm(forms.ModelForm):
             "project",
             "task",
             "subject",
-            "doc_type",
             "client",
             "company",
             "issue_date",
@@ -71,6 +70,7 @@ class InvoiceForm(forms.ModelForm):
             "due_date",
             "archived",
             "po_number",
+            "paid_amount",
         )
         widgets = {
             "ein": forms.widgets.NumberInput(),
@@ -100,10 +100,6 @@ class InvoiceForm(forms.ModelForm):
         widget=forms.DateInput(attrs={"type": "date"}),
         required=False,
         initial=timezone.now,
-    )
-
-    doc_type = forms.CharField(
-        widget=forms.Select(choices=list(settings.DOC_TYPES.items())), required=False
     )
 
     contacts = forms.ModelMultipleChoiceField(

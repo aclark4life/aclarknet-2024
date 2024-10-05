@@ -60,6 +60,7 @@ def update_invoice(sender, instance, **kwargs):
     instance.amount = 0  # Invoice line item "Amount" and total amount
     instance.cost = 0
     instance.hours = 0
+    instance.paid_amount = 0
     for time in times:
         if not time.project and instance.project:
             time.project = instance.project
@@ -71,21 +72,8 @@ def update_invoice(sender, instance, **kwargs):
             time.client = instance.client
             time.save()
         time.amount = 0
-        if (
-            instance.doc_type != "task-order"
-            and time.task
-            and time.task.rate
-            and time.hours
-        ):
+        if time.hours > 0:
             time.amount = time.task.rate * time.hours
-        elif (
-            instance.doc_type == "task-order"
-            and instance.user
-            and instance.user.profile.rate
-            and time.hours
-        ):
-            time.amount = instance.user.profile.rate * time.hours
-
         instance.amount += time.amount
         if time.hours:
             instance.hours += time.hours
@@ -96,6 +84,8 @@ def update_invoice(sender, instance, **kwargs):
         instance.cost += time.cost
         time.net = time.amount - time.cost
         time.save()
+        if time.hours < 0:
+            instance.paid_amount += time.hours
 
     instance.net = instance.amount - instance.cost
     instance.save(update_fields=["amount", "cost", "hours", "net"])

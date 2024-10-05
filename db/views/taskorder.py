@@ -52,10 +52,10 @@ class TaskOrderListView(BaseTaskOrderView, ListView):
 
 class TaskOrderCreateView(BaseTaskOrderView, CreateView):
     form_model = TaskOrderForm
-    success_url = reverse_lazy("task_view")
+    success_url = reverse_lazy("taskorder_view")
 
     def get_success_url(self):
-        return reverse_lazy("task_view", args=[self.object.pk])
+        return reverse_lazy("taskorder_view", args=[self.object.pk])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -86,7 +86,7 @@ class TaskOrderDetailView(BaseTaskOrderView, DetailView):
 
 class TaskOrderUpdateView(BaseTaskOrderView, UpdateView):
     form_model = TaskOrderForm
-    success_url = reverse_lazy("task_view")
+    success_url = reverse_lazy("taskorder_view")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -98,12 +98,12 @@ class TaskOrderUpdateView(BaseTaskOrderView, UpdateView):
         return queryset.filter(pk=self.kwargs["pk"])
 
     def get_success_url(self):
-        return reverse_lazy("task_view", args=[self.object.pk])
+        return reverse_lazy("taskorder_view", args=[self.object.pk])
 
 
 class TaskOrderDeleteView(BaseTaskOrderView, DeleteView):
     form_model = TaskOrderForm
-    success_url = reverse_lazy("task_index")
+    success_url = reverse_lazy("taskorder_index")
     template_name = "delete.html"
 
     def get_queryset(self):
@@ -112,7 +112,7 @@ class TaskOrderDeleteView(BaseTaskOrderView, DeleteView):
 
 class TaskOrderCopyView(BaseTaskOrderView, CreateView):
     form_model = TaskOrderForm
-    success_url = reverse_lazy("task_index")
+    success_url = reverse_lazy("taskorder_index")
 
     def get_queryset(self):
         return TaskOrder.objects.all()
