@@ -21,6 +21,9 @@ class TimeForm(forms.ModelForm):
             "task",
             "invoice",
             "archived",
+            "amount",
+            "net",
+            "cost",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -71,6 +74,15 @@ class AdminTimeForm(TimeForm):
         )
         layout.append(
             Div(Field("client", css_class="form-control"), css_class="col-sm-4")
+        )
+        layout.append(
+            Div(Field("amount", css_class="form-control"), css_class="col-sm-4")
+        )
+        layout.append(
+            Div(Field("cost", css_class="form-control"), css_class="col-sm-4")
+        )
+        layout.append(
+            Div(Field("net", css_class="form-control"), css_class="col-sm-4")
         )
 
         # Sort choices for user field
