@@ -10,9 +10,9 @@
     </h2>
 {% endblock %}
 {% block dashboard %}
-    {% include 'toolbars/view.html' %}
-    {% include 'table/view.html' %}
+    {% include 'dashboard/toolbars/view.html' %}
+    {% include 'dashboard/table/view.html' %}
     {% if has_related %}
-        {% include 'related.html' %}
+        {% include 'dashboard/related.html' %}
     {% endif %}
 {% endblock %}

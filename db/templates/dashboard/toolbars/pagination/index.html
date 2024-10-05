@@ -3,13 +3,13 @@
         <form class="form">
             <div class="input-group">
                 {% if page_obj.paginator.count > items_per_page %}
-                    {% include 'toolbars/pagination/prev.html' %}
-                    {% include 'toolbars/pagination/next.html' %}
+                    {% include 'dashboard/toolbars/pagination/prev.html' %}
+                    {% include 'dashboard/toolbars/pagination/next.html' %}
                 {% endif %}
                 {% if page_obj.paginator %}
                     {# https://stackoverflow.com/a/7405779/185820 #}
                     {% if field_values_page|length|add:0 >= items_per_page %}
-                        {% include 'toolbars/pagination/perpage.html' %}
+                        {% include 'dashboard/toolbars/pagination/perpage.html' %}
                     {% endif %}
                 {% endif %}
                 {% if page_obj.paginator %}

@@ -11,8 +11,8 @@
 {% endblock %}
 {% block dashboard %}
     {% with items=object_list %}
-        {% include 'toolbars/pagination/index.html' %}
-        {% include 'table/index.html' %}
-        {% include 'toolbars/pagination/index.html' %}
+        {% include 'dashboard/toolbars/pagination/index.html' %}
+        {% include 'dashboard/table/index.html' %}
+        {% include 'dashboard/toolbars/pagination/index.html' %}
     {% endwith %}
 {% endblock %}
