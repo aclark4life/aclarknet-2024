@@ -43,7 +43,7 @@ class BaseProjectView(BaseView, UserPassesTestMixin):
     url_edit = f"{model_name.lower()}_edit"
     url_index = f"{model_name.lower()}_index"
     url_view = f"{model_name.lower()}_view"
-    exclude = ["client", "task", "start_date", "end_date", "team", "description"]
+    exclude = ["client", "start_date", "end_date", "team", "description"]
 
     def test_func(self):
         if self.request.user.is_superuser:

@@ -39,7 +39,6 @@ class BaseTaskView(BaseView, UserPassesTestMixin):
     url_edit = f"{model_name.lower()}_edit"
     url_index = f"{model_name.lower()}_index"
     url_view = f"{model_name.lower()}_view"
-    exclude = ["rate", "unit"]
     order_by = ["archived", "name", "-created"]
 
     def test_func(self):
