@@ -22,9 +22,9 @@
                 {% endif %}
                 {% block dashboard %}
                     {% if request.user.is_superuser %}
-                        {% include 'charts/index.html' %}
+                        {% include 'dashboard/charts/index.html' %}
                     {% endif %}
-                    {% include 'statcards/index.html' %}
+                    {% include 'dashboard/statcards/index.html' %}
                     {% if request.user.is_superuser %}
                         {% include 'dashboard/invoice.html' %}
                     {% endif %}
@@ -45,7 +45,7 @@
     </div>
 </div>
 </div>
-{% include 'modal/lorem.html' %}
-{% include 'modal/hijack.html' %}
-{% include 'modal/fullscreen.html' %}
+{% include 'dashboard/modal/lorem.html' %}
+{% include 'dashboard/modal/hijack.html' %}
+{% include 'dashboard/modal/fullscreen.html' %}
 {% endblock %}
