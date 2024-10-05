@@ -63,6 +63,7 @@ GIT_PUSH = git push
 GIT_PUSH_FORCE = $(GIT_PUSH) --force-with-lease
 GIT_REV = $(shell git rev-parse --short HEAD)
 GIT_STATUS = git status
+MONGODB_MIGRATIONS_DIR := backend/migrations
 PACKAGE_NAME = $(shell echo $(PROJECT_NAME) | sed 's/-/_/g')
 PAGER ?= less
 PIP_DEPS = python -m pipdeptree
@@ -761,12 +762,6 @@ define DJANGO_MANAGE_PY
 import os
 import sys
 
-from dotenv import load_dotenv
-
-
-load_dotenv()
-
-
 def main():
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.dev")
@@ -928,6 +923,29 @@ class ModelFormDemoDetailView(DetailView):
     model = ModelFormDemo
     template_name = "model_form_demo_detail.html"
     context_object_name = "model_form_demo"
+endef
+
+define DJANGO_MONGODB_APPS
+from django.contrib.admin.apps import AdminConfig
+from django.contrib.auth.apps import AuthConfig
+from django.contrib.contenttypes.apps import ContentTypesConfig
+from allauth.account.apps import AccountConfig
+
+
+class MongoAdminConfig(AdminConfig):
+    default_auto_field = "django_mongodb.fields.ObjectIdAutoField"
+
+
+class MongoAuthConfig(AuthConfig):
+    default_auto_field = "django_mongodb.fields.ObjectIdAutoField"
+
+
+class MongoContentTypesConfig(ContentTypesConfig):
+    default_auto_field = "django_mongodb.fields.ObjectIdAutoField"
+
+
+class MongoAccountConfig(AccountConfig):
+    default_auto_field = "django_mongodb.fields.ObjectIdAutoField"
 endef
 
 # ----------------------------------------------------------------
@@ -1336,34 +1354,34 @@ try:
 except ImportError:
     pass
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "{levelname} {asctime} {module} {message}",
-            "style": "{",
-        },
-        "simple": {
-            "format": "{levelname} {message}",
-            "style": "{",
-        },
-    },
-    "handlers": {
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-    },
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         "verbose": {
+#             "format": "{levelname} {asctime} {module} {message}",
+#             "style": "{",
+#         },
+#         "simple": {
+#             "format": "{levelname} {message}",
+#             "style": "{",
+#         },
+#     },
+#     "handlers": {
+#         "console": {
+#             "level": "DEBUG",
+#             "class": "logging.StreamHandler",
+#             "formatter": "verbose",
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["console"],
+#             "level": "DEBUG",
+#             "propagate": True,
+#         },
+#     },
+# }
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -1401,6 +1419,31 @@ endef
 
 define DJANGO_SETTINGS_MODEL_FORM_DEMO
 INSTALLED_APPS.append("model_form_demo")  # noqa
+endef
+
+define DJANGO_SETTINGS_MONGODB
+DATABASES = {
+    'default': {
+	'ENGINE': 'django_mongodb',
+	'NAME': 'test',
+    }
+}
+DJANGO_COMPAT_CHECK_DISABLED = True
+DEFAULT_AUTO_FIELD = "django_mongodb.fields.ObjectIdAutoField"
+MIGRATION_MODULES = {
+    "account": "backend.migrations.account",
+    "admin": "backend.migrations.admin",
+    "auth": "backend.migrations.auth",
+    "contenttypes": "backend.migrations.contenttypes",
+}
+INSTALLED_APPS.remove("allauth.account")
+INSTALLED_APPS.remove("django.contrib.admin")
+INSTALLED_APPS.remove("django.contrib.auth")
+INSTALLED_APPS.remove("django.contrib.contenttypes")
+INSTALLED_APPS.append("backend.apps.MongoAccountConfig")
+INSTALLED_APPS.append("backend.apps.MongoAdminConfig")
+INSTALLED_APPS.append("backend.apps.MongoAuthConfig")
+INSTALLED_APPS.append("backend.apps.MongoContentTypesConfig")
 endef
 
 define DJANGO_SETTINGS_PAYMENTS
@@ -2111,469 +2154,9 @@ flake8
 tox
 endef
 
-define PROGRAMMING_INTERVIEW
-from rich import print as rprint
-from rich.console import Console
-from rich.panel import Panel
-
-import argparse
-import locale
-import math
-import time
-
-import code  # noqa
-import readline  # noqa
-import rlcompleter  # noqa
-
-
-locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
-
-
-class DataStructure:
-    # Data Structure: Binary Tree
-    class TreeNode:
-        def __init__(self, value=0, left=None, right=None):
-            self.value = value
-            self.left = left
-            self.right = right
-
-    # Data Structure: Stack
-    class Stack:
-        def __init__(self):
-            self.items = []
-
-        def push(self, item):
-            self.items.append(item)
-
-        def pop(self):
-            if not self.is_empty():
-                return self.items.pop()
-            return None
-
-        def peek(self):
-            if not self.is_empty():
-                return self.items[-1]
-            return None
-
-        def is_empty(self):
-            return len(self.items) == 0
-
-        def size(self):
-            return len(self.items)
-
-    # Data Structure: Queue
-    class Queue:
-        def __init__(self):
-            self.items = []
-
-        def enqueue(self, item):
-            self.items.append(item)
-
-        def dequeue(self):
-            if not self.is_empty():
-                return self.items.pop(0)
-            return None
-
-        def is_empty(self):
-            return len(self.items) == 0
-
-        def size(self):
-            return len(self.items)
-
-    # Data Structure: Linked List
-    class ListNode:
-        def __init__(self, value=0, next=None):
-            self.value = value
-            self.next = next
-
-
-class Interview(DataStructure):
-
-    # Protected methods for factorial calculation
-    def _factorial_recursive(self, n):
-        if n == 0:
-            return 1
-        return n * self._factorial_recursive(n - 1)
-
-    def _factorial_divide_and_conquer(self, low, high):
-        if low > high:
-            return 1
-        if low == high:
-            return low
-        mid = (low + high) // 2
-        return self._factorial_divide_and_conquer(
-            low, mid
-        ) * self._factorial_divide_and_conquer(mid + 1, high)
-
-    # Recursive Factorial with Timing
-    def factorial_recursive(self, n):
-        start_time = time.time()  # Start timing
-        result = self._factorial_recursive(n)  # Calculate factorial
-        end_time = time.time()  # End timing
-        elapsed_time = end_time - start_time
-        return f"  Factorial: {locale.format_string("%.2f", result, grouping=True)}  Elapsed time: {elapsed_time:.6f}"
-
-    # Iterative Factorial with Timing
-    def factorial_iterative(self, n):
-        start_time = time.time()  # Start timing
-        result = 1
-        for i in range(1, n + 1):
-            result *= i
-        end_time = time.time()  # End timing
-        elapsed_time = end_time - start_time
-        return f"  Factorial: {locale.format_string("%.2f", result, grouping=True)}  Elapsed time: {elapsed_time:.6f}"
-
-    # Divide and Conquer Factorial with Timing
-    def factorial_divide_and_conquer(self, n):
-        start_time = time.time()  # Start timing
-        result = self._factorial_divide_and_conquer(1, n)  # Calculate factorial
-        end_time = time.time()  # End timing
-        elapsed_time = end_time - start_time
-        return f"  Factorial: {locale.format_string("%.2f", result, grouping=True)}  Elapsed time: {elapsed_time:.6f}"
-
-    # Built-in Factorial with Timing
-    def factorial_builtin(self, n):
-        start_time = time.time()  # Start timing
-        result = math.factorial(n)  # Calculate factorial using built-in
-        end_time = time.time()  # End timing
-
-        # Calculate elapsed time
-        elapsed_time = end_time - start_time
-
-        # Print complexity and runtime
-        return f"  Factorial: {locale.format_string("%.2f", result, grouping=True)}  Elapsed time: {elapsed_time:.6f}"
-
-    # Recursion: Fibonacci
-    def fibonacci_recursive(self, n):
-        if n <= 1:
-            return n
-        return self.fibonacci_recursive(n - 1) + self.fibonacci_recursive(n - 2)
-
-    # Iteration: Fibonacci
-    def fibonacci_iterative(self, n):
-        if n <= 1:
-            return n
-        a, b = 0, 1
-        for _ in range(n - 1):
-            a, b = b, a + b
-        return b
-
-    # Searching: Linear Search
-    def linear_search(self, arr, target):
-        for i, value in enumerate(arr):
-            if value == target:
-                return i
-        return -1
-
-    # Searching: Binary Search
-    def binary_search(self, arr, target):
-        left, right = 0, len(arr) - 1
-        while left <= right:
-            mid = (left + right) // 2
-            if arr[mid] == target:
-                return mid
-            elif arr[mid] < target:
-                left = mid + 1
-            else:
-                right = mid - 1
-        return -1
-
-    # Sorting: Bubble Sort
-    def bubble_sort(self, arr):
-        n = len(arr)
-        for i in range(n):
-            for j in range(0, n - i - 1):
-                if arr[j] > arr[j + 1]:
-                    arr[j], arr[j + 1] = arr[j + 1], arr[j]
-        return arr
-
-    # Sorting: Merge Sort
-    def merge_sort(self, arr):
-        if len(arr) > 1:
-            mid = len(arr) // 2
-            left_half = arr[:mid]
-            right_half = arr[mid:]
-
-            self.merge_sort(left_half)
-            self.merge_sort(right_half)
-
-            i = j = k = 0
-
-            while i < len(left_half) and j < len(right_half):
-                if left_half[i] < right_half[j]:
-                    arr[k] = left_half[i]
-                    i += 1
-                else:
-                    arr[k] = right_half[j]
-                    j += 1
-                k += 1
-
-            while i < len(left_half):
-                arr[k] = left_half[i]
-                i += 1
-                k += 1
-
-            while j < len(right_half):
-                arr[k] = right_half[j]
-                j += 1
-                k += 1
-        return arr
-
-    def insert_linked_list(self, head, value):
-        new_node = self.ListNode(value)
-        if not head:
-            return new_node
-        current = head
-        while current.next:
-            current = current.next
-        current.next = new_node
-        return head
-
-    def print_linked_list(self, head):
-        current = head
-        while current:
-            print(current.value, end=" -> ")
-            current = current.next
-        print("None")
-
-    def inorder_traversal(self, root):
-        return (
-            self.inorder_traversal(root.left)
-            + [root.value]
-            + self.inorder_traversal(root.right)
-            if root
-            else []
-        )
-
-    def preorder_traversal(self, root):
-        return (
-            [root.value]
-            + self.preorder_traversal(root.left)
-            + self.preorder_traversal(root.right)
-            if root
-            else []
-        )
-
-    def postorder_traversal(self, root):
-        return (
-            self.postorder_traversal(root.left)
-            + self.postorder_traversal(root.right)
-            + [root.value]
-            if root
-            else []
-        )
-
-    # Graph Algorithms: Depth-First Search
-    def dfs(self, graph, start):
-        visited, stack = set(), [start]
-        while stack:
-            vertex = stack.pop()
-            if vertex not in visited:
-                visited.add(vertex)
-                stack.extend(set(graph[vertex]) - visited)
-        return visited
-
-    # Graph Algorithms: Breadth-First Search
-    def bfs(self, graph, start):
-        visited, queue = set(), [start]
-        while queue:
-            vertex = queue.pop(0)
-            if vertex not in visited:
-                visited.add(vertex)
-                queue.extend(set(graph[vertex]) - visited)
-        return visited
-
-
-def setup_readline(local):
-
-    # Enable tab completion
-    readline.parse_and_bind("tab: complete")
-    # Optionally, you can set the completer function manually
-    readline.set_completer(rlcompleter.Completer(local).complete)
-
-
-def main():
-
-    console = Console()
-    interview = Interview()
-
-    parser = argparse.ArgumentParser(description="Programming Interview Questions")
-
-    parser.add_argument(
-        "-f", "--factorial", type=int, help="Factorial algorithm examples"
-    )
-    parser.add_argument("--fibonacci", type=int, help="Fibonacci algorithm examples")
-    parser.add_argument(
-        "--search", action="store_true", help="Search algorithm examples"
-    )
-    parser.add_argument("--sort", action="store_true", help="Search algorithm examples")
-    parser.add_argument("--stack", action="store_true", help="Stack algorithm examples")
-    parser.add_argument("--queue", action="store_true", help="Queue algorithm examples")
-    parser.add_argument(
-        "--list", action="store_true", help="Linked List algorithm examples"
-    )
-    parser.add_argument(
-        "--tree", action="store_true", help="Tree traversal algorithm examples"
-    )
-    parser.add_argument("--graph", action="store_true", help="Graph algorithm examples")
-    parser.add_argument(
-        "-i", "--interactive", action="store_true", help="Interactive mode"
-    )
-
-    args = parser.parse_args()
-
-    if args.factorial:
-        # Factorial examples
-        console.rule("Factorial Examples")
-        rprint(
-            Panel(
-                "[bold cyan]Recursive Factorial - Time Complexity: O(n)[/bold cyan]\n"
-                + str(interview.factorial_recursive(args.factorial)),
-                title="Factorial Recursive",
-            )
-        )
-        rprint(
-            Panel(
-                "[bold cyan]Iterative Factorial - Time Complexity: O(n)[/bold cyan]\n"
-                + str(interview.factorial_iterative(args.factorial)),
-                title="Factorial Iterative",
-            )
-        )
-        rprint(
-            Panel(
-                "[bold cyan]Built-in Factorial - Time Complexity: O(n)[/bold cyan]\n"
-                + str(interview.factorial_builtin(args.factorial)),
-                title="Factorial Built-in",
-            )
-        )
-        rprint(
-            Panel(
-                "[bold cyan]Divide and Conquer Factorial - Time Complexity: O(n log n)[/bold cyan]\n"
-                + str(interview.factorial_divide_and_conquer(args.factorial)),
-                title="Factorial Divide and Conquer",
-            )
-        )
-        exit()
-
-    if args.fibonacci:
-        # Fibonacci examples
-        console.rule("Fibonacci Examples")
-        rprint(
-            Panel(
-                str(interview.fibonacci_recursive(args.fibonacci)),
-                title="Fibonacci Recursive",
-            )
-        )
-        rprint(
-            Panel(
-                str(interview.fibonacci_iterative(args.fibonacci)),
-                title="Fibonacci Iterative",
-            )
-        )
-        exit()
-
-    if args.search:
-        # Searching examples
-        console.rule("Searching Examples")
-        array = [1, 3, 5, 7, 9]
-        rprint(Panel(str(interview.linear_search(array, 5)), title="Linear Search"))
-        rprint(Panel(str(interview.binary_search(array, 5)), title="Binary Search"))
-        exit()
-
-    if args.sort:
-        # Sorting examples
-        console.rule("Sorting Examples")
-        unsorted_array = [64, 34, 25, 12, 22, 11, 90]
-        rprint(
-            Panel(
-                str(interview.bubble_sort(unsorted_array.copy())), title="Bubble Sort"
-            )
-        )
-        rprint(
-            Panel(str(interview.merge_sort(unsorted_array.copy())), title="Merge Sort")
-        )
-        exit()
-
-    if args.stack:
-        # Stack example
-        console.rule("Stack Example")
-        stack = interview.Stack()
-        stack.push(1)
-        stack.push(2)
-        stack.push(3)
-        rprint(Panel(str(stack.pop()), title="Stack Pop"))
-        rprint(Panel(str(stack.peek()), title="Stack Peek"))
-        rprint(Panel(str(stack.size()), title="Stack Size"))
-
-    if args.queue:
-        # Queue example
-        console.rule("Queue Example")
-        queue = interview.Queue()
-        queue.enqueue(1)
-        queue.enqueue(2)
-        queue.enqueue(3)
-        rprint(Panel(str(queue.dequeue()), title="Queue Dequeue"))
-        rprint(Panel(str(queue.is_empty()), title="Queue Is Empty"))
-        rprint(Panel(str(queue.size()), title="Queue Size"))
-
-    if args.list:
-        # Linked List example
-        console.rule("Linked List Example")
-        head = None
-        head = interview.insert_linked_list(head, 1)
-        head = interview.insert_linked_list(head, 2)
-        head = interview.insert_linked_list(head, 3)
-        interview.print_linked_list(head)  # Output: 1 -> 2 -> 3 -> None
-
-    if args.tree:
-        # Tree Traversal example
-        console.rule("Tree Traversal Example")
-        root = interview.TreeNode(1)
-        root.left = interview.TreeNode(2)
-        root.right = interview.TreeNode(3)
-        root.left.left = interview.TreeNode(4)
-        root.left.right = interview.TreeNode(5)
-        rprint(Panel(str(interview.inorder_traversal(root)), title="Inorder Traversal"))
-        rprint(
-            Panel(str(interview.preorder_traversal(root)), title="Preorder Traversal")
-        )
-        rprint(
-            Panel(str(interview.postorder_traversal(root)), title="Postorder Traversal")
-        )
-
-    if args.graph:
-        # Graph Algorithms example
-        console.rule("Graph Algorithms Example")
-        graph = {
-            "A": ["B", "C"],
-            "B": ["A", "D", "E"],
-            "C": ["A", "F"],
-            "D": ["B"],
-            "E": ["B", "F"],
-            "F": ["C", "E"],
-        }
-        rprint(Panel(str(interview.dfs(graph, "A")), title="DFS"))
-        rprint(Panel(str(interview.bfs(graph, "A")), title="BFS"))
-
-    if args.interactive:
-        # Starting interactive session with tab completion
-        setup_readline(locals())
-        banner = "Interactive programming interview session started. Type 'exit()' or 'Ctrl-D' to exit."
-        code.interact(
-            banner=banner,
-            local=locals(),
-            exitmsg="Great interview!",
-        )
-
-
-if __name__ == "__main__":
-    main()
-
-endef
-
 define PROJECT_CUSTOM
-# Custom Makefile
-# Add your custom makefile commands here
+# Custom Makefile for Project Makefile
+# Add your custom Makefile commands here
 #
 # PROJECT_NAME := my-new-project
 endef
@@ -3273,6 +2856,7 @@ export DJANGO_API_SERIALIZERS \
         DJANGO_MODEL_FORM_DEMO_TEMPLATE_LIST \
         DJANGO_MODEL_FORM_DEMO_URLS \
         DJANGO_MODEL_FORM_DEMO_VIEWS \
+	DJANGO_MONGODB_APPS \
         DJANGO_PAYMENTS_ADMIN \
         DJANGO_PAYMENTS_FORM \
         DJANGO_PAYMENTS_MIGRATION_0002 \
@@ -3298,6 +2882,7 @@ export DJANGO_API_SERIALIZERS \
         DJANGO_SETTINGS_INSTALLED_APPS \
         DJANGO_SETTINGS_MIDDLEWARE \
         DJANGO_SETTINGS_MODEL_FORM_DEMO \
+	DJANGO_SETTINGS_MONGODB \
         DJANGO_SETTINGS_PAYMENTS \
         DJANGO_SETTINGS_PROD \
         DJANGO_SETTINGS_REST_FRAMEWORK \
@@ -3419,19 +3004,23 @@ aws-vol-default: aws-check-env
 aws-vpc-default: aws-check-env
 	aws ec2 describe-vpcs $(AWS_OPTS)
 
-.PHONY: db-import-default
-db-import-default:
+.PHONY: django-db-import-default
+django-db-import-default:
 	@psql $(PACKAGE_NAME) < $(EB_DJANGO_DATABASE_NAME).sql
 
-.PHONY: db-init-default
-db-init-default:
+.PHONY: django-db-init-default
+django-db-init-postgres-default:
 	-dropdb $(PACKAGE_NAME)
 	-createdb $(PACKAGE_NAME)
 
-.PHONY: db-init-mysql-default
-db-init-mysql-default:
+.PHONY: django-db-init-mysql-default
+django-db-init-mysql-default:
 	-mysqladmin -u root drop $(PROJECT_NAME)
 	-mysqladmin -u root create $(PROJECT_NAME)
+
+.PHONY: django-db-init-mongodb-default
+django-db-init-mongodb-default:
+	-mongosh --eval "db.dropDatabase()"
 
 .PHONY: db-init-test-default
 db-init-test-default:
@@ -3528,7 +3117,7 @@ django-home-page-default:
 # --------------------------------------------------------------------------------
 .PHONY: django-init-default
 django-init-default: separator \
-	db-init \
+	django-db-init \
 	django-clean \
 	django-install \
 	django-project \
@@ -3559,7 +3148,6 @@ django-init-default: separator \
 	django-frontend \
 	npm-install-react \
 	npm-install-react-dev \
-	npm-audit-fix \
 	django-migrate \
 	.gitignore \
 	django-su
@@ -3569,7 +3157,7 @@ django-init-default: separator \
 # --------------------------------------------------------------------------------
 .PHONY: django-init-minimal-default
 django-init-minimal-default: separator \
-	db-init \
+	django-db-init \
 	django-clean \
 	django-install-minimal \
 	django-project \
@@ -3596,7 +3184,6 @@ django-init-minimal-default: separator \
 	django-frontend \
 	npm-install-react \
 	npm-install-react-dev \
-	npm-audit-fix \
 	django-migrate \
 	.gitignore \
 	django-su
@@ -3607,7 +3194,7 @@ django-init-minimal-default: separator \
 
 .PHONY: django-init-wagtail-default
 django-init-wagtail-default: separator \
-	db-init \
+	django-db-init \
 	django-clean \
 	django-install \
 	wagtail-install \
@@ -3648,7 +3235,6 @@ django-init-wagtail-default: separator \
 	django-frontend \
 	npm-install-react \
 	npm-install-react-dev \
-	npm-audit-fix \
 	django-migrate \
 	.gitignore \
 	django-su
@@ -3658,6 +3244,7 @@ django-install-default: pip-ensure
 	$(PIP_INSTALL) \
 	Django \
 	Faker \
+	PyMongo \
 	boto3 \
 	build \
 	crispy-bootstrap5 \
@@ -3676,6 +3263,7 @@ django-install-default: pip-ensure
 	django-imagekit \
 	django-import-export \
 	django-ipware \
+	-e git+https://github.com/mongodb-labs/django-mongodb#egg=django-mongodb \
 	django-multiselectfield \
 	django-ninja \
 	django-phonenumber-field \
@@ -3693,6 +3281,7 @@ django-install-default: pip-ensure
 	dj-database-url \
 	dj-rest-auth \
 	dj-stripe \
+	dnspython \
 	docutils \
 	enmerkar \
 	gunicorn \
@@ -3707,7 +3296,6 @@ django-install-default: pip-ensure
 	python-docx \
 	reportlab \
 	texttable \
-	python-dotenv \
 	wheel
 
 .PHONY: django-install-minimal-default
@@ -3724,8 +3312,7 @@ django-install-minimal-default: pip-ensure
 	django-recaptcha \
 	djangorestframework \
 	django-sql-explorer \
-	psycopg2-binary \
-	python-dotenv
+	psycopg2-binary
 
 .PHONY: django-lint-default
 django-lint-default:
@@ -3758,6 +3345,12 @@ django-manage-py-default:
 django-migrate-default:
 	python manage.py migrate
 
+.PHONY: django-migrate-mongodb-default
+django-migrate-mongodb-default:
+	$(ADD_DIR) backend/migrations
+	python manage.py makemigrations account auth admin contenttypes
+	-$(GIT_ADD) $(MONGODB_MIGRATIONS_DIR)/*.py
+
 .PHONY: django-migrations-make-default
 django-migrations-make-default:
 	python manage.py makemigrations
@@ -3784,6 +3377,11 @@ django-model-form-demo-default:
 	python manage.py makemigrations
 	-$(GIT_ADD) model_form_demo/*.py
 	-$(GIT_ADD) model_form_demo/migrations/*.py
+
+.PHONY: django-mongodb-apps-default
+django-mongodb-apps-default:
+	@echo "$$DJANGO_MONGODB_APPS" > $(DJANGO_ADMIN_CUSTOM_APPS_FILE)
+	-$(GIT_ADD) backend/*.py
 
 .PHONY: django-open-default
 django-open-default:
@@ -3872,6 +3470,10 @@ django-settings-directory-default:
 	@$(DEL_FILE) backend/settings.py
 	-$(GIT_ADD) backend/settings/*.py
 
+.PHONY: django-settings-mongodb-default
+django-settings-mongodb-default:
+	@echo "$$DJANGO_SETTINGS_MONGODB" >> $(DJANGO_SETTINGS_BASE_FILE)
+
 .PHONY: django-settings-prod-default
 django-settings-prod-default:
 	@echo "$$DJANGO_SETTINGS_PROD" > $(DJANGO_SETTINGS_PROD_FILE)
@@ -3898,6 +3500,10 @@ django-siteuser-default:
 	-$(GIT_ADD) siteuser/*.py
 	python manage.py makemigrations siteuser
 	-$(GIT_ADD) siteuser/migrations/*.py
+
+.PHONY: django-sqlmigrate-default
+django-sqlmigrate-default:
+	python manage.py sqlmigrate $(app_label) $(migration_name)
 
 .PHONY: django-static-default
 django-static-default:
@@ -4277,7 +3883,7 @@ make-list-targets-deps-default:
 
 .PHONY: npm-audit-fix-default
 npm-audit-fix-default:
-	npm audit fix
+	npm audit fix --force
 
 .PHONY: npm-build-default
 npm-build-default:
@@ -4302,6 +3908,7 @@ npm-install-default:
 # @fortawesome/free-solid-svg-icons \
 .PHONY: npm-install-react-default
 npm-install-react-default:
+	$(DEL_FILE) package-lock.json
 	npm install \
         bootstrap \
         camelize \
@@ -4736,6 +4343,9 @@ db-dump-default: eb-export
 .PHONY: db-export-default
 db-export-default: eb-export
 
+.PHONY: db-init-default
+db-init-default: django-db-init-postgres
+
 .PHONY: dbshell-default
 dbshell-default: django-db-shell
 
@@ -4751,11 +4361,14 @@ deps-default: pip-deps
 .PHONY: dump-default
 dump-default: db-dump
 
+.PHONY: e-default
+e-default: edit
+
 .PHONY: edit-default
 edit-default: readme-edit
 
-.PHONY: e-default
-e-default: edit
+.PHONY: empty-default
+empty-default: git-commit-empty git-push
 
 .PHONY: fp-default
 fp-default: git-push-force
@@ -4832,6 +4445,9 @@ reword-default: git-commit-message-reword git-push
 .PHONY: s-default
 s-default: serve
 
+.PHONY: sdist-default
+sdist-default: python-sdist
+
 .PHONY: serve-default
 serve-default: django-serve
 
@@ -4840,6 +4456,9 @@ shell-default: django-shell
 
 .PHONY: sort-default
 sort-default: git-commit-message-sort git-push
+
+.PHONY: sqlmigrate
+sqlmigrate: django-sqlmigrate
 
 .PHONY: static-default
 static-default: django-static
