@@ -10,3 +10,4 @@ aclarknet.sql
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+.python-version
