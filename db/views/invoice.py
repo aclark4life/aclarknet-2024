@@ -222,9 +222,7 @@ class InvoiceDetailView(BaseInvoiceView, DetailView):
         context["field_values"].append(
             ("Net", locale.currency(self.object.net, grouping=True))
         )
-        context["field_values"].append(
-            ("Hours", self.object.hours)
-        )
+        context["field_values"].append(("Hours", self.object.hours))
         context["field_values"].append(("Company", self.object.company))
         contacts = self.object.contacts.all()
         context["field_values"].append(("Contacts", ""))

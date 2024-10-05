@@ -81,6 +81,10 @@
                            href="{% url 'task_index' %}">Tasks</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link{% if taskorder_nav %} active{% endif %}"
+                           href="{% url 'taskorder_index' %}">Task Orders</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link{% if user_nav %} active{% endif %}"
                            href="{% url 'user_index' %}">Users</a>
                     </li>

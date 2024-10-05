@@ -81,9 +81,7 @@ class AdminTimeForm(TimeForm):
         layout.append(
             Div(Field("cost", css_class="form-control"), css_class="col-sm-4")
         )
-        layout.append(
-            Div(Field("net", css_class="form-control"), css_class="col-sm-4")
-        )
+        layout.append(Div(Field("net", css_class="form-control"), css_class="col-sm-4"))
 
         # Sort choices for user field
         choices = self.fields["user"].choices

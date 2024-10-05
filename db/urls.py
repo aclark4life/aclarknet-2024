@@ -82,6 +82,14 @@ from .views.task import (
     TaskListView,
     TaskUpdateView,
 )
+from .views.taskorder import (
+    TaskOrderCopyView,
+    TaskOrderCreateView,
+    TaskOrderDeleteView,
+    TaskOrderDetailView,
+    TaskOrderListView,
+    TaskOrderUpdateView,
+)
 from .views.time import (
     TimeCopyView,
     TimeCreateView,
@@ -142,6 +150,26 @@ urlpatterns += [
     path("task/<int:pk>/update/", TaskUpdateView.as_view(), name="task_edit"),
     path("task/<int:pk>/delete/", TaskDeleteView.as_view(), name="task_delete"),
     path("task/<int:pk>/copy/", TaskCopyView.as_view(), name="task_copy"),
+]
+
+urlpatterns += [
+    path("taskorder", TaskOrderListView.as_view(), name="taskorder_index"),
+    path("taskorder", TaskOrderListView.as_view(), name="taskorder_cancel"),
+    path("taskorder/create/", TaskOrderCreateView.as_view(), name="taskorder_create"),
+    path("taskorder/<int:pk>/", TaskOrderDetailView.as_view(), name="taskorder_view"),
+    path(
+        "taskorder/<int:pk>/update/",
+        TaskOrderUpdateView.as_view(),
+        name="taskorder_edit",
+    ),
+    path(
+        "taskorder/<int:pk>/delete/",
+        TaskOrderDeleteView.as_view(),
+        name="taskorder_delete",
+    ),
+    path(
+        "taskorder/<int:pk>/copy/", TaskOrderCopyView.as_view(), name="taskorder_copy"
+    ),
 ]
 
 urlpatterns += [

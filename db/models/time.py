@@ -85,34 +85,34 @@ class Time(BaseModel):
 
 class TimeEntry(models.Model):
     user = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
-        related_name='time_entries',
-        limit_choices_to={'is_active': True}  # Example filter for active users
+        User,
+        on_delete=models.CASCADE,
+        related_name="time_entries",
+        limit_choices_to={"is_active": True},  # Example filter for active users
     )
     task = models.ForeignKey(
-        Task, 
-        on_delete=models.CASCADE, 
-        related_name='time_entries',
-        limit_choices_to={'archived': False}  # Example filter for open tasks
+        Task,
+        on_delete=models.CASCADE,
+        related_name="time_entries",
+        limit_choices_to={"archived": False},  # Example filter for open tasks
     )
     invoice = models.ForeignKey(
-        Invoice, 
-        on_delete=models.CASCADE, 
-        related_name='time_entries', 
-        null=True, 
+        Invoice,
+        on_delete=models.CASCADE,
+        related_name="time_entries",
+        null=True,
         blank=True,
-        limit_choices_to={'archived': False}  # Example filter for unpaid invoices
+        limit_choices_to={"archived": False},  # Example filter for unpaid invoices
     )
     hours = models.DecimalField(max_digits=5, decimal_places=2)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
-                  
-    @property                     
+
+    @property
     def total_cost(self):
         return self.hours * self.rate
-                
+
     def __str__(self):
         return f"{self.user.username} - {self.task.name} - {self.hours} hours"
-    
+
     class Meta:
         verbose_name_plural = "Time Entries"

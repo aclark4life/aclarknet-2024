@@ -15,6 +15,7 @@ from .models.note import Note
 from .models.profile import Profile
 from .models.project import Project
 from .models.report import Report
+from .models.taskorder import TaskOrder
 from .models.task import Task
 from .models.testimonial import Testimonial
 from .models.time import Time
@@ -301,9 +302,16 @@ class CustomUserAdmin(UserAdmin):
         "is_superuser",
     )
 
+
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
+
 @admin.register(TimeEntry)
-class TimeAdmin(admin.ModelAdmin):
+class TimeEntryAdmin(admin.ModelAdmin):
+    """ """
+
+
+@admin.register(TaskOrder)
+class TaskOrderAdmin(admin.ModelAdmin):
     """ """

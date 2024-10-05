@@ -6,30 +6,46 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('db', '0151_timeentry'),
+        ("db", "0151_timeentry"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='timeentry',
-            options={'verbose_name_plural': 'Time Entries'},
+            name="timeentry",
+            options={"verbose_name_plural": "Time Entries"},
         ),
         migrations.AlterField(
-            model_name='timeentry',
-            name='invoice',
-            field=models.ForeignKey(blank=True, limit_choices_to={'is_paid': False}, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='time_entries', to='db.invoice'),
+            model_name="timeentry",
+            name="invoice",
+            field=models.ForeignKey(
+                blank=True,
+                limit_choices_to={"is_paid": False},
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="time_entries",
+                to="db.invoice",
+            ),
         ),
         migrations.AlterField(
-            model_name='timeentry',
-            name='task',
-            field=models.ForeignKey(limit_choices_to={'status': 'open'}, on_delete=django.db.models.deletion.CASCADE, related_name='time_entries', to='db.task'),
+            model_name="timeentry",
+            name="task",
+            field=models.ForeignKey(
+                limit_choices_to={"status": "open"},
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="time_entries",
+                to="db.task",
+            ),
         ),
         migrations.AlterField(
-            model_name='timeentry',
-            name='user',
-            field=models.ForeignKey(limit_choices_to={'is_active': True}, on_delete=django.db.models.deletion.CASCADE, related_name='time_entries', to=settings.AUTH_USER_MODEL),
+            model_name="timeentry",
+            name="user",
+            field=models.ForeignKey(
+                limit_choices_to={"is_active": True},
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="time_entries",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]
