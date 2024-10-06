@@ -57,7 +57,7 @@ class DashboardView(BaseView, UserPassesTestMixin, ListView):
 
         invoices = get_queryset(
             Invoice,
-            filter_by={"archived": False, "doc_type": "invoice"},
+            filter_by={"archived": False},
             order_by=["-created"],
         )
 
