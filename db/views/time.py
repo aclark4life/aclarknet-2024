@@ -57,7 +57,7 @@ class BaseTimeView(BaseView, UserPassesTestMixin):
 
         projects = Project.objects.filter(team__in=[self.request.user], archived=False)
         invoices = Invoice.objects.filter(
-            project__in=projects, archived=False, doc_type="invoice"
+            project__in=projects, archived=False
         )
 
         if invoices:
