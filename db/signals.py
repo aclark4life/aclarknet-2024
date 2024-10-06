@@ -62,38 +62,16 @@ def update_invoice(sender, instance, **kwargs):
     instance.hours = 0
     instance.paid_amount = 0
     for time in times:
-        # if not time.project and instance.project:
-        #     time.project = instance.project
-        #     time.save()
-        # if not time.task and instance.project and instance.project.task:
-        #     time.task = instance.project.task
-        #     time.save()
-        # if not time.client and instance.client:
-        #     time.client = instance.client
-        #     time.save()
-        # time.amount = 0
-        # if time.hours > 0:
-        #     time.amount = time.task.rate * time.hours
-        # instance.amount += time.amount
-        # if time.hours:
-        #     instance.hours += time.hours
-        # try:  # Calculate "Income" for invoice
-        #     time.cost = time.user.profile.rate * time.hours
-        # except (AttributeError, TypeError):
-        #     time.cost = 0
-        # instance.cost += time.cost
-        # time.net = time.amount - time.cost
-        # time.save()
-        # if time.hours < 0:
-        #     instance.paid_amount += time.hours
-
         if instance.reset:
             time.amount = 0
             time.cost = 0
             time.net = 0
         else:
             time.amount = time.project.task.rate * time.hours
-            time.cost = time.user.profile.rate * time.hours
+            try:
+                time.cost = time.user.profile.rate * time.hours
+            except (AttributeError, TypeError):
+                time.cost = 0
             time.net = time.amount - time.cost
 
         if time.amount > 0:
