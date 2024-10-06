@@ -194,6 +194,7 @@ class InvoiceDetailView(BaseInvoiceView, DetailView):
         queryset_related = sorted(queryset_related, key=self.get_archived)
         self.queryset_related = queryset_related
         self.has_related = True
+        self.has_preview = True
         context = super().get_context_data(**kwargs)
 
         context["times"] = times

@@ -11,6 +11,9 @@
 {% endblock %}
 {% block dashboard %}
     {% include 'dashboard/toolbars/view.html' %}
+    {% if has_preview %}
+        {% include 'dashboard/preview.html' %}
+    {% endif %}
     {% include 'dashboard/table/view.html' %}
     {% if has_related %}
         {% include 'dashboard/related.html' %}

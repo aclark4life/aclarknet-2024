@@ -31,6 +31,7 @@ class BaseView:
     per_page = settings.PER_PAGE
     queryset_related = []
     has_related = False
+    has_preview = False
     search = False
     dashboard = False
     exclude = ["contacts"]
@@ -80,6 +81,9 @@ class BaseView:
                 context["has_related"] = True
                 queryset = self.queryset_related
                 related = True
+
+        if self.has_preview:
+            context["has_preview"] = True
 
         paginator = Paginator(queryset, per_page)
         if self.paginated:
