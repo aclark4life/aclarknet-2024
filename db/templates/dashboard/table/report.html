@@ -104,7 +104,9 @@
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.task }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.description }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.hours|floatformat:2|intcomma }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ invoice.project.task.rate|default:0|currencyfmt:"USD" }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
+                        {{ invoice.project.task.rate|default:0|currencyfmt:"USD" }}
+                    </td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
                         {{ invoice.amount|default:0|currencyfmt:"USD" }}
                     </td>

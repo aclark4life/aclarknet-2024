@@ -134,19 +134,25 @@
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.task }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.description }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.hours|floatformat:2|intcomma }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.project.task.rate|default:0|currencyfmt:"USD" }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.amount|default:0|currencyfmt:"USD" }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
+                        {{ time_entry.project.task.rate|default:0|currencyfmt:"USD" }}
+                    </td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
+                        {{ time_entry.amount|default:0|currencyfmt:"USD" }}
+                    </td>
                 </tr>
             {% endfor %}
         </table>
         <p style="text-align: right; margin-top: 0; margin-bottom: 0;">
             <strong>Total Amount:</strong> {{ object.amount|default:0|currencyfmt:"USD" }}
         </p>
-        <p style="text-align: right; margin-top: 0; margin-bottom: 0;">
-            <strong>Payment:</strong> <span style="color: red">({{ object.paid_amount|default:0|currencyfmt:"USD" }})</span>
-        </p>
-        <p style="text-align: right; margin-top: 0; margin-bottom: 0;">
-	    <strong>Balance Due:</strong> <span style="color: red">{{ object.balance|default:0|currencyfmt:"USD" }}</span>
-        </p>
+        {% if object.paid_amount %}
+            <p style="text-align: right; margin-top: 0; margin-bottom: 0;">
+                <strong>Payment:</strong> <span style="color: red">({{ object.paid_amount|default:0|currencyfmt:"USD" }})</span>
+            </p>
+            <p style="text-align: right; margin-top: 0; margin-bottom: 0;">
+                <strong>Balance Due:</strong> <span style="color: red">{{ object.balance|default:0|currencyfmt:"USD" }}</span>
+            </p>
+        {% endif %}
     </body>
 </html>

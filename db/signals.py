@@ -62,7 +62,6 @@ def update_invoice(sender, instance, **kwargs):
     instance.hours = 0
     instance.paid_amount = 0
     for time in times:
-
         # if not time.project and instance.project:
         #     time.project = instance.project
         #     time.save()
@@ -92,7 +91,7 @@ def update_invoice(sender, instance, **kwargs):
             time.amount = 0
             time.cost = 0
             time.net = 0
-        else: 
+        else:
             time.amount = time.project.task.rate * time.hours
             time.cost = time.user.profile.rate * time.hours
             time.net = time.amount - time.cost
@@ -112,7 +111,9 @@ def update_invoice(sender, instance, **kwargs):
 
     instance.balance = instance.amount - instance.paid_amount
 
-    instance.save(update_fields=["amount", "cost", "hours", "net", "paid_amount", "balance"])
+    instance.save(
+        update_fields=["amount", "cost", "hours", "net", "paid_amount", "balance"]
+    )
 
     # Reconnect the signal after updating the invoice
     post_save.connect(update_invoice_on_time_save, sender=Time)
