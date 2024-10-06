@@ -57,10 +57,10 @@ def update_invoice(sender, instance, **kwargs):
     post_save.disconnect(update_invoice_on_time_save, sender=Time)
 
     times = Time.objects.filter(invoice=instance)
-    instance.amount = 0  # Invoice line item "Amount" and total amount
+    instance.amount = 0
+    instance.net = 0
     instance.cost = 0
     instance.hours = 0
-    instance.paid_amount = 0
     for time in times:
         if instance.reset:
             time.amount = 0
@@ -77,22 +77,16 @@ def update_invoice(sender, instance, **kwargs):
         if time.amount > 0:
             instance.amount += time.amount
 
-        if time.amount < 0:
-            instance.paid_amount += time.amount
-
         instance.cost += time.cost
 
         instance.save()
         time.save()
 
     instance.net = instance.amount - instance.cost
-
-    instance.paid_amount = instance.paid_amount.__neg__()
-
     instance.balance = instance.amount - instance.paid_amount
 
     instance.save(
-        update_fields=["amount", "cost", "hours", "net", "paid_amount", "balance"]
+        update_fields=["amount", "balance", "cost", "hours", "net", "paid_amount"]
     )
 
     # Reconnect the signal after updating the invoice
