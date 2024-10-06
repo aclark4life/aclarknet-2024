@@ -58,6 +58,7 @@ def update_invoice(sender, instance, **kwargs):
 
     times = Time.objects.filter(invoice=instance)
     instance.amount = 0
+    instance.balance = 0
     instance.net = 0
     instance.cost = 0
     instance.hours = 0
@@ -83,7 +84,8 @@ def update_invoice(sender, instance, **kwargs):
         time.save()
 
     instance.net = instance.amount - instance.cost
-    instance.balance = instance.amount - instance.paid_amount
+    if instance.paid_amount:
+        instance.balance = instance.amount - instance.paid_amount
 
     instance.save(
         update_fields=["amount", "balance", "cost", "hours", "net", "paid_amount"]
