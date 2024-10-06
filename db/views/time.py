@@ -63,7 +63,7 @@ class BaseTimeView(BaseView, UserPassesTestMixin):
         if invoices:
             form.fields["invoice"].empty_label = None
 
-        # form.fields["invoice"].queryset = invoices
+        form.fields["invoice"].queryset = invoices
 
         if self.request.user.is_superuser:
             project = projects.first()
