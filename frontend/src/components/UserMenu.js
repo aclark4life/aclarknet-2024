@@ -19,6 +19,7 @@ const UserMenu = ({ isAuthenticated, isSuperuser }) => {
           <ul className="dropdown-menu">
             <li><a className="dropdown-item" href="/dashboard">Overview</a></li>
             <li><a className="dropdown-item" href="/user/profile">Profile</a></li>
+            <li><a className="dropdown-item" href="/dashboard/user">Users</a></li>
             <li><a className="dropdown-item" href="/dashboard/time/create/">Add Time</a></li>
             {isSuperuser ? (
               <>

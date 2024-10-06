@@ -74,6 +74,8 @@ class Invoice(BaseModel):
     )
     contacts = models.ManyToManyField("Contact", blank=True)
 
+    reset = models.BooleanField(default=False)
+
     def get_absolute_url(self):
         return reverse("invoice_view", args=[str(self.id)])
 

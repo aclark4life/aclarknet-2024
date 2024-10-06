@@ -135,7 +135,7 @@
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.description }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.hours|floatformat:2|intcomma }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.project.task.rate|default:0|currencyfmt:"USD" }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.cost|default:0|currencyfmt:"USD" }}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{{ time_entry.amount|default:0|currencyfmt:"USD" }}</td>
                 </tr>
             {% endfor %}
         </table>

@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('db', '0153_taskorder_alter_timeentry_invoice_and_more'),
+        ("db", "0153_taskorder_alter_timeentry_invoice_and_more"),
     ]
 
     operations = [
         migrations.AlterModelTable(
-            name='taskorder',
-            table='taskorder',
+            name="taskorder",
+            table="taskorder",
         ),
     ]
