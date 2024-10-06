@@ -75,13 +75,13 @@ def update_invoice(sender, instance, **kwargs):
             time.amount = time.project.task.rate * time.hours
             time.net = time.amount - time.cost
 
-        if time.amount > 0:
-            instance.amount += time.amount
+        time.save()
 
+        instance.amount += time.amount
         instance.cost += time.cost
+        instance.hours += time.hours
 
         instance.save()
-        time.save()
 
     instance.net = instance.amount - instance.cost
     if instance.paid_amount:
