@@ -220,6 +220,9 @@ class InvoiceDetailView(BaseInvoiceView, DetailView):
         if contacts:
             for contact in contacts:
                 context["field_values"].append(("↳", contact))
+
+        context["preview_template"] = "dashboard/table/invoice.html"
+
         return context
 
 
