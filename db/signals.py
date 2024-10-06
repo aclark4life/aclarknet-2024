@@ -67,11 +67,11 @@ def update_invoice(sender, instance, **kwargs):
             time.cost = 0
             time.net = 0
         else:
-            time.amount = time.project.task.rate * time.hours
             try:
                 time.cost = time.user.profile.rate * time.hours
             except (AttributeError, TypeError):
                 time.cost = 0
+            time.amount = time.project.task.rate * time.hours
             time.net = time.amount - time.cost
 
         if time.amount > 0:
@@ -79,6 +79,8 @@ def update_invoice(sender, instance, **kwargs):
 
         if time.amount < 0:
             instance.paid_amount += time.amount
+
+        instance.cost += time.cost
 
         instance.save()
         time.save()
