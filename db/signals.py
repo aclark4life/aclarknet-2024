@@ -62,6 +62,7 @@ def update_invoice(sender, instance, **kwargs):
     instance.hours = 0
     instance.paid_amount = 0
     for time in times:
+
         # if not time.project and instance.project:
         #     time.project = instance.project
         #     time.save()
@@ -96,10 +97,23 @@ def update_invoice(sender, instance, **kwargs):
             time.cost = time.user.profile.rate * time.hours
             time.net = time.amount - time.cost
 
+        if time.amount > 0:
+            instance.amount += time.amount
+
+        if time.amount < 0:
+            instance.paid_amount += time.amount
+
+        instance.save()
         time.save()
 
     instance.net = instance.amount - instance.cost
-    instance.save(update_fields=["amount", "cost", "hours", "net"])
+
+    instance.paid_amount = instance.paid_amount.__neg__()
+
+    instance.balance = instance.amount - instance.paid_amount
+
+    instance.save(update_fields=["amount", "cost", "hours", "net", "paid_amount", "balance"])
+
     # Reconnect the signal after updating the invoice
     post_save.connect(update_invoice_on_time_save, sender=Time)
     delattr(instance, "_updating")
