@@ -80,9 +80,14 @@ def update_invoice(sender, instance, **kwargs):
 
         time.save()
 
-        instance.amount += time.amount
-        instance.cost += time.cost
-        instance.hours += time.hours
+        if time.amount:
+            instance.amount += time.amount
+
+        if time.cost:
+            instance.cost += time.cost
+
+        if time.hours:
+            instance.hours += time.hours
 
         instance.save()
 
