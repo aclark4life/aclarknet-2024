@@ -56,12 +56,12 @@ class BaseTimeView(BaseView, UserPassesTestMixin):
         form = super().get_form(form_class)
 
         projects = Project.objects.filter(team__in=[self.request.user], archived=False)
-        invoices = Invoice.objects.filter(project__in=projects, archived=False)
 
-        if invoices:
-            form.fields["invoice"].empty_label = None
-
-        form.fields["invoice"].queryset = invoices
+        if not self.request.user.is_superuser:
+            invoices = Invoice.objects.filter(project__in=projects, archived=False)
+            if invoices:
+                form.fields["invoice"].empty_label = None
+                form.fields["invoice"].queryset = invoices
 
         if self.request.user.is_superuser:
             project = projects.first()
