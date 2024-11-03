@@ -6,7 +6,7 @@ from django.shortcuts import reverse
 
 class Profile(BaseModel):
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True
+        settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE
     )
     page_size = models.PositiveIntegerField(blank=True, null=True)
     user_theme_preference = models.CharField(
