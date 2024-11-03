@@ -62,6 +62,10 @@ class BaseTimeView(BaseView, UserPassesTestMixin):
             if invoices:
                 form.fields["invoice"].empty_label = None
                 form.fields["invoice"].queryset = invoices
+            else:
+                form.fields["invoice"].queryset = Invoice.objects.none()
+            form.fields["user"].empty_label = None
+            form.fields["user"].queryset = User.objects.filter(pk=self.request.user.id)
 
         if self.request.user.is_superuser:
             project = projects.first()
@@ -77,10 +81,6 @@ class BaseTimeView(BaseView, UserPassesTestMixin):
                 form.fields["client"].queryset = Client.objects.filter(
                     project__in=projects,
                 )
-
-        if not self.request.user.is_superuser:
-            form.fields["user"].empty_label = None
-            form.fields["user"].queryset = User.objects.filter(pk=self.request.user.id)
 
         return form
 
