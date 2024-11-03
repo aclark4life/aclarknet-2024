@@ -78,9 +78,9 @@ class BaseTimeView(BaseView, UserPassesTestMixin):
                     project__in=projects,
                 )
 
-        form.fields["user"].empty_label = None
-
-        # form.fields["user"].queryset = User.objects.filter(pk=self.request.user.id)
+        if not self.request.user.is_superuser:
+            form.fields["user"].empty_label = None
+            form.fields["user"].queryset = User.objects.filter(pk=self.request.user.id)
 
         return form
 

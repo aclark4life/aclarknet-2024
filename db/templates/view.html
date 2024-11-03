@@ -15,7 +15,7 @@
         {% include 'dashboard/preview.html' %}
     {% endif %}
     {% include 'dashboard/table/view.html' %}
-    {% if has_related %}
+    {% if has_related and user.is_superuser %}
         {% include 'dashboard/related.html' %}
     {% endif %}
 {% endblock %}
