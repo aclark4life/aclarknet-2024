@@ -32,14 +32,15 @@
                                     {% if request.user.is_superuser %}
                                         {% if model_name == "user" %}
                                             {% with object_user_first_name=field_values.4.1 object_user_last_name=field_values.5.1 object_user_username=field_values.3.1 %}
-                                                <td class="text-start" onclick="event.stopPropagation();">
-                                                    <div data-bs-toggle="modal"
+                                                <td class="text-start ps-4" onclick="event.stopPropagation();">
+                                                    <div class="btn btn-sm btn-outline-dark" data-bs-toggle="modal"
                                                          data-bs-target="#hijackModal"
+                                                         data-tooltip="tooltip" title="Hijack"
                                                          data-userid="{{ object_id }}"
                                                          data-firstname="{{ object_user_first_name }}"
                                                          data-lastname="{{ object_user_last_name }}"
                                                          data-username="{{ object_user_username }}">
-                                                        hijack
+                                                        <i class="fa-solid fa-mask"></i>
                                                     </div>
                                                 </td>
                                             {% endwith %}
