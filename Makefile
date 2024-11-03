@@ -23,7 +23,7 @@ endef
 
 export EB_DJANGO_DATABASE
 
-eb-db-export:
+pg-dump:
 	if [ ! -d $(EB_DIR_NAME) ]; then \
         echo "Directory $(EB_DIR_NAME) does not exist"; \
         else \
