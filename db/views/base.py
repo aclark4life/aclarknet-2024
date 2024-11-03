@@ -152,8 +152,7 @@ class BaseView:
                 field_values = [
                     (field_name, getattr(self.object, field_name))
                     for field_name in object_fields
-                    if field_name not in self.exclude
-                    and self.request.user.is_superuser()
+                    if field_name not in self.exclude and self.request.user.is_superuser
                 ]
             except AttributeError:
                 field_values = []
