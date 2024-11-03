@@ -24,7 +24,7 @@ endef
 export EB_DJANGO_DATABASE
 
 pg-dump:
-	if [ ! -d $(EB_DIR_NAME) ]; then \
+	@if [ ! -d $(EB_DIR_NAME) ]; then \
         echo "Directory $(EB_DIR_NAME) does not exist"; \
         else \
         echo "Found $(EB_DIR_NAME) directory"; \
