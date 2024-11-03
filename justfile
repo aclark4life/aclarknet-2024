@@ -1,6 +1,9 @@
 default:
     just -l
 
+d:
+    eb deploy
+
 e:
     nvim justfile
 
