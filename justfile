@@ -4,6 +4,9 @@ default:
 e:
     nvim justfile
 
+em:
+    nvim Makefile
+
 fix-lounge:
 	eb ssh -c "sudo rm -rvf /var/app/current/lounge/node_modules"
 	eb ssh -c "cd /var/app/current/lounge; sudo npm install"
