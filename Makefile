@@ -18,7 +18,16 @@ EC2_INSTANCE_TYPE ?= t4g.small
 EC2_LB_TYPE ?= application
 
 define EB_DJANGO_DATABASE
-    $(shell echo $(EB_DJANGO_DATABASE_URL) | python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["$1"])')
+$(shell echo $(EB_DJANGO_DATABASE_URL) | python -c 'import dj_database_url; url = input(); url = dj_database_url.parse(url); print(url["$1"])')
 endef
 
 export EB_DJANGO_DATABASE
+
+eb-db-export:
+	if [ ! -d $(EB_DIR_NAME) ]; then \
+        echo "Directory $(EB_DIR_NAME) does not exist"; \
+        else \
+        echo "Found $(EB_DIR_NAME) directory"; \
+        eb ssh --quiet -c "export PGPASSWORD=$(EB_DJANGO_DATABASE_PASS); pg_dump -U $(EB_DJANGO_DATABASE_USER) -h $(EB_DJANGO_DATABASE_HOST) $(EB_DJANGO_DATABASE_NAME)" > $(EB_DJANGO_DATABASE_NAME).sql; \
+        echo "Wrote $(EB_DJANGO_DATABASE_NAME).sql"; \
+	fi
