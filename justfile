@@ -1,5 +1,8 @@
 default:
-    echo 'Hello, world!'
+    just -l
+
+e:
+    nvim justfile
 
 fix-lounge:
 	eb ssh -c "sudo rm -rvf /var/app/current/lounge/node_modules"
