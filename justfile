@@ -7,8 +7,8 @@ e:
 em:
     nvim Makefile
 
-m target: 
-    make {{ target }}
+pg-dump:
+    make pg-dump
 
 fix-lounge:
 	eb ssh -c "sudo rm -rvf /var/app/current/lounge/node_modules"
