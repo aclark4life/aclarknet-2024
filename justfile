@@ -4,6 +4,8 @@ default:
 e:
     nvim justfile
 
+l: default
+
 em:
     nvim Makefile
 
