@@ -1,16 +1,5 @@
-default:
-    just -l
-
 d:
     eb deploy
-
-e:
-    nvim justfile
-
-l: default
-
-em:
-    nvim Makefile
 
 pg-dump:
     make pg-dump
