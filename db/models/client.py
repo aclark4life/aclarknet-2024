@@ -12,6 +12,7 @@ class Client(BaseModel):
     url = models.URLField("Website", blank=True, null=True)
     publish = models.BooleanField(default=False)
     link = models.BooleanField(default=False)
+    email = models.EmailField(blank=True, null=True, default="aclark@aclark.net")
 
     # https://stackoverflow.com/a/6062320/185820
     class Meta:
