@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "thelounge": "^4.4.3"
+    "thelounge": "^4.4.1"
   },
   "scripts": {
     "start": "node_modules/.bin/thelounge start"
